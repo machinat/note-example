@@ -1,46 +1,71 @@
-import { publish } from 'rxjs/operators';
-import { filterAsync } from 'rx-machinat/operators';
-
-const isText = ({ event: { type, subtype } }) =>
-  type === 'message' && subtype === 'text';
+import { MessengerChannel } from '@machinat/messenger';
+import { LineChannel } from '@machinat/line';
+import { publish, map as _map } from 'rxjs/operators';
+import { inject } from 'rx-machinat';
+import filter from 'rx-machinat/operators/filter';
+import {
+  handleSocketConnect,
+  handleAddNote,
+  handleDeleteNote,
+  handleUpdateNote,
+} from './subscribers';
 
 const main = events$ => {
   const chatroom$ = events$.pipe(
-    filterAsync(
-      ({ platform }) => platform === 'line' || platform === 'messenger'
-    )
+    filter(({ platform }) => platform === 'line' || platform === 'messenger')
   );
 
   chatroom$
-    .pipe(filterAsync(isText))
+    .pipe(
+      filter(
+        ({ event: { type, subtype } }) =>
+          type === 'message' && subtype === 'text'
+      )
+    )
     .subscribe(({ value: { bot, event, channel } }) => {
       bot.render(channel, event.text);
     });
 
-  const gameroom$ = events$.pipe(
-    filterAsync(({ platform }) => platform === 'websocket'),
+  const wallView$ = events$.pipe(
+    filter(({ platform }) => platform === 'websocket'),
+    _map(({ value: ctx, scope }) => {
+      const { channel: connection, user, metadata } = ctx;
+      const { platform: authPlatform, sourceChannel } = metadata.auth;
+
+      const wallChannel =
+        sourceChannel ||
+        (authPlatform === 'messenger'
+          ? MessengerChannel.fromUser(user)
+          : LineChannel.fromUser(user));
+
+      return {
+        value: {
+          ...ctx,
+          platform: authPlatform,
+          channel: wallChannel,
+          connection,
+        },
+        key: wallChannel.uid,
+        scope: scope.duplicate(authPlatform),
+      };
+    }),
     publish()
   );
 
-  gameroom$
-    .pipe(filterAsync(({ event }) => event.type === 'connect'))
-    .subscribe(ctx => {
-      console.log(ctx);
-    });
+  wallView$
+    .pipe(filter(({ event }) => event.type === 'connect'))
+    .subscribe(inject(handleSocketConnect));
+  wallView$
+    .pipe(filter(({ event }) => event.type === 'add_note'))
+    .subscribe(inject(handleAddNote));
+  wallView$
+    .pipe(filter(({ event }) => event.type === 'delete_note'))
+    .subscribe(inject(handleDeleteNote));
+  wallView$
+    .pipe(filter(({ event }) => event.type === 'update_note'))
+    .subscribe(inject(handleUpdateNote));
 
-  gameroom$
-    .pipe(filterAsync(({ event }) => event.type === 'query'))
-    .subscribe(ctx => {
-      console.log(ctx);
-    });
-
-  gameroom$
-    .pipe(filterAsync(({ event }) => event.type === 'action'))
-    .subscribe(ctx => {
-      console.log(ctx);
-    });
-
-  gameroom$.connect();
+  wallView$.connect();
 };
 
 export default main;
