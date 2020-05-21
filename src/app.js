@@ -13,6 +13,7 @@ import LineAssetManager from '@machinat/line/asset';
 
 import Auth from '@machinat/auth';
 import FileState from '@machinat/state/file';
+import YAML from 'yaml';
 import Next from '@machinat/next';
 import WebSocket from '@machinat/websocket';
 import useAuthController from '@machinat/websocket/auth';
@@ -100,6 +101,8 @@ const app = Machinat.createApp({
     { provide: Auth.AUTHORIZERS_I, withProvider: MessengerAuthorizer },
 
     { provide: WebSocket.LOGIN_VERIFIER_I, withProvider: useAuthController },
+
+    { provide: FileState.SerializerI, withValue: YAML },
   ],
 });
 

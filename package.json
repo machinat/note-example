@@ -25,11 +25,11 @@
     "@machinat/auth": "0.2.0-alpha.7",
     "@machinat/core": "0.2.0-alpha.10",
     "@machinat/http": "0.2.0-alpha.5",
-    "@machinat/line": "0.2.0-alpha.10",
-    "@machinat/messenger": "0.2.0-alpha.10",
+    "@machinat/line": "0.2.0-alpha.11",
+    "@machinat/messenger": "0.2.0-alpha.11",
     "@machinat/next": "0.2.0-alpha.2",
     "@machinat/script": "0.2.0-alpha.2",
-    "@machinat/state": "0.2.0-alpha.10",
+    "@machinat/state": "0.2.0-alpha.11",
     "@machinat/websocket": "0.2.0-alpha.9",
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
@@ -45,7 +45,8 @@
     "rxjs": "^6.5.2",
     "styled-components": "^4.3.2",
     "symbol-observable": "^1.2.0",
-    "umzug": "^2.2.0"
+    "umzug": "^2.2.0",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
