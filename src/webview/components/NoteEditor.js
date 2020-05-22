@@ -92,6 +92,10 @@ const SUPPORTED_BLOCK_TYPE = [
   { type: 'unordered-list-item', iconComonent: FormatListBulletedIcon },
 ];
 
+const scrollWindowToTop = () => {
+  window.scrollTo(0, 0);
+};
+
 const NoteEditor = ({ note, handleFinish }) => {
   // dialog styles
   const classes = useStyles();
@@ -166,19 +170,21 @@ const NoteEditor = ({ note, handleFinish }) => {
       // wait for keyboard popup
       setTimeout(() => {
         const {
-          innerHeight,
+          outerHeight,
           visualViewport: { height: viewportHeight },
         } = window;
 
         setIOSKeyboardAdjestments({
           height: `${viewportHeight}px`,
-          'margin-bottom': `${innerHeight - viewportHeight}px`,
+          'padding-bottom': `${outerHeight - viewportHeight}px`,
+          'touch-action': 'none',
         });
-        window.scrollTo(0, 0);
-      }, 330);
+        window.addEventListener('scroll', scrollWindowToTop);
+      }, 400);
     } else if (iosKeyboardAdjustment) {
       setIOSKeyboardAdjestments(null);
       window.scrollTo(0, 0);
+      window.removeEventListener('scroll', scrollWindowToTop);
     }
   }, [isInputFocus]);
 
