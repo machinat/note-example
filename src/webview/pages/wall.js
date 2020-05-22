@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -168,40 +169,55 @@ const Wall = ({ client }) => {
     [appData?.notes, lowerCasedSearch]
   );
 
+  const spaceType = appData?.spaceType;
   return (
-    <div className={classes.root}>
-      <Box className={classes.frame}>
-        <NavBar
-          appData={appData}
-          handleAddNote={handleAddNote}
-          searchText={searchText}
-          handleSearchChange={setSearchText}
-        />
+    <>
+      <Head>
+        <title>
+          {spaceType === 'own'
+            ? 'Your Own Wall'
+            : spaceType === 'chat'
+            ? 'Private Chat Wall'
+            : spaceType === 'group'
+            ? 'Group Chat Wall'
+            : 'Wall Machina'}
+        </title>
+      </Head>
 
-        {!appData ? (
-          <div className={classes.progressRoot}>
-            <CircularProgress color="secondary" size="4em" />
-          </div>
-        ) : notesToShow.length > 0 ? (
-          <Container className={classes.notesColumns}>
-            {notesToShow.map(note => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                handleDelete={deleteNote.bind(null, note)}
-                handleEdit={editNote.bind(null, note)}
-              />
-            ))}
-          </Container>
-        ) : (
-          <div className={classes.emptyHint}>
-            You don't have any note yet, press <CreateIcon /> to create one!
-          </div>
-        )}
-      </Box>
+      <div className={classes.root}>
+        <Box className={classes.frame}>
+          <NavBar
+            appData={appData}
+            handleAddNote={handleAddNote}
+            searchText={searchText}
+            handleSearchChange={setSearchText}
+          />
 
-      <NoteEditor note={editingNote} handleFinish={handleEditorFinish} />
-    </div>
+          {!appData ? (
+            <div className={classes.progressRoot}>
+              <CircularProgress color="secondary" size="4em" />
+            </div>
+          ) : notesToShow.length > 0 ? (
+            <Container className={classes.notesColumns}>
+              {notesToShow.map(note => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  handleDelete={deleteNote.bind(null, note)}
+                  handleEdit={editNote.bind(null, note)}
+                />
+              ))}
+            </Container>
+          ) : (
+            <div className={classes.emptyHint}>
+              You don't have any note yet, press <CreateIcon /> to create one!
+            </div>
+          )}
+        </Box>
+
+        <NoteEditor note={editingNote} handleFinish={handleEditorFinish} />
+      </div>
+    </>
   );
 };
 
