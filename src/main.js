@@ -1,3 +1,4 @@
+import Machinat from '@machinat/core';
 import { MessengerChannel } from '@machinat/messenger';
 import { LineChannel } from '@machinat/line';
 import { publish, map as _map } from 'rxjs/operators';
@@ -9,6 +10,7 @@ import {
   handleDeleteNote,
   handleUpdateNote,
 } from './subscribers';
+import WebviewLink from './components/WebviewLink';
 
 const main = events$ => {
   const chatroom$ = events$.pipe(
@@ -22,8 +24,8 @@ const main = events$ => {
           type === 'message' && subtype === 'text'
       )
     )
-    .subscribe(({ value: { bot, event, channel } }) => {
-      bot.render(channel, event.text);
+    .subscribe(({ value: { bot, channel } }) => {
+      bot.render(channel, <WebviewLink />);
     });
 
   const wallView$ = events$.pipe(

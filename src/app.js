@@ -18,19 +18,26 @@ import Next from '@machinat/next';
 import WebSocket from '@machinat/websocket';
 import useAuthController from '@machinat/websocket/auth';
 
+import {
+  ENTRY_URL_I,
+  FB_PAGE_NAME_I,
+  LINE_OFFICIAL_ACCOUNT_ID_I,
+} from './interface';
 import nextConfig from './webview/next.config.js';
 
 const {
   PORT,
-  ORIGINS,
   NODE_ENV,
+  ENTRY_URL,
+  ORIGINS,
   AUTH_SECRET,
   MESSENGER_PAGE_ID,
   MESSENGER_ACCESS_TOKEN,
   MESSENGER_APP_SECRET,
   MESSENGER_VERIFY_TOKEN,
   LINE_PROVIDER_ID,
-  LINE_CHANNEL_ID,
+  LINE_BOT_CHANNEL_ID,
+  LINE_OFFICIAL_ACCOUNT_ID,
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
   LINE_LIFF_ID,
@@ -79,7 +86,7 @@ const app = Machinat.createApp({
     Line.initModule({
       webhookPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID,
-      botChannelId: LINE_CHANNEL_ID,
+      botChannelId: LINE_BOT_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
       channelSecret: LINE_CHANNEL_SECRET,
       liffChannelIds: [LINE_LIFF_ID.split('-')[0]],
@@ -103,6 +110,13 @@ const app = Machinat.createApp({
     { provide: WebSocket.LOGIN_VERIFIER_I, withProvider: useAuthController },
 
     { provide: FileState.SerializerI, withValue: YAML },
+
+    { provide: ENTRY_URL_I, withValue: ENTRY_URL },
+    { provide: FB_PAGE_NAME_I, withValue: MESSENGER_PAGE_ID },
+    {
+      provide: LINE_OFFICIAL_ACCOUNT_ID_I,
+      withValue: LINE_OFFICIAL_ACCOUNT_ID,
+    },
   ],
 });
 
