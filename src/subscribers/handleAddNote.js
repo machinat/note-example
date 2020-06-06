@@ -1,7 +1,7 @@
 import { container } from '@machinat/core/service';
 import WebSocket from '@machinat/websocket';
 import Base from '@machinat/core/base';
-import { WALL_DATA_KEY } from '../constant';
+import { NOTE_SPACE_DATA_KEY } from '../constant';
 
 const handleAddNote = container({
   deps: [WebSocket.Bot, Base.StateControllerI],
@@ -11,7 +11,7 @@ const handleAddNote = container({
 
   await stateController
     .channelState(channel)
-    .set(WALL_DATA_KEY, currentState => {
+    .set(NOTE_SPACE_DATA_KEY, currentState => {
       if (!currentState) {
         id = 1;
         return { idCounter: 1, notes: [{ id: 1, title, content }] };

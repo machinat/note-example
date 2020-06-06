@@ -18,8 +18,8 @@ export const up = async app => {
         call_to_actions: [
           {
             type: 'web_url',
-            title: 'Open my wall',
-            url: 'https://proxy.machinat.com/webview/wall?platform=messenger',
+            title: 'My Space',
+            url: 'https://proxy.machinat.com/webview/note?platform=messenger',
             webview_height_ratio: 'full',
             messenger_extensions: true,
           },
@@ -32,6 +32,6 @@ export const up = async app => {
 export const down = async app => {
   const [messengerBot] = app.useServices([Messenger.Bot]);
   await messengerBot.dispatchAPICall('DELETE', 'me/messenger_profile', {
-    fields: ['whitelisted_domains'],
+    fields: ['whitelisted_domains', 'get_started', 'persistent_menu'],
   });
 };

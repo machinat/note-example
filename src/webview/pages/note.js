@@ -52,7 +52,7 @@ const convertNoteFromRaw = rawNote => {
   };
 };
 
-const wallAppReducer = (data, event) => {
+const noteAppReducer = (data, event) => {
   if (event.type === 'app_data') {
     const { notes, ...restData } = event.payload;
     return {
@@ -105,11 +105,11 @@ const wallAppReducer = (data, event) => {
   return data;
 };
 
-const Wall = ({ client }) => {
+const NoteSpace = ({ client }) => {
   const classes = useStyles();
 
   // data reducer
-  const [appData, dispatch] = React.useReducer(wallAppReducer, null);
+  const [appData, dispatch] = React.useReducer(noteAppReducer, null);
   React.useEffect(() => {
     if (client) {
       client.onEvent(event => {
@@ -175,12 +175,12 @@ const Wall = ({ client }) => {
       <Head>
         <title>
           {spaceType === 'own'
-            ? 'Your Own Wall'
+            ? 'Your Own Space'
             : spaceType === 'chat'
-            ? 'Private Chat Wall'
+            ? 'Private Chat Space'
             : spaceType === 'group'
-            ? 'Group Chat Wall'
-            : 'Wall Machina'}
+            ? 'Group Chat Space'
+            : 'Note Machina'}
         </title>
       </Head>
 
@@ -221,4 +221,4 @@ const Wall = ({ client }) => {
   );
 };
 
-export default Wall;
+export default NoteSpace;

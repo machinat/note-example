@@ -52,7 +52,7 @@ const theme = createMuiTheme({
   },
 });
 
-class WallApp extends App {
+class NoteApp extends App {
   constructor(props) {
     super(props);
 
@@ -83,4 +83,4 @@ class WallApp extends App {
   }
 }
 
-export default WallApp;
+export default NoteApp;

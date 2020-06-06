@@ -3,7 +3,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheet as StyledComponentSheets } from 'styled-components';
 import { ServerStyleSheets as MaterialUiServerStyleSheets } from '@material-ui/core/styles';
 
-class WallDocument extends Document {
+class NoteDocument extends Document {
   static async getInitialProps(ctx) {
     const styledComponentSheet = new StyledComponentSheets();
     const materialUiSheets = new MaterialUiServerStyleSheets();
@@ -57,4 +57,4 @@ class WallDocument extends Document {
   }
 }
 
-export default WallDocument;
+export default NoteDocument;

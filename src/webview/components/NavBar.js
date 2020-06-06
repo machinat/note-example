@@ -112,11 +112,11 @@ const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
 
         <Typography className={classes.title} variant="h5" noWrap>
           {spaceType === 'own'
-            ? 'Your Own Wall'
+            ? 'Your Own Space'
             : spaceType === 'chat'
-            ? 'Chat Wall'
+            ? 'Chat Space'
             : spaceType === 'group'
-            ? 'Group Wall'
+            ? 'Group Space'
             : ''}
         </Typography>
 

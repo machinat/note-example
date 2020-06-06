@@ -20,7 +20,7 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
     );
   }
 
-  const webviewURL = new URL(`webview/wall?platform=${platform}`, entry);
+  const webviewURL = new URL(`webview/note?platform=${platform}`, entry);
 
   if (platform === 'messenger') {
     return (

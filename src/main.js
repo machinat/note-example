@@ -30,7 +30,7 @@ const main = events$ => {
       const { channel: connection, user, metadata } = ctx;
       const { platform: authPlatform, sourceChannel } = metadata.auth;
 
-      const wallChannel =
+      const noteSpaceChannel =
         sourceChannel ||
         (authPlatform === 'messenger'
           ? MessengerChannel.fromUser(user)
@@ -43,11 +43,11 @@ const main = events$ => {
         value: {
           ...ctx,
           platform: authPlatform,
-          channel: wallChannel,
+          channel: noteSpaceChannel,
           connection,
           bot,
         },
-        key: wallChannel.uid,
+        key: noteSpaceChannel.uid,
         scope: nativePlatformScope,
       };
     })

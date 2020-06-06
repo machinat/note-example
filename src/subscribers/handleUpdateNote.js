@@ -1,7 +1,7 @@
 import { container } from '@machinat/core/service';
 import Base from '@machinat/core/base';
 import WebSocket from '@machinat/websocket';
-import { WALL_DATA_KEY } from '../constant';
+import { NOTE_SPACE_DATA_KEY } from '../constant';
 
 const handleUpdateNote = container({
   deps: [WebSocket.Bot, Base.StateControllerI],
@@ -11,7 +11,7 @@ const handleUpdateNote = container({
 
   await stateController
     .channelState(channel)
-    .set(WALL_DATA_KEY, currentState => {
+    .set(NOTE_SPACE_DATA_KEY, currentState => {
       if (!currentState) {
         return undefined;
       }

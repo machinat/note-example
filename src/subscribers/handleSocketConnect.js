@@ -1,7 +1,7 @@
 import { container } from '@machinat/core/service';
 import WebSocket from '@machinat/websocket';
 import Base from '@machinat/core/base';
-import { WALL_DATA_KEY } from '../constant';
+import { NOTE_SPACE_DATA_KEY } from '../constant';
 
 const handleSocketConnect = container({
   deps: [WebSocket.Bot, Base.StateControllerI, Base.ProfileFetcherI],
@@ -13,7 +13,7 @@ const handleSocketConnect = container({
   }) => {
     const channelData = await stateController
       .channelState(channel)
-      .get(WALL_DATA_KEY);
+      .get(NOTE_SPACE_DATA_KEY);
 
     const spaceType =
       channel.platform === 'line'

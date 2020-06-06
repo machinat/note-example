@@ -40,7 +40,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
     );
   }
 
-  const webviewURL = new URL('webview/wall', entry);
+  const webviewURL = new URL('webview/note', entry);
 
   if (platform === 'messenger') {
     webviewURL.searchParams.set('platform', 'messenger');
