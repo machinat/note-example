@@ -25,7 +25,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
       <Line.ButtonTemplate
         title={title}
         text={subtitle}
-        imageURL={`${entry}/webview/static/logo_card1.jpg`}
+        imageURL={`${entry}/webview/static/share_card.png`}
         imageAspectRatio="square"
         altText={liffLocation}
         defaultAction={webviewAction}
@@ -55,7 +55,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
     return (
       <Msgr.GenericTemplate sharable imageAspectRatio="square">
         <Msgr.GenericItem
-          imageURL={`${entry}/webview/static/logo_card1.jpg`}
+          imageURL={`${entry}/webview/static/share_card.png`}
           title={title}
           subtitle={subtitle}
           defaultAction={webviewButton}

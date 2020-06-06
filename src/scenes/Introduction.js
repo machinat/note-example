@@ -195,8 +195,8 @@ export default build(
         You can also take notes within other private chat or group chat, and the
         notes are accessible to all the members in the chat room! 💬
         <br />
-        Press the "Share" button at menu 👇 or tell me to "share" the app with
-        friends.
+        Press the "Use w/ Friends" button at menu 👇 or tell me to "share" the
+        app with friends.
         <br />
         Wanna have a try?
       </Expression>
