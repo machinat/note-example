@@ -1,13 +1,12 @@
 import { container } from '@machinat/core/service';
+import WebSocket from '@machinat/websocket';
 import Base from '@machinat/core/base';
-import StateController from '@machinat/state';
 import { WALL_DATA_KEY } from '../constant';
 
 const handleSocketConnect = container({
-  deps: [StateController, Base.ProfileFetcherI],
+  deps: [WebSocket.Bot, Base.StateControllerI, Base.ProfileFetcherI],
 })(
-  (stateController, profileFetcher) => async ({
-    bot,
+  (webSocketBot, stateController, profileFetcher) => async ({
     channel,
     connection,
     user,
@@ -34,8 +33,8 @@ const handleSocketConnect = container({
     const profile = await profileFetcher.fetchProfile(user);
     const { platform, id, name, pictureURL } = profile;
 
-    bot.attachTopic(connection, channel.uid);
-    bot.send(connection, {
+    webSocketBot.attachTopic(connection, channel.uid);
+    webSocketBot.send(connection, {
       type: 'app_data',
       payload: {
         spaceType,

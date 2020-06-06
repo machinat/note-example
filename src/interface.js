@@ -1,9 +1,11 @@
-import { namedInterface } from '@machinat/core/service';
+import { makeInterface } from '@machinat/core/service';
 
-export const ENTRY_URL_I = namedInterface({ name: 'EntryURL' });
+export const ENTRY_URL_I = makeInterface({ name: 'EntryURL' });
 
-export const FB_PAGE_NAME_I = namedInterface({ name: 'FbPageName' });
+export const FB_PAGE_NAME_I = makeInterface({ name: 'FbPageName' });
 
-export const LINE_OFFICIAL_ACCOUNT_ID_I = namedInterface({
+export const LINE_LIFF_ID_I = makeInterface({ name: 'LineLIFFId' });
+
+export const LINE_OFFICIAL_ACCOUNT_ID_I = makeInterface({
   name: 'LineOfficialAccountId',
 });

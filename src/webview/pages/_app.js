@@ -66,6 +66,11 @@ class WallApp extends App {
     }
 
     this.setState({ client });
+
+    window.addEventListener('beforeunload', () => {
+      client.send({ type: 'webview_close' });
+      client.disconnect();
+    });
   }
 
   render() {

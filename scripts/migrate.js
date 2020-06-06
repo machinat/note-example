@@ -27,14 +27,6 @@ const app = Machinat.createApp({
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
-      dispatchMiddlewares: [
-        async (frame, next) => {
-          console.log(frame.tasks[0].payload[0]);
-          const res = await next(frame);
-          console.log(res.results[0].body);
-          return res;
-        },
-      ],
     }),
     Line.initModule({
       webhookPath: '/webhook/line',

@@ -1,10 +1,11 @@
 import { container } from '@machinat/core/service';
-import StateController from '@machinat/state';
+import WebSocket from '@machinat/websocket';
+import Base from '@machinat/core/base';
 import { WALL_DATA_KEY } from '../constant';
 
 const handleAddNote = container({
-  deps: [StateController],
-})(stateController => async ({ bot, channel, event }) => {
+  deps: [WebSocket.Bot, Base.StateControllerI],
+})((webSocketBot, stateController) => async ({ channel, event }) => {
   const { title, content } = event.payload;
   let id;
 
@@ -24,7 +25,7 @@ const handleAddNote = container({
       };
     });
 
-  bot.sendTopic(channel.uid, {
+  webSocketBot.sendTopic(channel.uid, {
     type: 'note_added',
     payload: { id, title, content },
   });

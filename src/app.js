@@ -17,10 +17,16 @@ import YAML from 'yaml';
 import Next from '@machinat/next';
 import WebSocket from '@machinat/websocket';
 import useAuthController from '@machinat/websocket/auth';
+import DialogFlow from '@machinat/dialogflow';
+
+import Script from '@machinat/script';
+import FirstMeet from './scenes/FirstMeet';
+import Introduction from './scenes/Introduction';
 
 import {
   ENTRY_URL_I,
   FB_PAGE_NAME_I,
+  LINE_LIFF_ID_I,
   LINE_OFFICIAL_ACCOUNT_ID_I,
 } from './interface';
 import nextConfig from './webview/next.config.js';
@@ -41,6 +47,9 @@ const {
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
   LINE_LIFF_ID,
+  DIALOG_FLOW_PROJECT_ID,
+  DIALOG_FLOW_CLIENT_EMAIL,
+  DIALOG_FLOW_PRIVATE_KEY,
 } = process.env;
 
 const DEV = NODE_ENV !== 'production';
@@ -70,6 +79,21 @@ const app = Machinat.createApp({
 
     FileState.initModule({
       path: './.state_storage',
+    }),
+
+    Script.initModule({
+      libs: [FirstMeet, Introduction],
+    }),
+
+    DialogFlow.initModule({
+      projectId: DIALOG_FLOW_PROJECT_ID,
+      gcpAuthConfig: {
+        credentials: {
+          client_email: DIALOG_FLOW_CLIENT_EMAIL,
+          private_key: DIALOG_FLOW_PRIVATE_KEY,
+        },
+      },
+      defaultLanguageCode: 'en-US',
     }),
   ],
 
@@ -113,6 +137,7 @@ const app = Machinat.createApp({
 
     { provide: ENTRY_URL_I, withValue: ENTRY_URL },
     { provide: FB_PAGE_NAME_I, withValue: MESSENGER_PAGE_ID },
+    { provide: LINE_LIFF_ID_I, withValue: LINE_LIFF_ID },
     {
       provide: LINE_OFFICIAL_ACCOUNT_ID_I,
       withValue: LINE_OFFICIAL_ACCOUNT_ID,

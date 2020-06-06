@@ -1,10 +1,11 @@
 import { container } from '@machinat/core/service';
-import StateController from '@machinat/state';
+import Base from '@machinat/core/base';
+import WebSocket from '@machinat/websocket';
 import { WALL_DATA_KEY } from '../constant';
 
 const handleDeleteNote = container({
-  deps: [StateController],
-})(stateController => async ({ bot, channel, event }) => {
+  deps: [WebSocket.Bot, Base.StateControllerI],
+})((webSocketBot, stateController) => async ({ channel, event }) => {
   const { id } = event.payload;
   let isDeleted = false;
 
@@ -29,7 +30,7 @@ const handleDeleteNote = container({
     });
 
   if (isDeleted) {
-    bot.sendTopic(channel.uid, {
+    webSocketBot.sendTopic(channel.uid, {
       type: 'note_deleted',
       payload: { id },
     });
