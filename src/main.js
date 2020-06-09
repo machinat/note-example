@@ -4,23 +4,18 @@ import { container } from '@machinat/core/service';
 import { MessengerChannel } from '@machinat/messenger';
 import { LineChannel } from '@machinat/line';
 import Script from '@machinat/script';
-import { merge } from 'rx-machinat';
+import { merge, conditions } from 'rx-machinat';
 import { filter, mapMetadata } from 'rx-machinat/operators';
 import {
   handleSocketConnect,
   handleAddNote,
   handleDeleteNote,
   handleUpdateNote,
+  handleReplyMessage,
+  handlePostback,
 } from './subscribers';
-import ShareSpaceCard from './components/ShareSpaceCard';
 import FirstMeet from './scenes/FirstMeet';
-import { GET_STARTED_POSTBACK_KEY } from './constant';
-
-const isFirstMeet = ({ platform, event }) =>
-  (platform === 'messenger' &&
-    event.type === 'postback' &&
-    event.postback.payload === GET_STARTED_POSTBACK_KEY) ||
-  (platform === 'line' && event.type === 'follow');
+import { isFirstMeet, isPostback } from './utils';
 
 const main = events$ => {
   const webview$ = events$.pipe(
@@ -91,22 +86,19 @@ const main = events$ => {
     )
   );
 
-  chatroom$
-    .pipe(filter(isFirstMeet))
-    .subscribe(async ({ bot, channel }) =>
-      bot.render(channel, <FirstMeet.Init channel={channel} />)
-    );
+  const [firstMeets$, postbacks$, messages$] = conditions(chatroom$, [
+    isFirstMeet,
+    isPostback,
+    ({ event }) => event.type === 'message',
+  ]);
 
-  chatroom$
-    .pipe(
-      filter(
-        ({ event: { type, subtype } }) =>
-          type === 'message' && subtype === 'text'
-      )
-    )
-    .subscribe(({ bot, channel }) => {
-      bot.render(channel, <ShareSpaceCard />);
-    });
+  firstMeets$.subscribe(async ({ bot, channel }) => {
+    await bot.render(channel, <FirstMeet.Init channel={channel} />);
+  });
+
+  postbacks$.subscribe(handlePostback);
+
+  messages$.subscribe(handleReplyMessage);
 };
 
 export default main;

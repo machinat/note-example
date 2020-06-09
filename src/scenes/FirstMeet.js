@@ -3,6 +3,7 @@ import DialogFlow from '@machinat/dialogflow';
 import { container } from '@machinat/core/service';
 import { build, IF, THEN, PROMPT, CALL, RETURN } from '@machinat/script';
 
+import { decodePostbackPayload } from '../utils';
 import Greeting from '../components/Greeting';
 import Expression from '../components/Expression';
 import YesOrNoReplies from '../components/YesOrNoReplies';
@@ -13,23 +14,26 @@ const handleAskForIntroPrompt = container({
   deps: [DialogFlow.IntentRecognizer],
 })(recognizer => async ({ vars }, { platform, channel, event }) => {
   if (
-    platform === 'messenger' &&
-    event.type === 'message' &&
-    event.subtype === 'text' &&
-    event.quickReply
+    (platform === 'messenger' &&
+      event.type === 'message' &&
+      event.subtype === 'text' &&
+      event.quickReply) ||
+    (platform === 'line' && event.type === 'postback')
   ) {
+    const payload = decodePostbackPayload(
+      platform === 'messenger' ? event.quickReply.payload : event.data
+    );
+
+    if (payload.action === 'yes' || payload.action === 'no') {
+      return {
+        ...vars,
+        introIntent: { type: payload.action, confidence: 1 },
+      };
+    }
     return {
       ...vars,
-      introIntent: { type: event.quickReply.payload, confidence: 1 },
+      introIntent: { type: 'yes', confidence: 0 },
     };
-  }
-
-  if (platform === 'line' && event.type === 'postback') {
-    if (event.data === 'yes' || event.data === 'no') {
-      return { ...vars, introIntent: { type: event.data, confidence: 1 } };
-    }
-    // other button pressed, should flee in the future
-    return { ...vars, introIntent: { type: 'yes', confidence: 0 } };
   }
 
   if (event.type === 'message' && event.subtype === 'text') {

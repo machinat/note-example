@@ -6,28 +6,38 @@ import * as Msgr from '@machinat/messenger/components';
 import * as Line from '@machinat/line/components';
 import Expression from '../components/Expression';
 import OwnSpaceCard from '../components/OwnSpaceCard';
-import ShareSpaceCard from '../components/ShareSpaceCard';
+import ShareToFriend from '../components/ShareToFriend';
 import YesOrNoReplies from '../components/YesOrNoReplies';
+import { decodePostbackPayload, encodePostbackPayload } from '../utils';
 
 const handleAddFirstNoteReaction = container({
   deps: [DialogFlow.IntentRecognizer],
 })(recognizer => async ({ platform, vars, channel }, { event }) => {
-  if (event.type === 'message' && event.subtype === 'text') {
-    if (platform === 'messenger' && event.quickReply) {
-      if (event.quickReply.payload === 'open') {
-        return { ...vars, reactionType: 'open' };
-      }
-      if (event.quickReply.payload === 'reject') {
-        return { ...vars, reactionType: 'reject' };
-      }
+  if (
+    (event.type === 'message' &&
+      event.subtype === 'text' &&
+      event.quickReply) ||
+    (platform === 'line' && event.type === 'postback')
+  ) {
+    const payload = decodePostbackPayload(
+      platform === 'messenger' ? event.quickReply.payload : event.data
+    );
+    if (payload.action === 'open') {
+      return { ...vars, reactionType: 'open' };
     }
+    if (payload.action === 'reject') {
+      return { ...vars, reactionType: 'reject' };
+    }
+    return { ...vars, reactionType: '?' };
+  }
 
+  if (event.type === 'message' && event.subtype === 'text') {
     const { intent } = await recognizer.recognizeText(channel, event.text, {
       contexts: ['in-flow'],
     });
     const intentName = intent?.displayName;
 
-    if (intentName === 'open' || intentName === 'yes') {
+    if (intentName === 'open' || intentName === 'positive') {
       return { ...vars, reactionType: 'open' };
     }
     if (
@@ -44,16 +54,6 @@ const handleAddFirstNoteReaction = container({
     return { ...vars, reactionType: '?' };
   }
 
-  if (platform === 'line' && event.type === 'postback') {
-    if (event.data === 'open') {
-      return { ...vars, reactionType: 'open' };
-    }
-    if (event.data === 'reject') {
-      return { ...vars, reactionType: 'reject' };
-    }
-    // NOTE: should flee here
-  }
-
   if (event.type === 'add_note') {
     return { ...vars, reactionType: 'done' };
   }
@@ -68,16 +68,23 @@ const handleAddFirstNoteReaction = container({
 const handleAskShareFriend = container({
   deps: [DialogFlow.IntentRecognizer],
 })(recognizer => async ({ platform, vars, channel }, { event }) => {
-  if (event.type === 'message' && event.subtype === 'text') {
-    if (platform === 'messenger' && event.quickReply) {
-      if (event.quickReply.payload === 'share') {
-        return { ...vars, shareAnswer: 'share' };
-      }
-      if (event.quickReply.payload === 'reject') {
-        return { ...vars, shareAnswer: 'reject' };
-      }
-    }
+  if (
+    (event.type === 'message' &&
+      event.subtype === 'text' &&
+      event.quickReply) ||
+    (platform === 'line' && event.type === 'postback')
+  ) {
+    const payload = decodePostbackPayload(
+      platform === 'messenger' ? event.quickReply.payload : event.data
+    );
 
+    if (payload.action === 'reject') {
+      return { ...vars, shareAnswer: 'reject' };
+    }
+    return { ...vars, shareAnswer: 'share' };
+  }
+
+  if (event.type === 'message' && event.subtype === 'text') {
     const { intent } = await recognizer.recognizeText(channel, event.text, {
       contexts: ['in-flow'],
     });
@@ -93,25 +100,21 @@ const handleAskShareFriend = container({
     return { ...vars, shareAnswer: 'share' };
   }
 
-  if (platform === 'line' && event.type === 'postback') {
-    if (event.data === 'share') {
-      return { ...vars, shareAnswer: 'share' };
-    }
-    if (event.data === 'reject') {
-      return { ...vars, shareAnswer: 'reject' };
-    }
-    // NOTE: should flee here
-  }
-
   return { ...vars, shareAnswer: 'share' };
 });
 
 const openOrRejectReplies = (
   <YesOrNoReplies
     yesText="OK, open my space!"
-    yesPayload="open"
+    yesPayload={encodePostbackPayload({
+      action: 'open',
+      from: 'Introduction',
+    })}
     noText="Maybe next time."
-    noPayload="reject"
+    noPayload={encodePostbackPayload({
+      action: 'reject',
+      from: 'Introduction',
+    })}
   />
 );
 
@@ -184,9 +187,15 @@ export default build(
         quickReplies={
           <YesOrNoReplies
             yesText="Share to friends!"
-            yesPayload="share"
+            yesPayload={encodePostbackPayload({
+              action: 'share',
+              from: 'introduction',
+            })}
             noText="Maybe next time."
-            noPayload="reject"
+            noPayload={encodePostbackPayload({
+              action: 'reject',
+              from: 'introduction',
+            })}
           />
         }
       >
@@ -242,10 +251,7 @@ export default build(
           >
             Cool! Forward this card to your friends you want to share a note
             space with. 👇
-            <ShareSpaceCard />
-            {platform === 'messenger'
-              ? 'If you\'re using facebook in browser, you might need to "Open in Messenger" to show the forward button.'
-              : null}
+            <ShareToFriend noIndicator />
           </Expression>
         </>
       );
