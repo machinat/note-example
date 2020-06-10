@@ -8,6 +8,7 @@ import Expression from '../components/Expression';
 import OwnSpaceCard from '../components/OwnSpaceCard';
 import ShareToFriend from '../components/ShareToFriend';
 import YesOrNoReplies from '../components/YesOrNoReplies';
+import Pause from '../components/Pause';
 import { decodePostbackPayload, encodePostbackPayload } from '../utils';
 
 const handleAddFirstNoteReaction = container({
@@ -58,7 +59,7 @@ const handleAddFirstNoteReaction = container({
     return { ...vars, reactionType: 'done' };
   }
 
-  if (event.type === 'webview_close') {
+  if (event.type === 'webview_close' || event.type === 'disconnect') {
     return { ...vars, reactionType: 'cancel' };
   }
 
@@ -122,8 +123,8 @@ const ending = (
   <>
     And that's how Note Machina work! There will be more features in the future,
     I will let you know then.
-    <br />
-    Enjoy taking notes! 🤩
+    <Pause />
+    Hope you enjoy! 🤩
   </>
 );
 
@@ -134,10 +135,10 @@ export default build(
       <>
         <Expression quickReplies={openOrRejectReplies}>
           Note Machina is an app for taking note within chat room 💬.
-          <br />
+          <Pause />
           You can press the "My Space" button at menu 👇 or just tell me to
           "open" the webview to access your own space.
-          <br />
+          <Pause />
           Now let's create a note!
         </Expression>
       </>
@@ -200,13 +201,13 @@ export default build(
         }
       >
         The notes you created in your own space are only accessible to you.
-        <br />
+        <Pause />
         You can also take notes within other private chat or group chat, and the
         notes are accessible to all the members in the chat room! 💬
-        <br />
+        <Pause />
         Press the "Use w/ Friends" button at menu 👇 or tell me to "share" the
         app with friends.
-        <br />
+        <Pause />
         Wanna have a try?
       </Expression>
     )}
@@ -226,7 +227,7 @@ export default build(
           return (
             <text>
               OK, just tell me when you need it!
-              <br />
+              <Pause />
               {ending}
             </text>
           );
@@ -266,11 +267,11 @@ export default build(
     />
 
     {() => (
-      <text>
+      <Expression>
         Thank you for sharing! 😍
-        <br />
+        <Pause />
         {ending}
-      </text>
+      </Expression>
     )}
   </>
 );

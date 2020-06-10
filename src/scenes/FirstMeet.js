@@ -76,7 +76,7 @@ export default build(
         quickReplies={<YesOrNoReplies yesText="OK!" noText="I already knew." />}
       >
         <Greeting firstTime />
-        Do you need the usage guidance about me?
+        Would you like to hear introduction?
       </Expression>
     )}
 

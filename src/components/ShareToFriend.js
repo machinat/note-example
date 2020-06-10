@@ -1,5 +1,6 @@
 import Machinat from '@machinat/core';
 import ShareSpaceCard from './ShareSpaceCard';
+import Pause from './Pause';
 
 const ShareToFriend = ({ noIndicator = false }, { platform }) => {
   return (
@@ -8,6 +9,7 @@ const ShareToFriend = ({ noIndicator = false }, { platform }) => {
         ? null
         : 'Please forward this card 👇 to your friend or group.'}
       <ShareSpaceCard />
+      <Pause />
       {platform === 'messenger' ? (
         <text>
           If you're using facebook in browser, you might need to "Open in

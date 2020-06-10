@@ -1,11 +1,11 @@
 import Machinat from '@machinat/core';
 import Base from '@machinat/core/base';
 import { container } from '@machinat/core/service';
-import { MessengerChannel } from '@machinat/messenger';
+import { MessengerChannel, MarkSeen } from '@machinat/messenger';
 import { LineChannel } from '@machinat/line';
 import Script from '@machinat/script';
 import { merge, conditions } from 'rx-machinat';
-import { filter, mapMetadata } from 'rx-machinat/operators';
+import { filter, mapMetadata, tap } from 'rx-machinat/operators';
 import {
   handleSocketConnect,
   handleAddNote,
@@ -98,7 +98,16 @@ const main = events$ => {
 
   postbacks$.subscribe(handlePostback);
 
-  messages$.subscribe(handleReplyMessage);
+  messages$
+    .pipe(
+      tap(({ platform, bot, channel }) => {
+        if (platform === 'messenger') {
+          // don't await for it
+          bot.render(channel, <MarkSeen />).catch(console.error);
+        }
+      })
+    )
+    .subscribe(handleReplyMessage);
 };
 
 export default main;
