@@ -8,13 +8,13 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
   const indicateWords = 'Open your own Note Machina space 👇';
 
   if (platform === 'line') {
-    const liffLocation = `https://liff.line.me/${liffId}?fromBotChannel=true`;
+    const liffLocation = `https://liff.line.me/${liffId}/webview/note?platform=line&fromBotChannel=true`;
     return (
       <Line.ButtonTemplate
         text={indicateWords}
         defaultAction={<Line.URIAction label="Go" uri={liffLocation} />}
         altText={liffLocation}
-        buttons={<Line.URIAction label="Go" uri={liffLocation} />}
+        actions={<Line.URIAction label="Go" uri={liffLocation} />}
         sharable={false}
       />
     );

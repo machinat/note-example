@@ -40,6 +40,7 @@ const YesOrNoReplies = (
           action={
             <LinePostbackAction
               label={yesText || DEFAULT_YES_TEXT}
+              text={yesText || DEFAULT_YES_TEXT}
               data={yesPayload || DEFUALT_YES_PAYLOAD}
             />
           }
@@ -48,6 +49,7 @@ const YesOrNoReplies = (
           action={
             <LinePostbackAction
               label={noText || DEFAULT_NO_TEXT}
+              text={noText || DEFAULT_NO_TEXT}
               data={noPayload || DEFAULT_NO_PAYLOAD}
             />
           }

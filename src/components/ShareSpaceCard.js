@@ -1,7 +1,6 @@
 import Machinat from '@machinat/core';
 import { container } from '@machinat/core/service';
 import * as Msgr from '@machinat/messenger/components';
-import * as Line from '@machinat/line/components';
 import {
   ENTRY_URL_I,
   FB_PAGE_NAME_I,
@@ -13,30 +12,24 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
   _,
   { platform }
 ) => {
-  const title = '📝 Note Machina';
+  const title = '📝 Note Machina 🤖';
   const subtitle = 'A note app for chat room.';
 
   if (platform === 'line') {
-    const liffLocation = `https://liff.line.me/${liffId}`;
-    const webviewAction = (
-      <Line.URIAction label="Go Chat Space" uri={liffLocation} />
-    );
+    const liffLocation = `https://liff.line.me/${liffId}/webview/note?platform=line`;
+    // NOTE: can't share a template in line, use plain text instead
     return (
-      <Line.ButtonTemplate
-        title={title}
-        text={subtitle}
-        imageURL={`${entry}/webview/static/share_card.png`}
-        imageAspectRatio="square"
-        altText={liffLocation}
-        defaultAction={webviewAction}
-        actions={[
-          webviewAction,
-          <Line.URIAction
-            label="Lern More"
-            uri={`https://line.me/R/ti/p/${lineOfficialAccountId}`}
-          />,
-        ]}
-      />
+      <text>
+        {title}
+        {'\n'}
+        {subtitle}
+        {'\n\n'}
+        Go Chat Space:{'\n'}
+        {liffLocation}
+        {'\n\n'}
+        Lern More:{'\n'}
+        {`https://line.me/R/ti/p/${lineOfficialAccountId}`}
+      </text>
     );
   }
 

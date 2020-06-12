@@ -244,7 +244,7 @@ export default build(
               platform === 'messenger' ? (
                 <Msgr.QuickReply title="Done!" payload="done" />
               ) : platform === 'line' ? (
-                <Line.QucikReply
+                <Line.QuickReply
                   action={<Line.MessageAction label="Done!" text="Done!" />}
                 />
               ) : null

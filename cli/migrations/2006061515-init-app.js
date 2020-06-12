@@ -34,7 +34,7 @@ export const up = async app => {
           {
             type: 'postback',
             title: '👥 Use w/ Friends',
-            payload: 'action=share; from=menu',
+            payload: 'action=share&from=menu',
           },
         ],
       },
@@ -53,14 +53,14 @@ export const up = async app => {
         bounds: { x: 0, y: 0, width: 367, height: 250 },
         action: {
           type: 'uri',
-          uri: `https://liff.line.me/${LINE_LIFF_ID}?fromBotChannel=true`,
+          uri: `https://liff.line.me/${LINE_LIFF_ID}/webview/note?platform=line&fromBotChannel=true`,
         },
       },
       {
         bounds: { x: 367, y: 0, width: 433, height: 250 },
         action: {
           type: 'postback',
-          data: 'action=share; from=menu',
+          data: 'action=share&from=menu',
         },
       },
     ],

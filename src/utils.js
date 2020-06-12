@@ -3,12 +3,12 @@ import { GET_STARTED_POSTBACK_KEY } from './constant';
 export const encodePostbackPayload = payload => {
   return Object.entries(payload)
     .map(([key, value]) => `${key}=${value}`)
-    .join('; ');
+    .join('&');
 };
 
 export const decodePostbackPayload = data => {
   return data
-    .split(/\s*;\s*/)
+    .split(/\s*&\s*/)
     .map(pair => pair.split(/\s*=\s*/))
     .reduce((obj, [key, value]) => {
       if (key && value) {

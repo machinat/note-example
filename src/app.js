@@ -62,15 +62,6 @@ const app = Machinat.createApp({
       port: PORT,
     }),
 
-    Next.initModule({
-      entryPath: '/webview',
-      nextAppOptions: {
-        dev: DEV,
-        dir: `./${DEV ? 'src' : 'lib'}/webview`,
-        conf: nextConfig,
-      },
-    }),
-
     Auth.initModule({
       entryPath: '/auth',
       secret: AUTH_SECRET,
@@ -94,6 +85,15 @@ const app = Machinat.createApp({
         },
       },
       defaultLanguageCode: 'en-US',
+    }),
+
+    Next.initModule({
+      entryPath: '/webview',
+      nextAppOptions: {
+        dev: DEV,
+        dir: `./${DEV ? 'src' : 'lib'}/webview`,
+        conf: nextConfig,
+      },
     }),
   ],
 
