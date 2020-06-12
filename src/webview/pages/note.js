@@ -1,14 +1,56 @@
 import React from 'react';
 import Head from 'next/head';
+import getConfig from 'next/config';
+
+import WebSocketClient from '@machinat/websocket/client';
+import useAuth from '@machinat/websocket/auth/client';
+import AuthController from '@machinat/auth/client';
+import MessengerAuthorizer from '@machinat/messenger/auth/client';
+import LineAuthorizer from '@machinat/line/auth/client';
+
 import Box from '@material-ui/core/Box';
-import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import CreateIcon from '@material-ui/icons/Create';
 import { makeStyles } from '@material-ui/core/styles';
-import { ContentState, convertToRaw, convertFromRaw } from 'draft-js';
+import { ContentState, convertToRaw } from 'draft-js';
+
 import NavBar from '../components/NavBar';
 import NoteEditor from '../components/NoteEditor';
-import NoteCard from '../components/NoteCard';
+import NotesArea from '../components/NotesArea';
+import useAppData from '../hooks/useAppData';
+import useSearchFilter from '../hooks/useSearchFilter';
+
+let client = null;
+if (typeof window !== 'undefined') {
+  const {
+    publicRuntimeConfig: {
+      fbAppId,
+      lineProviderId,
+      lineBotChannelId,
+      lineLIFFId,
+    },
+  } = getConfig();
+
+  const clientAuthController = new AuthController({
+    serverURL: '/auth',
+    providers: [
+      new MessengerAuthorizer({
+        appId: fbAppId,
+      }),
+      new LineAuthorizer({
+        providerId: lineProviderId,
+        botChannelId: lineBotChannelId,
+        liffId: lineLIFFId,
+      }),
+    ],
+  })
+    .on('error', console.error)
+    .bootstrap();
+
+  client = new WebSocketClient({
+    url: '/websocket',
+    authorizeLogin: useAuth(clientAuthController),
+  });
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,10 +64,6 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     padding: theme.spacing(10, 2, 2, 2),
   },
-  notesColumns: {
-    columnWidth: '19em',
-    columnGap: theme.spacing(2),
-  },
   progressRoot: {
     height: '100%',
     display: 'flex',
@@ -33,90 +71,11 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     marginTop: theme.spacing(-10),
   },
-  emptyHint: {
-    fontSize: '1.5em',
-    textAlign: 'center',
-    padding: theme.spacing(7, 7),
-    color: theme.palette.primary.dark,
-  },
 }));
 
-const convertNoteFromRaw = rawNote => {
-  const content = convertFromRaw(rawNote.content);
-  const text = content.getPlainText();
-
-  return {
-    ...rawNote,
-    content,
-    text,
-  };
-};
-
-const noteAppReducer = (data, event) => {
-  if (event.type === 'app_data') {
-    const { notes, ...restData } = event.payload;
-    return {
-      ...restData,
-      notes: notes.map(convertNoteFromRaw),
-    };
-  }
-
-  if (event.type === 'note_added') {
-    return {
-      ...data,
-      notes: [...data.notes, convertNoteFromRaw(event.payload)],
-    };
-  }
-
-  if (event.type === 'note_deleted') {
-    const { notes } = data;
-    const { id } = event.payload;
-
-    const idx = notes.findIndex(note => note.id === id);
-    if (idx === -1) {
-      return data;
-    }
-
-    return {
-      ...data,
-      notes: [...notes.slice(0, idx), ...notes.slice(idx + 1)],
-    };
-  }
-
-  if (event.type === 'note_updated') {
-    const { notes } = data;
-    const updatedNote = event.payload;
-
-    const idx = notes.findIndex(note => note.id === updatedNote.id);
-    if (idx === -1) {
-      return data;
-    }
-
-    return {
-      ...data,
-      notes: [
-        ...notes.slice(0, idx),
-        convertNoteFromRaw(updatedNote),
-        ...notes.slice(idx + 1),
-      ],
-    };
-  }
-
-  return data;
-};
-
-const NoteSpace = ({ client }) => {
+const NoteSpace = () => {
   const classes = useStyles();
-
-  // data reducer
-  const [appData, dispatch] = React.useReducer(noteAppReducer, null);
-  React.useEffect(() => {
-    if (client) {
-      client.onEvent(event => {
-        dispatch(event);
-      });
-    }
-  }, [client]);
+  const appData = useAppData(client);
 
   // control editor
   const [editingNote, setEditingNote] = React.useState(null);
@@ -157,17 +116,7 @@ const NoteSpace = ({ client }) => {
 
   // handle search
   const [searchText, setSearchText] = React.useState('');
-  const lowerCasedSearch = searchText.toLowerCase();
-  const notesToShow = React.useMemo(
-    () =>
-      appData?.notes.filter(({ title, text }) => {
-        return (
-          title.toLowerCase().indexOf(lowerCasedSearch) !== -1 ||
-          text.toLowerCase().indexOf(lowerCasedSearch) !== -1
-        );
-      }) || [],
-    [appData?.notes, lowerCasedSearch]
-  );
+  const notesToShow = useSearchFilter(appData?.notes, searchText);
 
   const spaceType = appData?.spaceType;
   return (
@@ -193,24 +142,16 @@ const NoteSpace = ({ client }) => {
             handleSearchChange={setSearchText}
           />
 
-          {!appData ? (
+          {appData ? (
+            <NotesArea
+              isEmpty={appData.notes.length === 0}
+              notes={notesToShow}
+              editNote={editNote}
+              deleteNote={deleteNote}
+            />
+          ) : (
             <div className={classes.progressRoot}>
               <CircularProgress color="secondary" size="4em" />
-            </div>
-          ) : notesToShow.length > 0 ? (
-            <Container className={classes.notesColumns}>
-              {notesToShow.map(note => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  handleDelete={deleteNote.bind(null, note)}
-                  handleEdit={editNote.bind(null, note)}
-                />
-              ))}
-            </Container>
-          ) : (
-            <div className={classes.emptyHint}>
-              You don't have any note yet, press <CreateIcon /> to create one!
             </div>
           )}
         </Box>
@@ -220,5 +161,12 @@ const NoteSpace = ({ client }) => {
     </>
   );
 };
+
+// NOTE: to activate publicRuntimeConfig
+export const getServerSideProps = async () => ({
+  props: {
+    initialData: null,
+  },
+});
 
 export default NoteSpace;
