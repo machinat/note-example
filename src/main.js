@@ -50,16 +50,16 @@ const main = events$ => {
 
   webview$
     .pipe(filter(({ event }) => event.type === 'connect'))
-    .subscribe(handleSocketConnect);
+    .subscribe(handleSocketConnect, console.error);
   webview$
     .pipe(filter(({ event }) => event.type === 'add_note'))
-    .subscribe(handleAddNote);
+    .subscribe(handleAddNote, console.error);
   webview$
     .pipe(filter(({ event }) => event.type === 'delete_note'))
-    .subscribe(handleDeleteNote);
+    .subscribe(handleDeleteNote, console.error);
   webview$
     .pipe(filter(({ event }) => event.type === 'update_note'))
-    .subscribe(handleUpdateNote);
+    .subscribe(handleUpdateNote, console.error);
 
   const chatroom$ = merge(
     events$.pipe(
@@ -94,9 +94,9 @@ const main = events$ => {
 
   firstMeets$.subscribe(async ({ bot, channel }) => {
     await bot.render(channel, <FirstMeet.Init channel={channel} />);
-  });
+  }, console.error);
 
-  postbacks$.subscribe(handlePostback);
+  postbacks$.subscribe(handlePostback, console.error);
 
   messages$
     .pipe(
@@ -107,7 +107,7 @@ const main = events$ => {
         }
       })
     )
-    .subscribe(handleReplyMessage);
+    .subscribe(handleReplyMessage, console.error);
 };
 
 export default main;
