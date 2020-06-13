@@ -12,6 +12,7 @@ import LineAuthorizer from '@machinat/line/auth';
 import LineAssetManager from '@machinat/line/asset';
 
 import Auth from '@machinat/auth';
+import RedisState from '@machinat/state/redis';
 import FileState from '@machinat/state/file';
 import YAML from 'yaml';
 import Next from '@machinat/next';
@@ -50,6 +51,7 @@ const {
   DIALOG_FLOW_PROJECT_ID,
   DIALOG_FLOW_CLIENT_EMAIL,
   DIALOG_FLOW_PRIVATE_KEY,
+  REDIS_URL,
 } = process.env;
 
 const DEV = NODE_ENV !== 'production';
@@ -68,9 +70,13 @@ const app = Machinat.createApp({
       secure: !DEV,
     }),
 
-    FileState.initModule({
-      path: './.state_storage',
-    }),
+    DEV
+      ? FileState.initModule({
+          path: './.state_storage',
+        })
+      : RedisState.initModule({
+          url: REDIS_URL,
+        }),
 
     Script.initModule({
       libs: [FirstMeet, Introduction],
