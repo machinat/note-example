@@ -225,11 +225,11 @@ export default build(
       <THEN>
         {() => {
           return (
-            <text>
+            <Expression>
               OK, just tell me when you need it!
               <Pause />
               {ending}
-            </text>
+            </Expression>
           );
         }}
         <RETURN />
