@@ -18,6 +18,12 @@ export const up = async app => {
     get_started: {
       payload: '__GET_STARTED__',
     },
+    greeting: [
+      {
+        locale: 'default',
+        text: 'Take notes within your chatrooms!',
+      },
+    ],
   });
   await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
     persistent_menu: [
@@ -87,7 +93,12 @@ export const down = async app => {
     LineAssetRegistry,
   ]);
   await messengerBot.dispatchAPICall('DELETE', 'me/messenger_profile', {
-    fields: ['get_started', 'persistent_menu', 'whitelisted_domains'],
+    fields: [
+      'get_started',
+      'greeting',
+      'persistent_menu',
+      'whitelisted_domains',
+    ],
   });
   await lineAssetRegistry.deleteRichMenu('default_menu.en');
 };
