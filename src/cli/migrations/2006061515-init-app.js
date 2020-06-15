@@ -3,6 +3,7 @@ import axios from 'axios';
 import Messenger from '@machinat/messenger';
 import Line from '@machinat/line';
 import LineAssetRegistry from '@machinat/line/asset';
+import { encodePostbackPayload } from '../../utils';
 
 const { ENTRY_URL, LINE_LIFF_ID, LINE_ACCESS_TOKEN } = process.env;
 
@@ -34,7 +35,7 @@ export const up = async app => {
           {
             type: 'postback',
             title: '👥 Use w/ Friends',
-            payload: 'action=share&from=menu',
+            payload: encodePostbackPayload({ action: 'share', from: 'menu' }),
           },
         ],
       },
@@ -60,7 +61,7 @@ export const up = async app => {
         bounds: { x: 367, y: 0, width: 433, height: 250 },
         action: {
           type: 'postback',
-          data: 'action=share&from=menu',
+          data: encodePostbackPayload({ action: 'share', from: 'menu' }),
         },
       },
     ],

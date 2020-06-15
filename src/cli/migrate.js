@@ -5,11 +5,14 @@ import MessengerAssetRegistry from '@machinat/messenger/asset';
 import Line from '@machinat/line';
 import LineAssetRegistry from '@machinat/line/asset';
 import FileState from '@machinat/state/file';
+import RedisState from '@machinat/state/redis';
 import YAML from 'yaml';
 import { Umzug, JSONStorage } from 'umzug';
 import commander from 'commander';
 
 const {
+  NODE_ENV,
+  REDIS_URL,
   MESSENGER_PAGE_ID,
   MESSENGER_ACCESS_TOKEN,
   LINE_PROVIDER_ID,
@@ -17,11 +20,17 @@ const {
   LINE_ACCESS_TOKEN,
 } = process.env;
 
+const DEV = NODE_ENV !== 'production';
+
 const app = Machinat.createApp({
   modules: [
-    FileState.initModule({
-      path: './.state_storage',
-    }),
+    DEV
+      ? FileState.initModule({
+          path: './.state_storage',
+        })
+      : RedisState.initModule({
+          url: REDIS_URL,
+        }),
   ],
   bindings: [
     { provide: FileState.SerializerI, withValue: YAML },
