@@ -18,6 +18,6 @@ ARG npm_registry=https://registry.npmjs.org
 
 RUN npm ci --no-fund --registry $npm_registry
 
-COPY lib dist assets ./
+COPY . ./
 
 CMD ["npm", "start"]
