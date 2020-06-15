@@ -1,19 +1,17 @@
 {
   "name": "note-machina",
   "private": true,
-  "description": "",
-  "main": "lib/index.js",
   "scripts": {
     "lint": "eslint ./src",
     "migrate": "node -r dotenv/config ./lib/cli/migrate.js",
     "migrate:dev": "babel-node -r dotenv/config ./src/cli/migrate.js",
     "test": "jest",
-    "build": "babel -d lib src && npm run build:webview",
-    "build:webview": "next build ./src/webview",
+    "build": "npm run build:source && npm run build:next",
+    "build:source": "babel --copy-files --delete-dir-on-start -d lib src",
+    "build:next": "next build ./src/webview",
     "start": "node -r dotenv/config ./lib/serve.js",
     "dev": "nodemon -x babel-node -w src -i src/webview -r dotenv/config ./src/serve.js"
   },
-  "author": "Patrick Liu <zeldalink0515@gmail.com>  (https://github.com/lrills)",
   "license": "AGPL-3.0-or-later",
   "husky": {
     "hooks": {
