@@ -3,7 +3,7 @@ import axios from 'axios';
 import Messenger from '@machinat/messenger';
 import Line from '@machinat/line';
 import LineAssetRegistry from '@machinat/line/asset';
-import { encodePostbackPayload } from '../../utils';
+import { encodePostbackPayload } from '../utils';
 
 const { ENTRY_URL, LINE_LIFF_ID, LINE_ACCESS_TOKEN } = process.env;
 

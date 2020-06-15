@@ -63,7 +63,7 @@ const umzug = new Umzug({
   logging: console.log,
   migrations: {
     params: [app],
-    path: path.resolve(__dirname, './migrations'),
+    path: path.resolve(__dirname, '../migrations'),
   },
 });
 
