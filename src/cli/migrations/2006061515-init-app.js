@@ -28,7 +28,7 @@ export const up = async app => {
           {
             type: 'web_url',
             title: '👤 My Space',
-            url: 'https://proxy.machinat.com/webview/note?platform=messenger',
+            url: `${ENTRY_URL}/webview/note?platform=messenger`,
             webview_height_ratio: 'full',
             messenger_extensions: true,
           },
