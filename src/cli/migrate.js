@@ -84,12 +84,19 @@ commander
   } else {
     await umzug.up();
   }
-
-  return [lineBot, messengerBot];
 })()
-  .then(([lineBot, messengerBot]) => {
+  .then(() => {
+    const [lineBot, messengerBot, redisClient] = app.useServices([
+      Line.Bot,
+      Messenger.Bot,
+      { require: RedisState.ClientI, optional: true },
+    ]);
+
     lineBot.stop();
     messengerBot.stop();
+    if (redisClient) {
+      redisClient.quit();
+    }
   })
   .catch(err => {
     console.error(err);
