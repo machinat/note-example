@@ -33,24 +33,31 @@ import {
 import nextConfig from './webview/next.config.js';
 
 const {
+  // location
   PORT,
   NODE_ENV,
   ENTRY_URL,
   ORIGINS,
+  // auth
   AUTH_SECRET,
+  // messenger
   MESSENGER_PAGE_ID,
   MESSENGER_ACCESS_TOKEN,
   MESSENGER_APP_SECRET,
   MESSENGER_VERIFY_TOKEN,
+  // line
   LINE_PROVIDER_ID,
   LINE_BOT_CHANNEL_ID,
   LINE_OFFICIAL_ACCOUNT_ID,
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
   LINE_LIFF_ID,
+  // dialogflow
+  GOOGLE_APPLICATION_CREDENTIALS,
   DIALOG_FLOW_PROJECT_ID,
   DIALOG_FLOW_CLIENT_EMAIL,
   DIALOG_FLOW_PRIVATE_KEY,
+  // redis
   REDIS_URL,
 } = process.env;
 
@@ -84,12 +91,14 @@ const app = Machinat.createApp({
 
     DialogFlow.initModule({
       projectId: DIALOG_FLOW_PROJECT_ID,
-      gcpAuthConfig: {
-        credentials: {
-          client_email: DIALOG_FLOW_CLIENT_EMAIL,
-          private_key: DIALOG_FLOW_PRIVATE_KEY,
-        },
-      },
+      gcpAuthConfig: GOOGLE_APPLICATION_CREDENTIALS
+        ? undefined
+        : {
+            credentials: {
+              client_email: DIALOG_FLOW_CLIENT_EMAIL,
+              private_key: DIALOG_FLOW_PRIVATE_KEY,
+            },
+          },
       defaultLanguageCode: 'en-US',
     }),
 
