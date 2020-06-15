@@ -16,6 +16,12 @@
   },
   "author": "Patrick Liu <zeldalink0515@gmail.com>  (https://github.com/lrills)",
   "license": "AGPL-3.0-or-later",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "post-commit": "npm run build"
+    }
+  },
   "dependencies": {
     "@machinat/auth": "0.2.0-alpha.13",
     "@machinat/core": "0.2.0-alpha.18",
@@ -64,6 +70,7 @@
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.2",
+    "husky": "^4.2.5",
     "jest": "^24.8.0",
     "nodemon": ">=1.19.1",
     "prettier": "^1.18.2"
