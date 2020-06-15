@@ -6,3 +6,5 @@ main(fromApp(app));
 
 app.onError(console.error);
 app.start().catch(console.error);
+
+process.on('unhandledRejection', console.error);
