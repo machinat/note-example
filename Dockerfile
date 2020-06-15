@@ -1,8 +1,8 @@
 FROM node:14
 
-EXPOSE 80
+EXPOSE 8080
 
-ENV NODE_ENV=production PORT=80
+ENV NODE_ENV=production PORT=8080
 
 WORKDIR /app
 
