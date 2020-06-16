@@ -37,7 +37,6 @@ const {
   PORT,
   NODE_ENV,
   ENTRY_URL,
-  ORIGINS,
   // auth
   AUTH_SECRET,
   // messenger
@@ -63,7 +62,7 @@ const {
 
 const DEV = NODE_ENV !== 'production';
 
-const origins = ORIGINS.split(/\s*,\s*/);
+const ORIGIN = new URL(ENTRY_URL).origin;
 
 const app = Machinat.createApp({
   modules: [
@@ -134,7 +133,7 @@ const app = Machinat.createApp({
     WebSocket.initModule({
       entryPath: '/websocket',
       verifyUpgrade(request) {
-        return origins.includes(request.headers.origin);
+        return request.headers.origin === ORIGIN;
       },
     }),
   ],
