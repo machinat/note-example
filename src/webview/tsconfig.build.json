@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../../lib/webview",
+    "jsx": "react",
+    "noEmit": false
+  },
+  "include": [
+    "next.config.js",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}
