@@ -13,61 +13,59 @@ import Introduction from './Introduction';
 
 const handleAskForIntroPrompt = container({
   deps: [DialogFlow.IntentRecognizer],
-})((recognizer) => async ({ vars }, { platform, channel, event }) => {
-  if (
-    (platform === 'messenger' &&
-      event.type === 'message' &&
-      event.subtype === 'text' &&
-      event.quickReply) ||
-    (platform === 'line' && event.type === 'postback')
-  ) {
-    const payload = decodePostbackPayload(
-      platform === 'messenger' ? event.quickReply.payload : event.data
-    );
+})(
+  (recognizer: DialogFlow.IntentRecognizer) => async (
+    { vars },
+    { channel, event }
+  ) => {
+    if (event.type === 'quick_reply' || event.type === 'postback') {
+      const payload = decodePostbackPayload(event.data);
 
-    if (payload.action === 'yes' || payload.action === 'no') {
+      if (payload.action === 'yes' || payload.action === 'no') {
+        return {
+          ...vars,
+          introIntent: { type: payload.action, confidence: 1 },
+        };
+      }
       return {
         ...vars,
-        introIntent: { type: payload.action, confidence: 1 },
-      };
-    }
-    return {
-      ...vars,
-      introIntent: { type: 'yes', confidence: 0 },
-    };
-  }
-
-  if (event.type === 'message' && event.subtype === 'text') {
-    const {
-      intent: { displayName: intentName },
-      intentDetectionConfidence,
-    } = await recognizer.recognizeText(channel, event.text, {
-      contexts: ['in-flow'],
-    });
-
-    if (
-      intentName === 'negative' ||
-      intentName === 'curse' ||
-      intentName === 'skip-in-flow'
-    ) {
-      return {
-        ...vars,
-        introIntent: { type: 'no', confidence: intentDetectionConfidence },
+        introIntent: { type: 'yes', confidence: 0 },
       };
     }
 
-    if (intentName === 'positive') {
-      return {
-        ...vars,
-        introIntent: { type: 'yes', confidence: intentDetectionConfidence },
-      };
+    if (event.type === 'message' && event.subtype === 'text') {
+      const { intentType, confidence } = await recognizer.detectText(
+        channel,
+        event.text,
+        {
+          contexts: ['in-flow'],
+        }
+      );
+
+      if (
+        intentType === 'negative' ||
+        intentType === 'curse' ||
+        intentType === 'skip-in-flow'
+      ) {
+        return {
+          ...vars,
+          introIntent: { type: 'no', confidence },
+        };
+      }
+
+      if (intentType === 'positive') {
+        return {
+          ...vars,
+          introIntent: { type: 'yes', confidence },
+        };
+      }
+      // TODO: handle other intent
+      return { ...vars, introIntent: { type: 'yes', confidence: 0 } };
     }
-    // TODO: handle other intent
+
     return { ...vars, introIntent: { type: 'yes', confidence: 0 } };
   }
-
-  return { ...vars, introIntent: { type: 'yes', confidence: 0 } };
-});
+);
 
 export default build(
   'FirstMeet',
@@ -87,21 +85,19 @@ export default build(
     <IF condition={({ vars: { introIntent } }) => introIntent.type === 'no'}>
       {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
       <THEN>
-        {() => (
-          <text>Alright, ask me any time if you have any problem. 😊</text>
-        )}
+        {() => <p>Alright, ask me any time if you have any problem. 😊</p>}
         {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
         <RETURN />
       </THEN>
     </IF>
     {({ vars: { introIntent } }) => (
-      <text>
+      <p>
         {introIntent.confidence > 0.8
           ? 'Cool 👍'
           : introIntent.confidence > 0.2
           ? "OK! It won't take too long. 😁"
           : "Well... I'll take that as a yes. 😁"}
-      </text>
+      </p>
     )}
     {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
     <CALL key="start-intro" script={Introduction} />

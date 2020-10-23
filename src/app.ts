@@ -29,6 +29,7 @@ import {
   ENTRY_URL_I,
   FB_PAGE_NAME_I,
   LINE_LIFF_ID_I,
+  LINE_CHANNEL_ID_I,
   LINE_OFFICIAL_ACCOUNT_ID_I,
 } from './interface';
 import nextConfig from './webview/next.config.js';
@@ -73,8 +74,8 @@ const app = Machinat.createApp({
 
     Auth.initModule({
       entryPath: '/auth',
+      sameSite: 'none',
       secret: AUTH_SECRET as string,
-      secure: !DEV,
     }),
 
     DEV
@@ -154,6 +155,7 @@ const app = Machinat.createApp({
 
     { provide: ENTRY_URL_I, withValue: ENTRY_URL },
     { provide: FB_PAGE_NAME_I, withValue: MESSENGER_PAGE_ID },
+    { provide: LINE_CHANNEL_ID_I, withValue: LINE_BOT_CHANNEL_ID },
     { provide: LINE_LIFF_ID_I, withValue: LINE_LIFF_ID },
     {
       provide: LINE_OFFICIAL_ACCOUNT_ID_I,

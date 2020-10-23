@@ -2,12 +2,20 @@ import { container } from '@machinat/core/service';
 import WebSocket from '@machinat/websocket';
 import Base from '@machinat/core/base';
 import { NOTE_SPACE_DATA_KEY } from '../constant';
-import { AddNote, WebViewEventContext, NoteAddedNotification } from '../types';
+import {
+  AddNote,
+  WebViewEventContext,
+  NoteAddedNotification,
+  SpaceData,
+} from '../types';
 
 const handleAddNote = container({
   deps: [WebSocket.Bot, Base.StateControllerI],
 })(
-  (webSocketBot, stateController) => async ({
+  (
+    webSocketBot: WebSocket.Bot,
+    stateController: Base.StateControllerI
+  ) => async ({
     event: {
       channel,
       payload: { title, content },
@@ -17,7 +25,7 @@ const handleAddNote = container({
 
     await stateController
       .channelState(channel)
-      .set(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .update<SpaceData>(NOTE_SPACE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return { idCounter: 1, notes: [{ id: 1, title, content }] };
         }

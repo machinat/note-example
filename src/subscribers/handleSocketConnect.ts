@@ -1,9 +1,9 @@
 import { container } from '@machinat/core/service';
 import WebSocket from '@machinat/websocket';
 import Base from '@machinat/core/base';
-import { ConnectEvent } from '@machinat/websocket/types';
 import { NOTE_SPACE_DATA_KEY } from '../constant';
 import {
+  SpaceData,
   ConnectionConnect,
   WebViewEventContext,
   AppDataNotication,
@@ -12,13 +12,17 @@ import {
 const handleSocketConnect = container({
   deps: [WebSocket.Bot, Base.StateControllerI, Base.Profiler],
 })(
-  (webSocketBot, stateController, profileFetcher) => async ({
+  (
+    webSocketBot: WebSocket.Bot,
+    stateController: Base.StateControllerI,
+    profileFetcher: Base.Profiler
+  ) => async ({
     event: { user, channel },
     metadata: { connection },
   }: WebViewEventContext<ConnectionConnect>) => {
     const channelData = await stateController
       .channelState(channel)
-      .get(NOTE_SPACE_DATA_KEY);
+      .get<SpaceData>(NOTE_SPACE_DATA_KEY);
 
     const spaceType =
       channel.platform === 'line'
@@ -35,7 +39,7 @@ const handleSocketConnect = container({
           : 'group'
         : 'own';
 
-    const profile = await profileFetcher.fetchProfile(user);
+    const profile = await profileFetcher.getUserProfile(user);
     const { platform, name, pictureURL } = profile;
 
     const appData: AppDataNotication = {
@@ -43,12 +47,16 @@ const handleSocketConnect = container({
       type: 'app_data',
       payload: {
         spaceType,
-        profile: { platform, name, pictureURL },
+        profile: {
+          platform: platform as any,
+          pictureURL: pictureURL as any,
+          name,
+        },
         notes: channelData?.notes || [],
       },
     };
 
-    webSocketBot.attachTopic(connection, channel.uid);
+    webSocketBot.subscribeTopic(connection, channel.uid);
     webSocketBot.send(connection, appData);
   }
 );

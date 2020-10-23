@@ -14,96 +14,91 @@ import { decodePostbackPayload, encodePostbackPayload } from '../utils';
 
 const handleAddFirstNoteReaction = container({
   deps: [DialogFlow.IntentRecognizer],
-})((recognizer) => async ({ platform, vars, channel }, { event }) => {
-  if (
-    (event.type === 'message' &&
-      event.subtype === 'text' &&
-      event.quickReply) ||
-    (platform === 'line' && event.type === 'postback')
-  ) {
-    const payload = decodePostbackPayload(
-      platform === 'messenger' ? event.quickReply.payload : event.data
-    );
-    if (payload.action === 'open') {
-      return { ...vars, reactionType: 'open' };
+})(
+  (recognizer: DialogFlow.IntentRecognizer) => async (
+    { vars, channel },
+    { event }
+  ) => {
+    if (event.type === 'quick_reply' || event.type === 'postback') {
+      const payload = decodePostbackPayload(event.data);
+
+      if (payload.action === 'open') {
+        return { ...vars, reactionType: 'open' };
+      }
+      if (payload.action === 'reject') {
+        return { ...vars, reactionType: 'reject' };
+      }
+      return { ...vars, reactionType: '?' };
     }
-    if (payload.action === 'reject') {
-      return { ...vars, reactionType: 'reject' };
+
+    if (event.type === 'text') {
+      const { intentType } = await recognizer.detectText(channel, event.text, {
+        contexts: ['in-flow'],
+      });
+
+      if (intentType === 'open' || intentType === 'positive') {
+        return { ...vars, reactionType: 'open' };
+      }
+      if (
+        intentType === 'negative' ||
+        intentType === 'curse' ||
+        intentType === 'skip-in-flow'
+      ) {
+        return { ...vars, reactionType: 'reject' };
+      }
+      return { ...vars, reactionType: '?' };
     }
-    return { ...vars, reactionType: '?' };
-  }
 
-  if (event.type === 'message' && event.subtype === 'text') {
-    const { intent } = await recognizer.recognizeText(channel, event.text, {
-      contexts: ['in-flow'],
-    });
-    const intentName = intent?.displayName;
-
-    if (intentName === 'open' || intentName === 'positive') {
-      return { ...vars, reactionType: 'open' };
+    if (event.kind === 'message') {
+      return { ...vars, reactionType: '?' };
     }
-    if (
-      intentName === 'negative' ||
-      intentName === 'curse' ||
-      intentName === 'skip-in-flow'
-    ) {
-      return { ...vars, reactionType: 'reject' };
+
+    if (event.type === 'add_note') {
+      return { ...vars, reactionType: 'done' };
     }
-    return { ...vars, reactionType: '?' };
-  }
 
-  if (event.type === 'message') {
-    return { ...vars, reactionType: '?' };
-  }
+    if (event.type === 'webview_close' || event.type === 'disconnect') {
+      return { ...vars, reactionType: 'cancel' };
+    }
 
-  if (event.type === 'add_note') {
-    return { ...vars, reactionType: 'done' };
+    return { ...vars, reactionType: undefined };
   }
-
-  if (event.type === 'webview_close' || event.type === 'disconnect') {
-    return { ...vars, reactionType: 'cancel' };
-  }
-
-  return { ...vars, reactionType: undefined };
-});
+);
 
 const handleAskShareFriend = container({
   deps: [DialogFlow.IntentRecognizer],
-})((recognizer) => async ({ platform, vars, channel }, { event }) => {
-  if (
-    (event.type === 'message' &&
-      event.subtype === 'text' &&
-      event.quickReply) ||
-    (platform === 'line' && event.type === 'postback')
-  ) {
-    const payload = decodePostbackPayload(
-      platform === 'messenger' ? event.quickReply.payload : event.data
-    );
+})(
+  (recognizer: DialogFlow.IntentRecognizer) => async (
+    { vars, channel },
+    { event }
+  ) => {
+    if (event.type === 'quick_reply' || event.type === 'postback') {
+      const payload = decodePostbackPayload(event.data);
 
-    if (payload.action === 'reject') {
-      return { ...vars, shareAnswer: 'reject' };
+      if (payload.action === 'reject') {
+        return { ...vars, shareAnswer: 'reject' };
+      }
+      return { ...vars, shareAnswer: 'share' };
     }
+
+    if (event.type === 'text') {
+      const { intentType } = await recognizer.detectText(channel, event.text, {
+        contexts: ['in-flow'],
+      });
+
+      if (
+        intentType === 'negative' ||
+        intentType === 'curse' ||
+        intentType === 'skip-in-flow'
+      ) {
+        return { ...vars, shareAnswer: 'reject' };
+      }
+      return { ...vars, shareAnswer: 'share' };
+    }
+
     return { ...vars, shareAnswer: 'share' };
   }
-
-  if (event.type === 'message' && event.subtype === 'text') {
-    const { intent } = await recognizer.recognizeText(channel, event.text, {
-      contexts: ['in-flow'],
-    });
-    const intentName = intent?.displayName;
-
-    if (
-      intentName === 'negative' ||
-      intentName === 'curse' ||
-      intentName === 'skip-in-flow'
-    ) {
-      return { ...vars, shareAnswer: 'reject' };
-    }
-    return { ...vars, shareAnswer: 'share' };
-  }
-
-  return { ...vars, shareAnswer: 'share' };
-});
+);
 
 const openOrRejectReplies = (
   <YesOrNoReplies
@@ -160,17 +155,17 @@ export default build(
             return <OwnSpaceCard />;
 
           case 'done':
-            return <text>Well done! 👏 You got you first note! 🎉</text>;
+            return <p>Well done! 👏 You got you first note! 🎉</p>;
 
           case 'reject':
-            return <text>Oh... maybe next time. 😅</text>;
+            return <p>Oh... maybe next time. 😅</p>;
 
           case 'cancel':
             return (
-              <text>
+              <p>
                 You haven't create any note yet..., but you may come back for
                 this anytime. 😀
-              </text>
+              </p>
             );
 
           case '?':
@@ -219,8 +214,7 @@ export default build(
     <PROMPT
       key="ask-share-friend"
       filter={(_, { event }) =>
-        event.type === 'message' ||
-        (event.platform === 'line' && event.type === 'postback')
+        event.kind === 'message' || event.kind === 'postback'
       }
       set={handleAskShareFriend}
     />
@@ -269,8 +263,7 @@ export default build(
     <PROMPT
       key="waiting-for-share"
       filter={(_, { event }) =>
-        event.type === 'message' ||
-        (event.platform === 'line' && event.type === 'postback')
+        event.kind === 'message' || event.kind === 'postback'
       }
     />
 

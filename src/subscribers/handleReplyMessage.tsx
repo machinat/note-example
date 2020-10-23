@@ -27,7 +27,9 @@ const GREETING_REPLIES = ['Hi!', 'Hello!', 'Greeting!', '😁', '✋', '🖖', '
 const CURSE_REPLIES = ['😠', '😱', '😰', '😵', '😫', '🤕', '💩', '🙄'];
 const UNKNOWN_REPLIES = ['🧐', '🤔', '😻', '😼', '🙈', '🙉', '🙊'];
 
-const handleReplyMessage = (recognizer) => async ({ bot, channel, event }) => {
+const handleReplyMessage = (recognizer) => async ({ bot, event }) => {
+  const { channel } = event;
+
   if (event.subtype === 'text') {
     const { intent } = await recognizer.recognizeText(channel, event.text, {
       contexts: ['in-flow'],

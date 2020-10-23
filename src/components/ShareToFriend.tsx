@@ -11,10 +11,10 @@ const ShareToFriend = ({ noIndicator = false }, { platform }) => {
       <ShareSpaceCard />
       <Pause />
       {platform === 'messenger' ? (
-        <text>
+        <p>
           If you're using facebook in browser, you might need to "Open in
           Messenger" to show the forward button.
-        </text>
+        </p>
       ) : null}
     </>
   );

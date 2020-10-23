@@ -12,7 +12,7 @@
     "build:webview": "tsc -p ./src/webview/tsconfig.build.json",
     "build:next": "next build ./src/webview",
     "start": "node -r dotenv/config ./lib/serve.js",
-    "dev": "nodemon -x ts-node -w src -i src/webview -r dotenv/config ./src/serve.ts"
+    "dev": "nodemon -x ts-node -w src -i src/webview -r dotenv/config -e 'ts tsx' ./src/serve.ts"
   },
   "license": "MIT",
   "husky": {

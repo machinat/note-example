@@ -91,7 +91,6 @@ const main = (events$: Subject<AppEventContext>): void => {
           const {
             event: { channel },
           } = ctx;
-
           const runtime = await scriptProcessor.continue(channel);
           if (!runtime) {
             return true;
@@ -109,7 +108,7 @@ const main = (events$: Subject<AppEventContext>): void => {
   const [firstMeets$, postbacks$, messages$] = conditions(chatroom$, [
     isFirstMeet,
     isPostback,
-    ({ event }) => event.type === 'message',
+    ({ event }) => event.kind === 'message',
   ]);
 
   firstMeets$.subscribe(async ({ bot, event: { channel } }) => {

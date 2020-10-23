@@ -19,7 +19,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
     const liffLocation = `https://liff.line.me/${liffId}/webview/note?platform=line`;
     // NOTE: can't share a template in line, use plain text instead
     return (
-      <text>
+      <p>
         {title}
         {'\n'}
         {subtitle}
@@ -29,7 +29,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
         {'\n\n'}
         Lern More:{'\n'}
         {`https://line.me/R/ti/p/${lineOfficialAccountId}`}
-      </text>
+      </p>
     );
   }
 
@@ -65,11 +65,11 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
   }
 
   return (
-    <text>
+    <p>
       Take notes in Note Machina:
       {'\n\n'}
       {webviewURL.href}
-    </text>
+    </p>
   );
 };
 

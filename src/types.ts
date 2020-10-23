@@ -11,6 +11,7 @@ import {
 } from '@machinat/websocket/types';
 
 export type NoteData = { id: number; title: string; content: string };
+export type SpaceData = { idCounter: number; notes: NoteData[] };
 
 export type AddNote = {
   kind: 'note_operation';

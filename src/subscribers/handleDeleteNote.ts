@@ -6,12 +6,16 @@ import {
   DeleteNote,
   WebViewEventContext,
   NoteDeletedNotification,
+  SpaceData,
 } from '../types';
 
 const handleDeleteNote = container({
   deps: [WebSocket.Bot, Base.StateControllerI],
 })(
-  (webSocketBot, stateController) => async ({
+  (
+    webSocketBot: WebSocket.Bot,
+    stateController: Base.StateControllerI
+  ) => async ({
     event: {
       channel,
       payload: { id },
@@ -21,7 +25,7 @@ const handleDeleteNote = container({
 
     await stateController
       .channelState(channel)
-      .set(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .update<SpaceData>(NOTE_SPACE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return undefined;
         }
