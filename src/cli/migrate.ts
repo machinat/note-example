@@ -34,28 +34,23 @@ const app = Machinat.createApp({
           },
         }),
   ],
+  platforms: [
+    Line.initModule({
+      providerId: LINE_PROVIDER_ID as string,
+      channelId: LINE_BOT_CHANNEL_ID as string,
+      accessToken: LINE_ACCESS_TOKEN as string,
+      noServer: true,
+    }),
+    Messenger.initModule({
+      pageId: MESSENGER_PAGE_ID as string,
+      accessToken: MESSENGER_ACCESS_TOKEN as string,
+      noServer: true,
+    }),
+  ],
   bindings: [
     { provide: FileState.SerializerI, withValue: YAML },
 
-    {
-      provide: Line.CONFIGS_I,
-      withValue: {
-        providerId: LINE_PROVIDER_ID,
-        botChannelId: LINE_BOT_CHANNEL_ID,
-        accessToken: LINE_ACCESS_TOKEN,
-      },
-    },
-    Line.Bot,
     LineAssetsManager,
-
-    {
-      provide: Messenger.CONFIGS_I,
-      withValue: {
-        pageId: MESSENGER_PAGE_ID,
-        accessToken: MESSENGER_ACCESS_TOKEN,
-      },
-    },
-    Messenger.Bot,
     MessengerAssetsManager,
   ],
 });

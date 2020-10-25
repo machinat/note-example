@@ -16,7 +16,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
   const subtitle = 'A note app for chat room.';
 
   if (platform === 'line') {
-    const liffLocation = `https://liff.line.me/${liffId}/webview/note?platform=line`;
+    const liffLocation = `https://liff.line.me/${liffId}`;
     // NOTE: can't share a template in line, use plain text instead
     return (
       <p>
@@ -33,7 +33,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
     );
   }
 
-  const webviewURL = new URL('webview/note', entry);
+  const webviewURL = new URL('webview', entry);
 
   if (platform === 'messenger') {
     webviewURL.searchParams.set('platform', 'messenger');

@@ -2,16 +2,16 @@ import fs from 'fs';
 import axios from 'axios';
 import Messenger from '@machinat/messenger';
 import Line from '@machinat/line';
-import LineAssetRegistry from '@machinat/line/asset';
+import { LineAssetsManager } from '@machinat/line/asset';
 import { encodePostbackPayload } from '../utils';
 
 const { ENTRY_URL, LINE_LIFF_ID, LINE_ACCESS_TOKEN } = process.env;
 
 export const up = async (app) => {
-  const [messengerBot, lineBot, lineAssetRegistry] = app.useServices([
+  const [messengerBot, lineBot, lineAssetManager] = app.useServices([
     Messenger.Bot,
     Line.Bot,
-    LineAssetRegistry,
+    LineAssetsManager,
   ]);
   await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
     whitelisted_domains: [ENTRY_URL],
@@ -34,7 +34,7 @@ export const up = async (app) => {
           {
             type: 'web_url',
             title: '👤 My Space',
-            url: `${ENTRY_URL}/webview/note?platform=messenger`,
+            url: `${ENTRY_URL}/webview?platform=messenger`,
             webview_height_ratio: 'full',
             messenger_extensions: true,
           },
@@ -47,7 +47,7 @@ export const up = async (app) => {
       },
     ],
   });
-  const richMenuId = await lineAssetRegistry.createRichMenu('default_menu.en', {
+  const richMenuId = await lineAssetManager.createRichMenu('default_menu.en', {
     size: {
       width: 800,
       height: 250,
@@ -60,7 +60,7 @@ export const up = async (app) => {
         bounds: { x: 0, y: 0, width: 367, height: 250 },
         action: {
           type: 'uri',
-          uri: `https://liff.line.me/${LINE_LIFF_ID}/webview/note?platform=line&fromBotChannel=true`,
+          uri: `https://liff.line.me/${LINE_LIFF_ID}/webview?platform=line&fromBotChannel=true`,
         },
       },
       {
@@ -88,9 +88,9 @@ export const up = async (app) => {
 };
 
 export const down = async (app) => {
-  const [messengerBot, lineAssetRegistry] = app.useServices([
+  const [messengerBot, lineAssetManager] = app.useServices([
     Messenger.Bot,
-    LineAssetRegistry,
+    LineAssetsManager,
   ]);
   await messengerBot.dispatchAPICall('DELETE', 'me/messenger_profile', {
     fields: [
@@ -100,5 +100,5 @@ export const down = async (app) => {
       'whitelisted_domains',
     ],
   });
-  await lineAssetRegistry.deleteRichMenu('default_menu.en');
+  await lineAssetManager.deleteRichMenu('default_menu.en');
 };

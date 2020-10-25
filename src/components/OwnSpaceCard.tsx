@@ -8,7 +8,7 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
   const indicateWords = 'Open your own Note Machina space 👇';
 
   if (platform === 'line') {
-    const liffLocation = `https://liff.line.me/${liffId}/webview/note?platform=line&userToBot=true`;
+    const liffLocation = `https://liff.line.me/${liffId}?userToBot=true`;
     return (
       <Line.ButtonTemplate
         text={indicateWords}
@@ -19,7 +19,7 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
     );
   }
 
-  const webviewURL = new URL(`webview/note?platform=${platform}`, entry);
+  const webviewURL = new URL(`webview?platform=${platform}`, entry);
 
   if (platform === 'messenger') {
     return (
