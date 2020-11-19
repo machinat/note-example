@@ -7,6 +7,7 @@ import useAuthClient from '@machinat/websocket/auth/client';
 import AuthController from '@machinat/auth/client';
 import MessengerAuthorizer from '@machinat/messenger/auth/client';
 import LineAuthorizer from '@machinat/line/auth/client';
+import TelegramAuthorizer from '@machinat/telegram/auth/client';
 
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -22,18 +23,14 @@ import useSearchFilter from '../hooks/useSearchFilter';
 let client;
 if (typeof window !== 'undefined') {
   const {
-    publicRuntimeConfig: {
-      fbAppId,
-      lineProviderId,
-      lineBotChannelId,
-      lineLIFFId,
-    },
+    publicRuntimeConfig: { fbAppId, lineLIFFId },
   } = getConfig();
 
   const clientAuthController = new AuthController({
     serverURL: '/auth',
     authorizers: [
       new MessengerAuthorizer({ appId: fbAppId }),
+      new TelegramAuthorizer(),
       new LineAuthorizer({ liffId: lineLIFFId }),
     ],
   }).on('error', console.error);

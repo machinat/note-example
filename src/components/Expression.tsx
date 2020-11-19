@@ -1,6 +1,10 @@
 import Machinat from '@machinat/core';
 import { MachinatNode } from '@machinat/core/types';
 import { Expression as MessengerExpression } from '@machinat/messenger/components';
+import {
+  Expression as TelegramExpression,
+  InlineKeyboard,
+} from '@machinat/telegram/components';
 import { Expression as LineExpression } from '@machinat/line/components';
 
 const Expression = (
@@ -23,6 +27,14 @@ const Expression = (
     case 'line':
       return (
         <LineExpression quickReplies={quickReplies}>{children}</LineExpression>
+      );
+    case 'telegram':
+      return (
+        <TelegramExpression
+          replyMarkup={<InlineKeyboard>{quickReplies}</InlineKeyboard>}
+        >
+          {children}
+        </TelegramExpression>
       );
     default:
       return <>children</>;

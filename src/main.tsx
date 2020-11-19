@@ -1,64 +1,76 @@
 import Machinat from '@machinat/core';
 import Base from '@machinat/core/base';
 import { container } from '@machinat/core/service';
+
 import { MessengerChat, MessengerBot } from '@machinat/messenger';
-import { MessengerEventContext } from '@machinat/messenger/types';
 import { MarkSeen } from '@machinat/messenger/components';
+
+import { TelegramChat, TelegramBot } from '@machinat/telegram';
+
 import { LineChat, LineBot } from '@machinat/line';
-import { LineEventContext } from '@machinat/line/types';
-import Script, { Run } from '@machinat/script';
+
+import Script from '@machinat/script';
 import { Subject, merge, conditions } from '@machinat/x-machinat';
 import { StreamingFrame } from '@machinat/x-machinat/types';
 import { filter, mapMetadata, tap } from '@machinat/x-machinat/operators';
-import {
-  handleSocketConnect,
-  handleAddNote,
-  handleDeleteNote,
-  handleUpdateNote,
-  handleReplyMessage,
-  handlePostback,
-} from './subscribers';
-import FirstMeet from './scenes/FirstMeet';
-import { isFirstMeet, isPostback } from './utils';
-import { LINE_CHANNEL_ID_I } from './interface';
+
+import handleStarting from './subscribers/handleStarting';
+import handleSocketConnect from './subscribers/handleSocketConnect';
+import handleAddNote from './subscribers/handleAddNote';
+import handleDeleteNote from './subscribers/handleDeleteNote';
+import handleUpdateNote from './subscribers/handleUpdateNote';
+import handleReplyMessage from './subscribers/handleReplyMessage';
+import handlePostback from './subscribers/handlePostback';
+import handleTelegramInlineQuery from './subscribers/handleTelegramInlineQuery';
+
+import { isStarting, isPostback } from './utils';
 import type { AppEventContext, AppWebSocketEventContext } from './types';
 
 const main = (events$: Subject<AppEventContext>): void => {
   const webview$ = events$.pipe(
     filter(({ platform }: AppEventContext) => platform === 'web_socket'),
     mapMetadata(
-      container({ deps: [LINE_CHANNEL_ID_I] })(
-        (channelId) => ({
-          scope,
-          value: { event, metadata },
-        }: StreamingFrame<AppWebSocketEventContext>) => {
-          // transform websocket event to source platform
-          const { user, channel: authChannel } = metadata.auth;
+      ({
+        scope,
+        value: { event, metadata },
+      }: StreamingFrame<AppWebSocketEventContext>) => {
+        // transform websocket event to source platform
+        const { auth } = metadata;
+        let originChannel;
+        let bot;
 
-          const noteSpaceChannel =
-            authChannel ||
-            (user.platform === 'messenger'
-              ? MessengerChat.fromUser(user)
-              : LineChat.fromUser(channelId, user));
+        if (auth.platform === 'messenger') {
+          const { channel, user } = auth;
 
-          const [bot] = scope.useServices([
-            user.platform === 'messenger' ? MessengerBot : LineBot,
-          ]);
+          originChannel = channel || MessengerChat.fromUser(user);
+          [bot] = scope.useServices([MessengerBot]);
+        } else if (auth.platform === 'telegram') {
+          const { channel, user, data } = auth;
 
-          return {
-            key: noteSpaceChannel.uid,
-            value: {
-              platform: user.platform,
-              bot,
-              metadata,
-              event: {
-                ...event,
-                channel: noteSpaceChannel,
-              },
-            },
-          };
+          originChannel = channel || TelegramChat.fromUser(data.botId, user);
+          [bot] = scope.useServices([TelegramBot]);
+        } else if (auth.platform === 'line') {
+          const { channel, user, data } = auth;
+
+          originChannel = channel || LineChat.fromUser(data.channelId, user);
+          [bot] = scope.useServices([LineBot]);
+        } else {
+          throw Error('unknown auth platform');
         }
-      )
+
+        return {
+          key: originChannel.uid,
+          value: {
+            platform: auth.platform,
+            bot,
+            metadata,
+            event: {
+              ...event,
+              channel: originChannel,
+            },
+          },
+        };
+      }
     )
   );
 
@@ -77,7 +89,12 @@ const main = (events$: Subject<AppEventContext>): void => {
 
   const chatroom$ = merge(
     events$.pipe(
-      filter(({ platform }) => platform === 'line' || platform === 'messenger')
+      filter(
+        ({ platform }) =>
+          platform === 'line' ||
+          platform === 'messenger' ||
+          platform === 'telegram'
+      )
     ),
     webview$
   ).pipe(
@@ -85,35 +102,45 @@ const main = (events$: Subject<AppEventContext>): void => {
       container({
         deps: [Base.Bot, Script.Processor],
       })(
-        (bot, scriptProcessor) => async (
-          ctx: MessengerEventContext | LineEventContext
+        (bot: Base.Bot, scriptProcessor: Script.Processor<any, any>) => async (
+          context
         ) => {
-          const {
-            event: { channel },
-          } = ctx;
-          const runtime = await scriptProcessor.continue(channel);
+          const { kind, channel } = context.event;
+          if (
+            !channel ||
+            (kind !== 'message' &&
+              kind !== 'postback' &&
+              kind !== 'note_operation')
+          ) {
+            return true;
+          }
+
+          const runtime = await scriptProcessor.continue(channel, context);
           if (!runtime) {
             return true;
           }
 
-          if (channel) {
-            await bot.render(channel, <Run runtime={runtime} input={ctx} />);
-          }
+          await bot.render(channel, runtime.output());
           return false;
         }
       )
     )
   );
 
-  const [firstMeets$, postbacks$, messages$] = conditions(chatroom$, [
-    isFirstMeet,
+  const [
+    firstMeets$,
+    postbacks$,
+    messages$,
+    telegramInlineQuery$,
+  ] = conditions(chatroom$, [
+    isStarting,
     isPostback,
     ({ event }) => event.kind === 'message',
+    ({ event }) =>
+      event.platform === 'telegram' && event.type === 'inline_query',
   ]);
 
-  firstMeets$.subscribe(async ({ bot, event: { channel } }) => {
-    await bot.render(channel, <FirstMeet.Start channel={channel} />);
-  }, console.error);
+  firstMeets$.subscribe(handleStarting, console.error);
 
   postbacks$.subscribe(handlePostback, console.error);
 
@@ -127,6 +154,8 @@ const main = (events$: Subject<AppEventContext>): void => {
       })
     )
     .subscribe(handleReplyMessage, console.error);
+
+  telegramInlineQuery$.subscribe(handleTelegramInlineQuery, console.error);
 };
 
 export default main;

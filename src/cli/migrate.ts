@@ -2,6 +2,7 @@ import path from 'path';
 import Machinat from '@machinat/core';
 import Messenger from '@machinat/messenger';
 import { MessengerAssetsManager } from '@machinat/messenger/asset';
+import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
 import { LineAssetsManager } from '@machinat/line/asset';
 import FileState from '@machinat/simple-state/file';
@@ -15,6 +16,7 @@ const {
   REDIS_URL,
   MESSENGER_PAGE_ID,
   MESSENGER_ACCESS_TOKEN,
+  TELEGRAM_BOT_TOKEN,
   LINE_PROVIDER_ID,
   LINE_BOT_CHANNEL_ID,
   LINE_ACCESS_TOKEN,
@@ -35,15 +37,19 @@ const app = Machinat.createApp({
         }),
   ],
   platforms: [
+    Messenger.initModule({
+      pageId: MESSENGER_PAGE_ID as string,
+      accessToken: MESSENGER_ACCESS_TOKEN as string,
+      noServer: true,
+    }),
+    Telegram.initModule({
+      botToken: TELEGRAM_BOT_TOKEN as string,
+      noServer: true,
+    }),
     Line.initModule({
       providerId: LINE_PROVIDER_ID as string,
       channelId: LINE_BOT_CHANNEL_ID as string,
       accessToken: LINE_ACCESS_TOKEN as string,
-      noServer: true,
-    }),
-    Messenger.initModule({
-      pageId: MESSENGER_PAGE_ID as string,
-      accessToken: MESSENGER_ACCESS_TOKEN as string,
       noServer: true,
     }),
   ],

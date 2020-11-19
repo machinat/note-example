@@ -1,7 +1,13 @@
 import { GetAuthContextOf } from '@machinat/auth/types';
+
 import { MessengerChat, MessengerUser } from '@machinat/messenger';
 import { MessengerServerAuthorizer } from '@machinat/messenger/auth';
 import { MessengerEventContext } from '@machinat/messenger/types';
+
+import { TelegramChat, TelegramUser } from '@machinat/telegram';
+import { TelegramServerAuthorizer } from '@machinat/telegram/auth';
+import { TelegramEventContext } from '@machinat/telegram/types';
+
 import { LineChat, LineUser } from '@machinat/line';
 import { LineServerAuthorizer } from '@machinat/line/auth';
 import { LineEventContext } from '@machinat/line/types';
@@ -11,7 +17,11 @@ import {
 } from '@machinat/websocket/types';
 
 export type NoteData = { id: number; title: string; content: string };
-export type SpaceData = { idCounter: number; notes: NoteData[] };
+export type SpaceData = {
+  beginTime: number;
+  idCounter: number;
+  notes: NoteData[];
+};
 
 export type AddNote = {
   kind: 'note_operation';
@@ -65,11 +75,14 @@ export type WebViewActivity =
 export type AppWebSocketEventContext = WebSocketEventContext<
   WebViewActivity,
   MessengerUser | LineUser,
-  GetAuthContextOf<MessengerServerAuthorizer | LineServerAuthorizer>
+  GetAuthContextOf<
+    MessengerServerAuthorizer | TelegramServerAuthorizer | LineServerAuthorizer
+  >
 >;
 
 export type AppEventContext =
   | MessengerEventContext
+  | TelegramEventContext
   | LineEventContext
   | AppWebSocketEventContext;
 
@@ -103,7 +116,7 @@ export type NoteDeletedNotification = {
   };
 };
 
-export type AppDataNotication = {
+export type AppDataNotification = {
   kind: 'app';
   type: 'app_data';
   payload: {

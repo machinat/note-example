@@ -68,7 +68,7 @@ const handleAskForIntroPrompt = container({
 );
 
 export default build(
-  'FirstMeet',
+  'Starting',
   <>
     {() => (
       <Expression

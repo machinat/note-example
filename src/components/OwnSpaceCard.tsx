@@ -1,7 +1,9 @@
 import Machinat from '@machinat/core';
 import { container } from '@machinat/core/service';
-import * as Msgr from '@machinat/messenger/components';
+import * as Messenger from '@machinat/messenger/components';
+import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
+import { encodePostbackPayload } from '../utils';
 import { ENTRY_URL_I, LINE_LIFF_ID_I } from '../interface';
 
 const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
@@ -23,9 +25,9 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
 
   if (platform === 'messenger') {
     return (
-      <Msgr.ButtonTemplate
+      <Messenger.ButtonTemplate
         buttons={
-          <Msgr.URLButton
+          <Messenger.URLButton
             title="Go"
             url={webviewURL.href}
             messengerExtensions={true}
@@ -34,7 +36,24 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
         sharable={false}
       >
         {indicateWords}
-      </Msgr.ButtonTemplate>
+      </Messenger.ButtonTemplate>
+    );
+  }
+
+  if (platform === 'telegram') {
+    return (
+      <Telegram.Text
+        replyMarkup={
+          <Telegram.InlineKeyboard>
+            <Telegram.CallbackButton
+              text="Go"
+              data={encodePostbackPayload({ action: 'open' })}
+            />
+          </Telegram.InlineKeyboard>
+        }
+      >
+        {indicateWords}
+      </Telegram.Text>
     );
   }
 

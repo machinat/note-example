@@ -3,7 +3,8 @@ import DialogFlow from '@machinat/dialogflow';
 import { container } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { IF, THEN, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
-import * as Msgr from '@machinat/messenger/components';
+import * as Messenger from '@machinat/messenger/components';
+import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 import Expression from '../components/Expression';
 import OwnSpaceCard from '../components/OwnSpaceCard';
@@ -19,16 +20,17 @@ const handleAddFirstNoteReaction = container({
     { vars, channel },
     { event }
   ) => {
-    if (event.type === 'quick_reply' || event.type === 'postback') {
+    if (event.data) {
       const payload = decodePostbackPayload(event.data);
-
-      if (payload.action === 'open') {
-        return { ...vars, reactionType: 'open' };
-      }
-      if (payload.action === 'reject') {
-        return { ...vars, reactionType: 'reject' };
-      }
-      return { ...vars, reactionType: '?' };
+      return {
+        ...vars,
+        reactionType:
+          payload.action === 'open'
+            ? 'open'
+            : payload.action === 'reject'
+            ? 'reject'
+            : '?',
+      };
     }
 
     if (event.type === 'text') {
@@ -36,32 +38,30 @@ const handleAddFirstNoteReaction = container({
         contexts: ['in-flow'],
       });
 
-      if (intentType === 'open' || intentType === 'positive') {
-        return { ...vars, reactionType: 'open' };
-      }
-      if (
-        intentType === 'negative' ||
-        intentType === 'curse' ||
-        intentType === 'skip-in-flow'
-      ) {
-        return { ...vars, reactionType: 'reject' };
-      }
-      return { ...vars, reactionType: '?' };
+      return {
+        ...vars,
+        reactionType:
+          intentType === 'open' || intentType === 'positive'
+            ? 'open'
+            : intentType === 'negative' ||
+              intentType === 'curse' ||
+              intentType === 'skip-in-flow'
+            ? 'reject'
+            : '?',
+      };
     }
 
-    if (event.kind === 'message') {
-      return { ...vars, reactionType: '?' };
-    }
-
-    if (event.type === 'add_note') {
-      return { ...vars, reactionType: 'done' };
-    }
-
-    if (event.type === 'webview_close' || event.type === 'disconnect') {
-      return { ...vars, reactionType: 'cancel' };
-    }
-
-    return { ...vars, reactionType: undefined };
+    return {
+      ...vars,
+      reactionType:
+        event.type === 'add_note'
+          ? 'done'
+          : event.type === 'webview_close' || event.type === 'disconnect'
+          ? 'cancel'
+          : event.kind === 'message'
+          ? '?'
+          : undefined,
+    };
   }
 );
 
@@ -72,13 +72,12 @@ const handleAskShareFriend = container({
     { vars, channel },
     { event }
   ) => {
-    if (event.type === 'quick_reply' || event.type === 'postback') {
+    if (event.data) {
       const payload = decodePostbackPayload(event.data);
-
-      if (payload.action === 'reject') {
-        return { ...vars, shareAnswer: 'reject' };
-      }
-      return { ...vars, shareAnswer: 'share' };
+      return {
+        ...vars,
+        shareAnswer: payload.action === 'reject' ? 'reject' : 'share',
+      };
     }
 
     if (event.type === 'text') {
@@ -86,14 +85,15 @@ const handleAskShareFriend = container({
         contexts: ['in-flow'],
       });
 
-      if (
-        intentType === 'negative' ||
-        intentType === 'curse' ||
-        intentType === 'skip-in-flow'
-      ) {
-        return { ...vars, shareAnswer: 'reject' };
-      }
-      return { ...vars, shareAnswer: 'share' };
+      return {
+        ...vars,
+        shareAnswer:
+          intentType === 'negative' ||
+          intentType === 'curse' ||
+          intentType === 'skip-in-flow'
+            ? 'reject'
+            : 'share',
+      };
     }
 
     return { ...vars, shareAnswer: 'share' };
@@ -103,15 +103,9 @@ const handleAskShareFriend = container({
 const openOrRejectReplies = (
   <YesOrNoReplies
     yesText="OK, open my space!"
-    yesPayload={encodePostbackPayload({
-      action: 'open',
-      from: 'Introduction',
-    })}
+    yesPayload={encodePostbackPayload({ action: 'open' })}
     noText="Maybe next time."
-    noPayload={encodePostbackPayload({
-      action: 'reject',
-      from: 'Introduction',
-    })}
+    noPayload={encodePostbackPayload({ action: 'reject' })}
   />
 );
 
@@ -153,13 +147,10 @@ export default build(
         switch (reactionType) {
           case 'open':
             return <OwnSpaceCard />;
-
           case 'done':
             return <p>Well done! 👏 You got you first note! 🎉</p>;
-
           case 'reject':
             return <p>Oh... maybe next time. 😅</p>;
-
           case 'cancel':
             return (
               <p>
@@ -167,14 +158,12 @@ export default build(
                 this anytime. 😀
               </p>
             );
-
           case '?':
             return (
               <Expression quickReplies={openOrRejectReplies}>
                 C'mon, have a try!
               </Expression>
             );
-
           default:
             return null;
         }
@@ -186,15 +175,9 @@ export default build(
         quickReplies={
           <YesOrNoReplies
             yesText="Share to friends!"
-            yesPayload={encodePostbackPayload({
-              action: 'share',
-              from: 'introduction',
-            })}
+            yesPayload={encodePostbackPayload({ action: 'share' })}
             noText="Maybe next time."
-            noPayload={encodePostbackPayload({
-              action: 'reject',
-              from: 'introduction',
-            })}
+            noPayload={encodePostbackPayload({ action: 'reject' })}
           />
         }
       >
@@ -211,13 +194,7 @@ export default build(
     )}
 
     {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <PROMPT
-      key="ask-share-friend"
-      filter={(_, { event }) =>
-        event.kind === 'message' || event.kind === 'postback'
-      }
-      set={handleAskShareFriend}
-    />
+    <PROMPT key="ask-share-friend" set={handleAskShareFriend} />
 
     {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
     <IF condition={({ vars: { shareAnswer } }) => shareAnswer === 'reject'}>
@@ -243,7 +220,7 @@ export default build(
           <Expression
             quickReplies={
               platform === 'messenger' ? (
-                <Msgr.QuickReply title="Done!" payload="done" />
+                <Messenger.QuickReply title="Done!" payload="done" />
               ) : platform === 'line' ? (
                 <Line.QuickReply
                   action={<Line.MessageAction label="Done!" text="Done!" />}
@@ -260,12 +237,7 @@ export default build(
     }}
 
     {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <PROMPT
-      key="waiting-for-share"
-      filter={(_, { event }) =>
-        event.kind === 'message' || event.kind === 'postback'
-      }
-    />
+    <PROMPT key="waiting-for-share" />
 
     {() => (
       <Expression>

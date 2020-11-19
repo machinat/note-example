@@ -1,22 +1,14 @@
 import Machinat from '@machinat/core';
-import { QuickReply as MsgrQuickReply } from '@machinat/messenger/components';
-import {
-  QuickReply as LineQuickReply,
-  PostbackAction as LinePostbackAction,
-} from '@machinat/line/components';
+import { QuickReply as MessengerQuickReply } from '@machinat/messenger/components';
+import * as Telegram from '@machinat/telegram/components';
+import * as Line from '@machinat/line/components';
 import { encodePostbackPayload } from '../utils';
 
 const DEFAULT_YES_TEXT = 'OK.';
 const DEFAULT_NO_TEXT = 'Nope!';
 
-const DEFUALT_YES_PAYLOAD = encodePostbackPayload({
-  action: 'yes',
-  from: 'quick_reply',
-});
-const DEFAULT_NO_PAYLOAD = encodePostbackPayload({
-  action: 'no',
-  from: 'quick_reply',
-});
+const DEFUALT_YES_PAYLOAD = encodePostbackPayload({ action: 'yes' });
+const DEFAULT_NO_PAYLOAD = encodePostbackPayload({ action: 'no' });
 
 const YesOrNoReplies = (
   {
@@ -36,11 +28,11 @@ const YesOrNoReplies = (
     case 'messenger':
       return (
         <>
-          <MsgrQuickReply
+          <MessengerQuickReply
             title={yesText || DEFAULT_YES_TEXT}
             payload={yesPayload || DEFUALT_YES_PAYLOAD}
           />
-          <MsgrQuickReply
+          <MessengerQuickReply
             title={noText || DEFAULT_NO_TEXT}
             payload={noPayload || DEFAULT_NO_PAYLOAD}
           />
@@ -49,23 +41,36 @@ const YesOrNoReplies = (
     case 'line':
       return (
         <>
-          <LineQuickReply
+          <Line.QuickReply
             action={
-              <LinePostbackAction
+              <Line.PostbackAction
                 label={yesText || DEFAULT_YES_TEXT}
                 text={yesText || DEFAULT_YES_TEXT}
                 data={yesPayload || DEFUALT_YES_PAYLOAD}
               />
             }
           />
-          <LineQuickReply
+          <Line.QuickReply
             action={
-              <LinePostbackAction
+              <Line.PostbackAction
                 label={noText || DEFAULT_NO_TEXT}
                 text={noText || DEFAULT_NO_TEXT}
                 data={noPayload || DEFAULT_NO_PAYLOAD}
               />
             }
+          />
+        </>
+      );
+    case 'telegram':
+      return (
+        <>
+          <Telegram.CallbackButton
+            text={yesText || DEFAULT_YES_TEXT}
+            data={yesPayload || DEFUALT_YES_PAYLOAD}
+          />
+          <Telegram.CallbackButton
+            text={noText || DEFAULT_NO_TEXT}
+            data={noPayload || DEFAULT_NO_PAYLOAD}
           />
         </>
       );

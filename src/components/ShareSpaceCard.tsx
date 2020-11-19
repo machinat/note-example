@@ -1,6 +1,6 @@
 import Machinat from '@machinat/core';
 import { container } from '@machinat/core/service';
-import * as Msgr from '@machinat/messenger/components';
+import * as Messenger from '@machinat/messenger/components';
 import {
   ENTRY_URL_I,
   FB_PAGE_NAME_I,
@@ -38,7 +38,7 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
   if (platform === 'messenger') {
     webviewURL.searchParams.set('platform', 'messenger');
     const webviewButton = (
-      <Msgr.URLButton
+      <Messenger.URLButton
         title="Go Chat Space"
         webviewHeightRatio="full"
         url={webviewURL.href}
@@ -46,21 +46,21 @@ const ShareSpaceCard = (entry, fbPageName, liffId, lineOfficialAccountId) => (
       />
     );
     return (
-      <Msgr.GenericTemplate sharable imageAspectRatio="square">
-        <Msgr.GenericItem
+      <Messenger.GenericTemplate sharable imageAspectRatio="square">
+        <Messenger.GenericItem
           imageURL={`${entry}/webview/static/share_card.png`}
           title={title}
           subtitle={subtitle}
           defaultAction={webviewButton}
           buttons={[
             webviewButton,
-            <Msgr.URLButton
+            <Messenger.URLButton
               title="Learn More"
               url={`https://m.me/${fbPageName}`}
             />,
           ]}
         />
-      </Msgr.GenericTemplate>
+      </Messenger.GenericTemplate>
     );
   }
 

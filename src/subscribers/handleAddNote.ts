@@ -27,12 +27,17 @@ const handleAddNote = container({
       .channelState(channel)
       .update<SpaceData>(NOTE_SPACE_DATA_KEY, (currentState) => {
         if (!currentState) {
-          return { idCounter: 1, notes: [{ id: 1, title, content }] };
+          return {
+            beginTime: Date.now(),
+            idCounter: 1,
+            notes: [{ id: 1, title, content }],
+          };
         }
 
         const { idCounter, notes } = currentState;
         id = idCounter + 1;
         return {
+          ...currentState,
           idCounter: id,
           notes: [...notes, { id, title, content }],
         };

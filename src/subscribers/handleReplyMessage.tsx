@@ -4,9 +4,7 @@ import DialogFlow from '@machinat/dialogflow';
 import Expression from '../components/Expression';
 import ShareToFriend from '../components/ShareToFriend';
 import OwnSpaceCard from '../components/OwnSpaceCard';
-import IntroduceQuickReply from '../components/IntroduceQuickReply';
-import OpenSpaceQuickReply from '../components/OpenSpaceQuickReply';
-import ShareQuickReply from '../components/ShareQuickReply';
+import WhatToDoExpression from '../components/WhatToDoExpression';
 
 const random = (arr) => arr[Math.floor(arr.length * Math.random())];
 
@@ -56,17 +54,9 @@ const handleReplyMessage = (recognizer) => async ({ bot, event }) => {
     }
     return bot.render(
       channel,
-      <Expression
-        quickReplies={
-          <>
-            <OpenSpaceQuickReply />
-            <ShareQuickReply />
-            <IntroduceQuickReply />
-          </>
-        }
-      >
+      <WhatToDoExpression>
         I'm not pretty sure what do you mean, could you make it clearer?
-      </Expression>
+      </WhatToDoExpression>
     );
   }
 

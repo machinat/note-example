@@ -1,4 +1,6 @@
-import { GET_STARTED_POSTBACK_KEY } from './constant';
+import { container } from '@machinat/core/service';
+import { BaseStateControllerI } from '@machinat/core/base';
+import { GET_STARTED_POSTBACK_KEY, NOTE_SPACE_DATA_KEY } from './constant';
 
 export const encodePostbackPayload = (payload) => {
   return Object.entries(payload)
@@ -18,12 +20,25 @@ export const decodePostbackPayload = (data) => {
     }, {});
 };
 
-export const isFirstMeet = ({ platform, event }) =>
-  (platform === 'messenger' &&
-    event.type === 'postback' &&
-    event.postback.payload === GET_STARTED_POSTBACK_KEY) ||
-  (platform === 'line' && event.type === 'follow');
+export const isStarting = ({ platform, event }) => {
+  if (platform === 'messenger') {
+    return (
+      event.type === 'postback' &&
+      event.postback.payload === GET_STARTED_POSTBACK_KEY
+    );
+  }
+
+  if (platform === 'telegram') {
+    return event.type === 'text' && event.text.slice(0, 6) === '/start';
+  }
+
+  if (platform === 'line') {
+    return event.type === 'follow';
+  }
+
+  return false;
+};
 
 export const isPostback = ({ platform, event }) =>
   event.type === 'postback' ||
-  (platform === 'messenger' && event.type === 'message' && !!event.quickReply);
+  (platform === 'telegram' && event.type === 'callback_query');

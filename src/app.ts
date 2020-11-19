@@ -12,6 +12,10 @@ import Line from '@machinat/line';
 import { LineServerAuthorizer } from '@machinat/line/auth';
 import { LineAssetsManager } from '@machinat/line/asset';
 
+import Telegram from '@machinat/telegram';
+import { TelegramAssetsManager } from '@machinat/telegram/asset';
+import { TelegramServerAuthorizer } from '@machinat/telegram/auth';
+
 import WebSocket from '@machinat/websocket';
 import Auth from '@machinat/auth';
 import RedisState from '@machinat/redis-state';
@@ -22,7 +26,7 @@ import DialogFlow from '@machinat/dialogflow';
 import YAML from 'yaml';
 
 import Script from '@machinat/script';
-import FirstMeet from './scenes/FirstMeet';
+import Starting from './scenes/Starting';
 import Introduction from './scenes/Introduction';
 
 import {
@@ -53,6 +57,9 @@ const {
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
   LINE_LIFF_ID,
+  // telegram
+  TELEGRAM_BOT_TOKEN,
+  TELEGRAM_SECRET_PATH,
   // dialogflow
   GOOGLE_APPLICATION_CREDENTIALS,
   DIALOG_FLOW_PROJECT_ID,
@@ -89,7 +96,7 @@ const app = Machinat.createApp({
         }),
 
     Script.initModule({
-      libs: [FirstMeet, Introduction],
+      libs: [Starting, Introduction],
     }),
 
     DialogFlow.initModule({
@@ -125,6 +132,13 @@ const app = Machinat.createApp({
       dispatchMiddlewares: [saveReusableAttachments],
     }),
 
+    Telegram.initModule({
+      botToken: TELEGRAM_BOT_TOKEN as string,
+      entryPath: '/webhook/telegram',
+      secretPath: TELEGRAM_SECRET_PATH,
+      authRedirectURL: '/webview?platform=telegram',
+    }),
+
     Line.initModule({
       entryPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID as string,
@@ -148,6 +162,10 @@ const app = Machinat.createApp({
 
     MessengerAssetsManager,
     { provide: Auth.AUTHORIZERS_I, withProvider: MessengerServerAuthorizer },
+
+    TelegramAssetsManager,
+    TelegramServerAuthorizer,
+    { provide: Auth.AUTHORIZERS_I, withProvider: TelegramServerAuthorizer },
 
     { provide: WebSocket.LOGIN_VERIFIER_I, withProvider: useAuthController },
 

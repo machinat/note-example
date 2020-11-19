@@ -1,18 +1,32 @@
 import fs from 'fs';
 import axios from 'axios';
+import type { MachinatApp } from '@machinat/core/types';
 import Messenger from '@machinat/messenger';
+import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
 import { LineAssetsManager } from '@machinat/line/asset';
 import { encodePostbackPayload } from '../utils';
 
-const { ENTRY_URL, LINE_LIFF_ID, LINE_ACCESS_TOKEN } = process.env;
+const {
+  ENTRY_URL,
+  LINE_LIFF_ID,
+  TELEGRAM_SECRET_PATH,
+  LINE_ACCESS_TOKEN,
+} = process.env;
 
-export const up = async (app) => {
-  const [messengerBot, lineBot, lineAssetManager] = app.useServices([
+export const up = async (app: MachinatApp<any>) => {
+  const [
+    messengerBot,
+    telegramBot,
+    lineBot,
+    lineAssetManager,
+  ] = app.useServices([
     Messenger.Bot,
+    Telegram.Bot,
     Line.Bot,
     LineAssetsManager,
-  ]);
+  ] as const);
+
   await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
     whitelisted_domains: [ENTRY_URL],
     get_started: {
@@ -25,6 +39,7 @@ export const up = async (app) => {
       },
     ],
   });
+
   await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
     persistent_menu: [
       {
@@ -41,12 +56,17 @@ export const up = async (app) => {
           {
             type: 'postback',
             title: '👥 Use w/ Friends',
-            payload: encodePostbackPayload({ action: 'share', from: 'menu' }),
+            payload: encodePostbackPayload({ action: 'share' }),
           },
         ],
       },
     ],
   });
+
+  telegramBot.dispatchAPICall('setWebhook', {
+    url: `${ENTRY_URL}/webhook/telegram/${TELEGRAM_SECRET_PATH}`,
+  });
+
   const richMenuId = await lineAssetManager.createRichMenu('default_menu.en', {
     size: {
       width: 800,
@@ -67,11 +87,12 @@ export const up = async (app) => {
         bounds: { x: 367, y: 0, width: 433, height: 250 },
         action: {
           type: 'postback',
-          data: encodePostbackPayload({ action: 'share', from: 'menu' }),
+          data: encodePostbackPayload({ action: 'share' }),
         },
       },
     ],
   });
+
   await axios({
     method: 'post',
     url: `https://api-data.line.me/v2/bot/richmenu/${richMenuId}/content`,
@@ -81,17 +102,21 @@ export const up = async (app) => {
     },
     data: fs.createReadStream('./assets/line_menu.en.png'),
   });
+
   await lineBot.dispatchAPICall(
     'POST',
-    `v2/bot/user/all/richmenu/${richMenuId}`
+    `v2/bot/user/all/richmenu/${richMenuId}`,
+    null
   );
 };
 
-export const down = async (app) => {
-  const [messengerBot, lineAssetManager] = app.useServices([
+export const down = async (app: MachinatApp<any>) => {
+  const [messengerBot, telegramBot, lineAssetManager] = app.useServices([
     Messenger.Bot,
+    Telegram.Bot,
     LineAssetsManager,
-  ]);
+  ] as const);
+
   await messengerBot.dispatchAPICall('DELETE', 'me/messenger_profile', {
     fields: [
       'get_started',
@@ -100,5 +125,8 @@ export const down = async (app) => {
       'whitelisted_domains',
     ],
   });
+
+  telegramBot.dispatchAPICall('deleteWebhook');
+
   await lineAssetManager.deleteRichMenu('default_menu.en');
 };

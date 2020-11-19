@@ -6,7 +6,7 @@ import {
   SpaceData,
   ConnectionConnect,
   WebViewEventContext,
-  AppDataNotication,
+  AppDataNotification,
 } from '../types';
 
 const handleSocketConnect = container({
@@ -42,7 +42,7 @@ const handleSocketConnect = container({
     const profile = await profileFetcher.getUserProfile(user);
     const { platform, name, pictureURL } = profile;
 
-    const appData: AppDataNotication = {
+    const appData: AppDataNotification = {
       kind: 'app',
       type: 'app_data',
       payload: {
