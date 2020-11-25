@@ -19,6 +19,10 @@
       "pre-commit": "npm run lint -- --quiet"
     }
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "@machinat/auth": "file:machinat-auth-0.3.0-beta.2.tgz",
     "@machinat/core": "file:machinat-core-0.3.0-beta.3.tgz",
