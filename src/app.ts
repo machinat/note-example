@@ -2,26 +2,22 @@ import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
 
 import Messenger from '@machinat/messenger';
-import { MessengerServerAuthorizer } from '@machinat/messenger/auth';
-import {
-  MessengerAssetsManager,
+import MessengerAuthorizer from '@machinat/messenger/webview';
+import MessengerAssetsManager, {
   saveReusableAttachments,
 } from '@machinat/messenger/asset';
 
 import Line from '@machinat/line';
-import { LineServerAuthorizer } from '@machinat/line/auth';
-import { LineAssetsManager } from '@machinat/line/asset';
+import LineAuthorizer from '@machinat/line/webview';
+import LineAssetsManager from '@machinat/line/asset';
 
 import Telegram from '@machinat/telegram';
-import { TelegramAssetsManager } from '@machinat/telegram/asset';
-import { TelegramServerAuthorizer } from '@machinat/telegram/auth';
+import TelegramAssetsManager from '@machinat/telegram/asset';
+import TelegramAuthorizer from '@machinat/telegram/webview';
 
-import WebSocket from '@machinat/websocket';
-import Auth from '@machinat/auth';
+import Webview from '@machinat/webview';
 import RedisState from '@machinat/redis-state';
-import { FileState } from '@machinat/simple-state';
-import Next from '@machinat/next';
-import { useAuthController } from '@machinat/websocket/auth';
+import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
 import YAML from 'yaml';
 
@@ -32,15 +28,18 @@ import Introduction from './scenes/Introduction';
 import {
   ENTRY_URL_I,
   FB_PAGE_NAME_I,
+  TELEGRAM_BOT_NAME_I,
   LINE_LIFF_ID_I,
   LINE_CHANNEL_ID_I,
   LINE_OFFICIAL_ACCOUNT_ID_I,
-} from './interface';
+} from './constant';
+import type { WebViewActivity } from './types';
 import nextConfig from './webview/next.config.js';
 
 const {
   // location
   PORT,
+  HOST,
   NODE_ENV,
   ENTRY_URL,
   // auth
@@ -59,6 +58,7 @@ const {
   LINE_LIFF_ID,
   // telegram
   TELEGRAM_BOT_TOKEN,
+  TELEGRAM_BOT_NAME,
   TELEGRAM_SECRET_PATH,
   // dialogflow
   GOOGLE_APPLICATION_CREDENTIALS,
@@ -67,22 +67,16 @@ const {
   DIALOG_FLOW_PRIVATE_KEY,
   // redis
   REDIS_URL,
-} = process.env;
+} = process.env as Record<string, string>;
 
 const DEV = NODE_ENV !== 'production';
-
-const ORIGIN = new URL(ENTRY_URL as string).origin;
 
 const app = Machinat.createApp({
   modules: [
     HTTP.initModule({
-      port: PORT ? Number(PORT) : 8080,
-    }),
-
-    Auth.initModule({
-      entryPath: '/auth',
-      sameSite: 'none',
-      secret: AUTH_SECRET as string,
+      listenOptions: {
+        port: PORT ? Number(PORT) : 8080,
+      },
     }),
 
     DEV
@@ -111,15 +105,6 @@ const app = Machinat.createApp({
           },
       defaultLanguageCode: 'en-US',
     }),
-
-    Next.initModule({
-      entryPath: '/webview',
-      nextAppOptions: {
-        dev: DEV,
-        dir: `./${DEV ? 'src' : 'lib'}/webview`,
-        conf: nextConfig,
-      },
-    }),
   ],
 
   platforms: [
@@ -127,52 +112,59 @@ const app = Machinat.createApp({
       entryPath: '/webhook/messenger',
       pageId: MESSENGER_PAGE_ID as string,
       appSecret: MESSENGER_APP_SECRET,
-      accessToken: MESSENGER_ACCESS_TOKEN as string,
+      accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
       dispatchMiddlewares: [saveReusableAttachments],
     }),
 
     Telegram.initModule({
-      botToken: TELEGRAM_BOT_TOKEN as string,
+      botToken: TELEGRAM_BOT_TOKEN,
       entryPath: '/webhook/telegram',
       secretPath: TELEGRAM_SECRET_PATH,
-      authRedirectURL: '/webview?platform=telegram',
     }),
 
     Line.initModule({
       entryPath: '/webhook/line',
-      providerId: LINE_PROVIDER_ID as string,
-      channelId: LINE_BOT_CHANNEL_ID as string,
-      accessToken: LINE_ACCESS_TOKEN as string,
+      providerId: LINE_PROVIDER_ID,
+      channelId: LINE_BOT_CHANNEL_ID,
+      accessToken: LINE_ACCESS_TOKEN,
       channelSecret: LINE_CHANNEL_SECRET,
-      liffChannelIds: [(LINE_LIFF_ID as string).split('-')[0]],
+      liffChannelIds: [LINE_LIFF_ID.split('-')[0]],
     }),
 
-    WebSocket.initModule({
-      entryPath: '/websocket',
-      verifyUpgrade(request) {
-        return request.headers.origin === ORIGIN;
+    Webview.initModule<
+      MessengerAuthorizer | LineAuthorizer | TelegramAuthorizer,
+      WebViewActivity
+    >({
+      webviewHost: HOST,
+      authSecret: AUTH_SECRET,
+      sameSite: 'none',
+      nextServerOptions: {
+        dev: DEV,
+        dir: `./${DEV ? 'src' : 'lib'}/webview`,
+        conf: nextConfig,
       },
     }),
   ],
 
-  bindings: [
+  services: [
     LineAssetsManager,
-    { provide: Auth.AUTHORIZERS_I, withProvider: LineServerAuthorizer },
+    { provide: Webview.AuthorizerList, withProvider: LineAuthorizer },
 
     MessengerAssetsManager,
-    { provide: Auth.AUTHORIZERS_I, withProvider: MessengerServerAuthorizer },
+    {
+      provide: Webview.AuthorizerList,
+      withProvider: MessengerAuthorizer,
+    },
 
     TelegramAssetsManager,
-    TelegramServerAuthorizer,
-    { provide: Auth.AUTHORIZERS_I, withProvider: TelegramServerAuthorizer },
+    { provide: Webview.AuthorizerList, withProvider: TelegramAuthorizer },
 
-    { provide: WebSocket.LOGIN_VERIFIER_I, withProvider: useAuthController },
-
-    { provide: FileState.SerializerI, withValue: YAML },
+    { provide: FileState.Serializer, withValue: YAML },
 
     { provide: ENTRY_URL_I, withValue: ENTRY_URL },
     { provide: FB_PAGE_NAME_I, withValue: MESSENGER_PAGE_ID },
+    { provide: TELEGRAM_BOT_NAME_I, withValue: TELEGRAM_BOT_NAME },
     { provide: LINE_CHANNEL_ID_I, withValue: LINE_BOT_CHANNEL_ID },
     { provide: LINE_LIFF_ID_I, withValue: LINE_LIFF_ID },
     {

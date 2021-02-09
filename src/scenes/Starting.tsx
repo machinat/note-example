@@ -1,17 +1,17 @@
 import Machinat from '@machinat/core';
 import DialogFlow from '@machinat/dialogflow';
-import { container } from '@machinat/core/service';
+import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { IF, THEN, PROMPT, CALL, RETURN } from '@machinat/script/keywords';
 
-import { decodePostbackPayload } from '../utils';
+import { decodePostbackData } from '../utils';
 import Greeting from '../components/Greeting';
 import Expression from '../components/Expression';
 import YesOrNoReplies from '../components/YesOrNoReplies';
 
 import Introduction from './Introduction';
 
-const handleAskForIntroPrompt = container({
+const handleAskForIntroPrompt = makeContainer({
   deps: [DialogFlow.IntentRecognizer],
 })(
   (recognizer: DialogFlow.IntentRecognizer) => async (
@@ -19,7 +19,7 @@ const handleAskForIntroPrompt = container({
     { channel, event }
   ) => {
     if (event.type === 'quick_reply' || event.type === 'postback') {
-      const payload = decodePostbackPayload(event.data);
+      const payload = decodePostbackData(event.data);
 
       if (payload.action === 'yes' || payload.action === 'no') {
         return {

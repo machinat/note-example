@@ -5,11 +5,11 @@ import {
   QuickReply as LineQuickReply,
   PostbackAction as LinePostbackAction,
 } from '@machinat/line/components';
-import { encodePostbackPayload } from '../utils';
+import { encodePostbackData } from '../utils';
 
 const ShareQuickReply = (_, { platform }) => {
   const title = 'Share to friend.';
-  const payload = encodePostbackPayload({ action: 'share' });
+  const payload = encodePostbackData({ action: 'share' });
 
   return platform === 'messenger' ? (
     <MsgrQuickReply title={title} payload={payload} />

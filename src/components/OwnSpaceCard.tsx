@@ -1,10 +1,9 @@
 import Machinat from '@machinat/core';
-import { container } from '@machinat/core/service';
+import { makeContainer } from '@machinat/core/service';
 import * as Messenger from '@machinat/messenger/components';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
-import { encodePostbackPayload } from '../utils';
-import { ENTRY_URL_I, LINE_LIFF_ID_I } from '../interface';
+import { ENTRY_URL_I, LINE_LIFF_ID_I } from '../constant';
 
 const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
   const indicateWords = 'Open your own Note Machina space 👇';
@@ -14,20 +13,20 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
     return (
       <Line.ButtonTemplate
         text={indicateWords}
-        defaultAction={<Line.URIAction label="Go" uri={liffLocation} />}
+        defaultAction={<Line.UriAction label="Go" uri={liffLocation} />}
         altText={liffLocation}
-        actions={<Line.URIAction label="Go" uri={liffLocation} />}
+        actions={<Line.UriAction label="Go" uri={liffLocation} />}
       />
     );
   }
 
-  const webviewURL = new URL(`webview?platform=${platform}`, entry);
+  const webviewURL = new URL(`/?platform=${platform}`, entry);
 
   if (platform === 'messenger') {
     return (
       <Messenger.ButtonTemplate
         buttons={
-          <Messenger.URLButton
+          <Messenger.UrlButton
             title="Go"
             url={webviewURL.href}
             messengerExtensions={true}
@@ -45,9 +44,10 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
       <Telegram.Text
         replyMarkup={
           <Telegram.InlineKeyboard>
-            <Telegram.CallbackButton
+            <Telegram.UrlButton
+              login
               text="Go"
-              data={encodePostbackPayload({ action: 'open' })}
+              url={`${ENTRY_URL_I}/auth/telegram/login`}
             />
           </Telegram.InlineKeyboard>
         }
@@ -66,4 +66,6 @@ const OwnSpaceCard = (entry, liffId) => (_, { platform }) => {
   );
 };
 
-export default container({ deps: [ENTRY_URL_I, LINE_LIFF_ID_I] })(OwnSpaceCard);
+export default makeContainer({ deps: [ENTRY_URL_I, LINE_LIFF_ID_I] })(
+  OwnSpaceCard
+);

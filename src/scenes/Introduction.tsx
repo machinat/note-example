@@ -1,6 +1,6 @@
 import Machinat from '@machinat/core';
 import DialogFlow from '@machinat/dialogflow';
-import { container } from '@machinat/core/service';
+import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { IF, THEN, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
 import * as Messenger from '@machinat/messenger/components';
@@ -11,61 +11,56 @@ import OwnSpaceCard from '../components/OwnSpaceCard';
 import ShareToFriend from '../components/ShareToFriend';
 import YesOrNoReplies from '../components/YesOrNoReplies';
 import Pause from '../components/Pause';
-import { decodePostbackPayload, encodePostbackPayload } from '../utils';
+import { decodePostbackData, encodePostbackData } from '../utils';
 
-const handleAddFirstNoteReaction = container({
+const handleAddFirstNoteReaction = makeContainer({
   deps: [DialogFlow.IntentRecognizer],
-})(
-  (recognizer: DialogFlow.IntentRecognizer) => async (
-    { vars, channel },
-    { event }
-  ) => {
-    if (event.data) {
-      const payload = decodePostbackPayload(event.data);
-      return {
-        ...vars,
-        reactionType:
-          payload.action === 'open'
-            ? 'open'
-            : payload.action === 'reject'
-            ? 'reject'
-            : '?',
-      };
-    }
+})((recognizer) => async ({ vars, channel }, { event }) => {
+  if (event.data) {
+    const payload = decodePostbackData(event.data);
+    return {
+      ...vars,
+      reactionType:
+        payload.action === 'open'
+          ? 'open'
+          : payload.action === 'reject'
+          ? 'reject'
+          : '?',
+    };
+  }
 
-    if (event.type === 'text') {
-      const { intentType } = await recognizer.detectText(channel, event.text, {
-        contexts: ['in-flow'],
-      });
-
-      return {
-        ...vars,
-        reactionType:
-          intentType === 'open' || intentType === 'positive'
-            ? 'open'
-            : intentType === 'negative' ||
-              intentType === 'curse' ||
-              intentType === 'skip-in-flow'
-            ? 'reject'
-            : '?',
-      };
-    }
+  if (event.type === 'text') {
+    const { intentType } = await recognizer.detectText(channel, event.text, {
+      contexts: ['in-flow'],
+    });
 
     return {
       ...vars,
       reactionType:
-        event.type === 'add_note'
-          ? 'done'
-          : event.type === 'webview_close' || event.type === 'disconnect'
-          ? 'cancel'
-          : event.kind === 'message'
-          ? '?'
-          : undefined,
+        intentType === 'open' || intentType === 'positive'
+          ? 'open'
+          : intentType === 'negative' ||
+            intentType === 'curse' ||
+            intentType === 'skip-in-flow'
+          ? 'reject'
+          : '?',
     };
   }
-);
 
-const handleAskShareFriend = container({
+  return {
+    ...vars,
+    reactionType:
+      event.type === 'add_note'
+        ? 'done'
+        : event.type === 'webview_close' || event.type === 'disconnect'
+        ? 'cancel'
+        : event.kind === 'message'
+        ? '?'
+        : undefined,
+  };
+});
+
+const handleAskShareFriend = makeContainer({
   deps: [DialogFlow.IntentRecognizer],
 })(
   (recognizer: DialogFlow.IntentRecognizer) => async (
@@ -73,7 +68,7 @@ const handleAskShareFriend = container({
     { event }
   ) => {
     if (event.data) {
-      const payload = decodePostbackPayload(event.data);
+      const payload = decodePostbackData(event.data);
       return {
         ...vars,
         shareAnswer: payload.action === 'reject' ? 'reject' : 'share',
@@ -103,9 +98,9 @@ const handleAskShareFriend = container({
 const openOrRejectReplies = (
   <YesOrNoReplies
     yesText="OK, open my space!"
-    yesPayload={encodePostbackPayload({ action: 'open' })}
+    yesPayload={encodePostbackData({ action: 'open' })}
     noText="Maybe next time."
-    noPayload={encodePostbackPayload({ action: 'reject' })}
+    noPayload={encodePostbackData({ action: 'reject' })}
   />
 );
 
@@ -175,9 +170,9 @@ export default build(
         quickReplies={
           <YesOrNoReplies
             yesText="Share to friends!"
-            yesPayload={encodePostbackPayload({ action: 'share' })}
+            yesPayload={encodePostbackData({ action: 'share' })}
             noText="Maybe next time."
-            noPayload={encodePostbackPayload({ action: 'reject' })}
+            noPayload={encodePostbackData({ action: 'reject' })}
           />
         }
       >
@@ -225,6 +220,8 @@ export default build(
                 <Line.QuickReply
                   action={<Line.MessageAction label="Done!" text="Done!" />}
                 />
+              ) : platform === 'telegram' ? (
+                <Telegram.ReplyButton text="Done!" />
               ) : null
             }
           >

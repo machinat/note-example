@@ -4,8 +4,8 @@ import type { MachinatApp } from '@machinat/core/types';
 import Messenger from '@machinat/messenger';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
-import { LineAssetsManager } from '@machinat/line/asset';
-import { encodePostbackPayload } from '../utils';
+import LineAssetsManager from '@machinat/line/asset';
+import { encodePostbackData } from '../utils';
 
 const {
   ENTRY_URL,
@@ -27,7 +27,7 @@ export const up = async (app: MachinatApp<any>) => {
     LineAssetsManager,
   ] as const);
 
-  await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
+  await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
     whitelisted_domains: [ENTRY_URL],
     get_started: {
       payload: '__GET_STARTED__',
@@ -40,7 +40,7 @@ export const up = async (app: MachinatApp<any>) => {
     ],
   });
 
-  await messengerBot.dispatchAPICall('POST', 'me/messenger_profile', {
+  await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
     persistent_menu: [
       {
         locale: 'default',
@@ -56,14 +56,14 @@ export const up = async (app: MachinatApp<any>) => {
           {
             type: 'postback',
             title: '👥 Use w/ Friends',
-            payload: encodePostbackPayload({ action: 'share' }),
+            payload: encodePostbackData({ action: 'share' }),
           },
         ],
       },
     ],
   });
 
-  telegramBot.dispatchAPICall('setWebhook', {
+  telegramBot.makeApiCall('setWebhook', {
     url: `${ENTRY_URL}/webhook/telegram/${TELEGRAM_SECRET_PATH}`,
   });
 
@@ -87,7 +87,7 @@ export const up = async (app: MachinatApp<any>) => {
         bounds: { x: 367, y: 0, width: 433, height: 250 },
         action: {
           type: 'postback',
-          data: encodePostbackPayload({ action: 'share' }),
+          data: encodePostbackData({ action: 'share' }),
         },
       },
     ],
@@ -103,7 +103,7 @@ export const up = async (app: MachinatApp<any>) => {
     data: fs.createReadStream('./assets/line_menu.en.png'),
   });
 
-  await lineBot.dispatchAPICall(
+  await lineBot.makeApiCall(
     'POST',
     `v2/bot/user/all/richmenu/${richMenuId}`,
     null
@@ -117,7 +117,7 @@ export const down = async (app: MachinatApp<any>) => {
     LineAssetsManager,
   ] as const);
 
-  await messengerBot.dispatchAPICall('DELETE', 'me/messenger_profile', {
+  await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {
     fields: [
       'get_started',
       'greeting',
@@ -126,7 +126,7 @@ export const down = async (app: MachinatApp<any>) => {
     ],
   });
 
-  telegramBot.dispatchAPICall('deleteWebhook');
+  telegramBot.makeApiCall('deleteWebhook');
 
   await lineAssetManager.deleteRichMenu('default_menu.en');
 };

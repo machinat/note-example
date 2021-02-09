@@ -1,14 +1,12 @@
-import { container } from '@machinat/core/service';
-import { BaseStateControllerI } from '@machinat/core/base';
-import { GET_STARTED_POSTBACK_KEY, NOTE_SPACE_DATA_KEY } from './constant';
+import { MESSENGER_START_ACTION } from './constant';
 
-export const encodePostbackPayload = (payload) => {
+export const encodePostbackData = (payload) => {
   return Object.entries(payload)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
 };
 
-export const decodePostbackPayload = (data) => {
+export const decodePostbackData = (data) => {
   return data
     .split(/\s*&\s*/)
     .map((pair) => pair.split(/\s*=\s*/))
@@ -24,7 +22,7 @@ export const isStarting = ({ platform, event }) => {
   if (platform === 'messenger') {
     return (
       event.type === 'postback' &&
-      event.postback.payload === GET_STARTED_POSTBACK_KEY
+      decodePostbackData(event.data).action === MESSENGER_START_ACTION
     );
   }
 

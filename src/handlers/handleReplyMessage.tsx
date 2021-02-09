@@ -1,7 +1,6 @@
 import Machinat from '@machinat/core';
-import { container } from '@machinat/core/service';
+import { makeContainer } from '@machinat/core/service';
 import DialogFlow from '@machinat/dialogflow';
-import Expression from '../components/Expression';
 import ShareToFriend from '../components/ShareToFriend';
 import OwnSpaceCard from '../components/OwnSpaceCard';
 import WhatToDoExpression from '../components/WhatToDoExpression';
@@ -25,31 +24,33 @@ const GREETING_REPLIES = ['Hi!', 'Hello!', 'Greeting!', '😁', '✋', '🖖', '
 const CURSE_REPLIES = ['😠', '😱', '😰', '😵', '😫', '🤕', '💩', '🙄'];
 const UNKNOWN_REPLIES = ['🧐', '🤔', '😻', '😼', '🙈', '🙉', '🙊'];
 
-const handleReplyMessage = (recognizer) => async ({ bot, event }) => {
+const handleReplyMessage = (recognizer: DialogFlow.IntentRecognizer) => async ({
+  bot,
+  event,
+}) => {
   const { channel } = event;
 
   if (event.subtype === 'text') {
-    const { intent } = await recognizer.recognizeText(channel, event.text, {
+    const { intentType } = await recognizer.detectText(channel, event.text, {
       contexts: ['in-flow'],
     });
-    const intentName = intent?.displayName;
 
-    if (intentName === 'positive') {
+    if (intentType === 'positive') {
       return bot.render(channel, random(POSITIVE_REPLIES));
     }
-    if (intentName === 'negative') {
+    if (intentType === 'negative') {
       return bot.render(channel, random(NEGATIVE_REPLIES));
     }
-    if (intentName === 'greeting') {
+    if (intentType === 'greeting') {
       return bot.render(channel, random(GREETING_REPLIES));
     }
-    if (intentName === 'curse') {
+    if (intentType === 'curse') {
       return bot.render(channel, random(CURSE_REPLIES));
     }
-    if (intentName === 'share') {
+    if (intentType === 'share') {
       return bot.render(channel, <ShareToFriend />);
     }
-    if (intentName === 'open') {
+    if (intentType === 'open') {
       return bot.render(channel, <OwnSpaceCard />);
     }
     return bot.render(
@@ -88,6 +89,6 @@ const handleReplyMessage = (recognizer) => async ({ bot, event }) => {
   return bot.render(channel, random(UNKNOWN_REPLIES));
 };
 
-export default container({ deps: [DialogFlow.IntentRecognizer] })(
+export default makeContainer({ deps: [DialogFlow.IntentRecognizer] })(
   handleReplyMessage
 );

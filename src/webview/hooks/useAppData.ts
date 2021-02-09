@@ -13,7 +13,7 @@ const convertNoteFromRaw = (rawNote) => {
 };
 
 const noteAppReducer = (data, event) => {
-  if (event.type === 'app_data') {
+  if (event.type === 'profile_data') {
     const { notes, ...restData } = event.payload;
     return {
       ...restData,

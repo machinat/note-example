@@ -2,13 +2,13 @@ import Machinat from '@machinat/core';
 import { QuickReply as MessengerQuickReply } from '@machinat/messenger/components';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
-import { encodePostbackPayload } from '../utils';
+import { encodePostbackData } from '../utils';
 
 const DEFAULT_YES_TEXT = 'OK.';
 const DEFAULT_NO_TEXT = 'Nope!';
 
-const DEFUALT_YES_PAYLOAD = encodePostbackPayload({ action: 'yes' });
-const DEFAULT_NO_PAYLOAD = encodePostbackPayload({ action: 'no' });
+const DEFUALT_YES_PAYLOAD = encodePostbackData({ action: 'yes' });
+const DEFAULT_NO_PAYLOAD = encodePostbackData({ action: 'no' });
 
 const YesOrNoReplies = (
   {

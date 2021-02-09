@@ -1,31 +1,28 @@
-import { container } from '@machinat/core/service';
-import Base from '@machinat/core/base';
-import WebSocket from '@machinat/websocket';
+import { makeContainer } from '@machinat/core/service';
+import StateController from '@machinat/core/base/StateController';
 import { NOTE_SPACE_DATA_KEY } from '../constant';
 import {
-  DeleteNote,
-  WebViewEventContext,
+  DeleteNoteActivity,
   NoteDeletedNotification,
-  SpaceData,
+  ChannelState,
+  WebAppEventContext,
 } from '../types';
 
-const handleDeleteNote = container({
-  deps: [WebSocket.Bot, Base.StateControllerI],
+const handleDeleteNoteActivity = makeContainer({
+  deps: [StateController],
 })(
-  (
-    webSocketBot: WebSocket.Bot,
-    stateController: Base.StateControllerI
-  ) => async ({
+  (stateController) => async ({
+    bot,
     event: {
       channel,
       payload: { id },
     },
-  }: WebViewEventContext<DeleteNote>) => {
+  }: WebAppEventContext<DeleteNoteActivity>) => {
     let isDeleted = false;
 
     await stateController
       .channelState(channel)
-      .update<SpaceData>(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .update<ChannelState>(NOTE_SPACE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return undefined;
         }
@@ -44,15 +41,15 @@ const handleDeleteNote = container({
       });
 
     const notification: NoteDeletedNotification = {
-      kind: 'notification',
+      kind: 'app_data',
       type: 'note_deleted',
       payload: { id },
     };
 
     if (isDeleted) {
-      webSocketBot.sendTopic(channel.uid, notification);
+      bot.sendTopic(channel.uid, notification);
     }
   }
 );
 
-export default handleDeleteNote;
+export default handleDeleteNoteActivity;

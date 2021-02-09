@@ -1,11 +1,11 @@
 import path from 'path';
 import Machinat from '@machinat/core';
 import Messenger from '@machinat/messenger';
-import { MessengerAssetsManager } from '@machinat/messenger/asset';
+import MessengerAssetsManager from '@machinat/messenger/asset';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
-import { LineAssetsManager } from '@machinat/line/asset';
-import FileState from '@machinat/simple-state/file';
+import LineAssetsManager from '@machinat/line/asset';
+import FileState from '@machinat/local-state/file';
 import RedisState from '@machinat/redis-state';
 import YAML from 'yaml';
 import { Umzug, JSONStorage } from 'umzug';
@@ -53,8 +53,8 @@ const app = Machinat.createApp({
       noServer: true,
     }),
   ],
-  bindings: [
-    { provide: FileState.SerializerI, withValue: YAML },
+  services: [
+    { provide: FileState.Serializer, withValue: YAML },
 
     LineAssetsManager,
     MessengerAssetsManager,
@@ -95,7 +95,7 @@ commander
     const [lineBot, messengerBot, redisClient] = app.useServices([
       Line.Bot,
       Messenger.Bot,
-      { require: RedisState.CLIENT_I, optional: true },
+      { require: RedisState.Client, optional: true },
     ] as const);
 
     lineBot.stop();

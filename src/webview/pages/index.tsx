@@ -2,12 +2,10 @@ import React from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
 
-import WebSocketClient from '@machinat/websocket/client';
-import useAuthClient from '@machinat/websocket/auth/client';
-import AuthController from '@machinat/auth/client';
-import MessengerAuthorizer from '@machinat/messenger/auth/client';
-import LineAuthorizer from '@machinat/line/auth/client';
-import TelegramAuthorizer from '@machinat/telegram/auth/client';
+import WebviewClient from '@machinat/webview/client';
+import { MessengerClientAuthorizer } from '@machinat/messenger/webview';
+import { LineClientAuthorizer } from '@machinat/line/webview';
+import { TelegramClientAuthorizer } from '@machinat/telegram/webview';
 
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -17,6 +15,7 @@ import { ContentState, convertToRaw } from 'draft-js';
 import NavBar from '../components/NavBar';
 import NoteEditor from '../components/NoteEditor';
 import NotesArea from '../components/NotesArea';
+import SpaceMenu from '../components/SpaceMenu';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
 
@@ -26,18 +25,12 @@ if (typeof window !== 'undefined') {
     publicRuntimeConfig: { fbAppId, lineLIFFId },
   } = getConfig();
 
-  const clientAuthController = new AuthController({
-    serverURL: '/auth',
+  client = new WebviewClient({
     authorizers: [
-      new MessengerAuthorizer({ appId: fbAppId }),
-      new TelegramAuthorizer(),
-      new LineAuthorizer({ liffId: lineLIFFId }),
+      new MessengerClientAuthorizer({ appId: fbAppId }),
+      new TelegramClientAuthorizer(),
+      new LineClientAuthorizer({ liffId: lineLIFFId }),
     ],
-  }).on('error', console.error);
-
-  client = new WebSocketClient({
-    url: '/websocket',
-    login: useAuthClient(clientAuthController),
   });
 }
 
@@ -62,9 +55,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const NoteSpace = () => {
+const NoteApp = () => {
   const classes = useStyles();
   const appData = useAppData(client);
+
+  const [isMenuOpen, setMenuOpen] = React.useState(false);
 
   // control editor
   const [editingNote, setEditingNote] = React.useState<null | { content: any }>(
@@ -125,8 +120,15 @@ const NoteSpace = () => {
       </Head>
 
       <div className={classes.root}>
+        <SpaceMenu
+          open={isMenuOpen}
+          setMenuOpen={setMenuOpen}
+          profile={appData?.profile}
+        />
+
         <Box className={classes.frame}>
           <NavBar
+            openMenu={() => setMenuOpen(true)}
             appData={appData}
             handleAddNote={handleAddNote}
             searchText={searchText}
@@ -160,4 +162,4 @@ export const getServerSideProps = async () => ({
   },
 });
 
-export default NoteSpace;
+export default NoteApp;

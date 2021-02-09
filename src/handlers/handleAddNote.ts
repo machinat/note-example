@@ -1,34 +1,31 @@
-import { container } from '@machinat/core/service';
-import WebSocket from '@machinat/websocket';
-import Base from '@machinat/core/base';
+import { makeContainer } from '@machinat/core/service';
+import StateController from '@machinat/core/base/StateController';
 import { NOTE_SPACE_DATA_KEY } from '../constant';
 import {
-  AddNote,
-  WebViewEventContext,
+  AddNoteActivity,
+  WebAppEventContext,
   NoteAddedNotification,
-  SpaceData,
+  ChannelState,
 } from '../types';
 
-const handleAddNote = container({
-  deps: [WebSocket.Bot, Base.StateControllerI],
+const handleAddNoteActivity = makeContainer({
+  deps: [StateController],
 })(
-  (
-    webSocketBot: WebSocket.Bot,
-    stateController: Base.StateControllerI
-  ) => async ({
+  (stateController) => async ({
+    bot,
     event: {
       channel,
       payload: { title, content },
     },
-  }: WebViewEventContext<AddNote>) => {
+  }: WebAppEventContext<AddNoteActivity>) => {
     let id = 1;
 
     await stateController
       .channelState(channel)
-      .update<SpaceData>(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .update<ChannelState>(NOTE_SPACE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return {
-            beginTime: Date.now(),
+            chatBeginAt: Date.now(),
             idCounter: 1,
             notes: [{ id: 1, title, content }],
           };
@@ -44,13 +41,13 @@ const handleAddNote = container({
       });
 
     const notification: NoteAddedNotification = {
-      kind: 'notification',
+      kind: 'app_data',
       type: 'note_added',
       payload: { id, title, content },
     };
 
-    webSocketBot.sendTopic(channel.uid, notification);
+    bot.sendTopic(channel.uid, notification);
   }
 );
 
-export default handleAddNote;
+export default handleAddNoteActivity;

@@ -1,5 +1,4 @@
 import Machinat from '@machinat/core';
-import { TelegramServerAuthorizer } from '@machinat/telegram/auth';
 import {
   AnswerInlineQuery,
   InlineQueryResultArticle,
@@ -7,30 +6,27 @@ import {
   InlineKeyboard,
   CallbackButton,
 } from '@machinat/telegram/components';
-import { container } from '@machinat/core/service';
-import { ENTRY_URL_I } from '../interface';
-import { encodePostbackPayload } from '../utils';
+import { makeContainer } from '@machinat/core/service';
+import { TELEGRAM_REGISTER_CHAT_ACTION } from '../constant';
+import { encodePostbackData } from '../utils';
 
-const handleTelegramInlineQuery = container({
-  deps: [TelegramServerAuthorizer, ENTRY_URL_I],
-})(
-  (authorizer: TelegramServerAuthorizer, serverEntry: string) => async ({
-    bot,
-    event,
-  }) => {
-    const { user, queryId } = event;
+const handleTelegramInlineQuery = makeContainer({})(
+  () => async ({ bot, event }) => {
+    const { queryId } = event;
 
     await bot.renderInstance(
       <AnswerInlineQuery queryId={queryId}>
         <InlineQueryResultArticle
           id="*"
-          title="A"
+          title="Take Secret Note in the Chat"
           inputMessageContent={<Text>aa</Text>}
           replyMarkup={
             <InlineKeyboard>
               <CallbackButton
                 text="Open"
-                data={encodePostbackPayload({ action: 'open' })}
+                data={encodePostbackData({
+                  action: TELEGRAM_REGISTER_CHAT_ACTION,
+                })}
               />
             </InlineKeyboard>
           }

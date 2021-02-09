@@ -5,21 +5,29 @@ import {
   QuickReply as LineQuickReply,
   PostbackAction as LinePostbackAction,
 } from '@machinat/line/components';
-import { encodePostbackPayload } from '../utils';
+import { encodePostbackData } from '../utils';
 
 const OpenSpaceQuickReply = (_, { platform }) => {
   const title = 'Open notes space.';
-  const payload = encodePostbackPayload({ action: 'open' });
+  const payload = encodePostbackData({ action: 'open' });
 
-  return platform === 'messenger' ? (
-    <MsgrQuickReply title={title} payload={payload} />
-  ) : platform === 'line' ? (
-    <LineQuickReply
-      action={<LinePostbackAction label={title} data={payload} />}
-    />
-  ) : platform === 'telegram' ? (
-    <CallbackButton text={title} data={payload} />
-  ) : null;
+  switch (platform) {
+    case 'messenger':
+      return <MsgrQuickReply title={title} payload={payload} />;
+
+    case 'line':
+      return (
+        <LineQuickReply
+          action={<LinePostbackAction label={title} data={payload} />}
+        />
+      );
+
+    case 'telegram':
+      return <CallbackButton text={title} data={payload} />;
+
+    default:
+      return null;
+  }
 };
 
 export default OpenSpaceQuickReply;

@@ -5,11 +5,11 @@ import {
   PostbackAction as LinePostbackAction,
 } from '@machinat/line/components';
 import { CallbackButton } from '@machinat/telegram/components';
-import { encodePostbackPayload } from '../utils';
+import { encodePostbackData } from '../utils';
 
 const IntroduceQuickReply = (_, { platform }) => {
   const title = "What's this?";
-  const payload = encodePostbackPayload({ action: 'introduce' });
+  const payload = encodePostbackData({ action: 'introduce' });
 
   return platform === 'messenger' ? (
     <MessengerQuickReply title={title} payload={payload} />
