@@ -1,61 +1,67 @@
 import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
-import Profiler from '@machinat/core/base/Profiler';
-// import { MessengerChat } from '@machinat/messenger';
 import type { ConnectEventValue } from '@machinat/websocket/types';
-// import { NOTE_SPACE_DATA_KEY } from '../constant';
+import isUserToBot from '../utils/isUserToBot';
+import userStateFactory from '../utils/useUserState';
+import chatStateFactory from '../utils/useChatState';
+import { USER_INFO_KEY, NOTE_DATA_KEY } from '../constant';
 import {
-  // ChannelState,
-  UserData,
-  WebAppEventContext,
+  UserInfoState,
+  AppDataNotif,
+  WebviewActionContext,
+  NoteDataState,
 } from '../types';
 
 const handleSocketConnect = makeContainer({
-  deps: [StateController, Profiler] as const,
+  deps: [StateController, userStateFactory, chatStateFactory] as const,
 })(
-  (stateController, profileFetcher) => async ({
+  (stateController, useUserState, useChatState) => async ({
     bot,
-    event: { user },
     metadata: {
       connection,
-      auth: { platform, channel: chatChannel },
+      auth: { user, platform, channel: chat },
     },
-  }: WebAppEventContext<ConnectEventValue>) => {
-    // const channelState = await stateController
-    //   .channelState(chatChannel)
-    //   .get<ChannelState>(NOTE_SPACE_DATA_KEY);
-    //
-    // const spaceType =
-    //   chatChannel.platform === 'line'
-    //     ? chatChannel.type === 'user'
-    //       ? 'own'
-    //       : 'group'
-    //     : chatChannel.platform === 'messenger'
-    //     ? chatChannel.type === MessengerChat.Type.UserToPage
-    //       ? 'own'
-    //       : chatChannel.type === MessengerChat.Type.UserToUser
-    //       ? 'chat'
-    //       : 'group'
-    //     : 'own';
+  }: WebviewActionContext<ConnectEventValue>) => {
+    const [
+      { name, avatar, memberUids },
+      { profile },
+      noteState,
+    ] = await Promise.all([
+      useChatState(user, chat),
+      useUserState(user, chat),
+      stateController.channelState(chat).get<NoteDataState>(NOTE_DATA_KEY),
+    ]);
 
-    const profile = await profileFetcher.getUserProfile(user);
-    const { name, pictureUrl } = profile;
+    let members;
+    if (memberUids) {
+      const memberStates = await Promise.all(
+        memberUids.map((uid) =>
+          stateController.userState(uid).get<UserInfoState>(USER_INFO_KEY)
+        )
+      );
 
-    const appData: UserData = {
-      kind: 'app_data',
-      type: 'user_data',
+      members = memberStates
+        .filter((state): state is UserInfoState => !!state)
+        .map((state) => state.profile);
+    }
+
+    const appData: AppDataNotif = {
+      kind: 'notif',
+      type: 'app_data',
       payload: {
         platform,
-        channels: [],
-        profile: {
-          uid: user.uid,
-          avatar: pictureUrl,
+        user: profile,
+        chat: {
+          isUserToBot: isUserToBot(chat),
           name,
+          avatar,
+          members,
         },
+        notes: noteState?.notes || [],
       },
     };
 
-    bot.subscribeTopic(connection, chatChannel.uid);
+    bot.subscribeTopic(connection, chat.uid);
     bot.send(connection, appData);
   }
 );

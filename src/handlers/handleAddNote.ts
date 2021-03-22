@@ -1,53 +1,55 @@
 import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
-import { NOTE_SPACE_DATA_KEY } from '../constant';
+import { NOTE_DATA_KEY } from '../constant';
 import {
-  AddNoteActivity,
-  WebAppEventContext,
-  NoteAddedNotification,
-  ChannelState,
+  AddNoteAction,
+  WebviewActionContext,
+  NoteAddedNotif,
+  NoteDataState,
 } from '../types';
 
-const handleAddNoteActivity = makeContainer({
+const handleAddNoteAction = makeContainer({
   deps: [StateController],
 })(
   (stateController) => async ({
     bot,
     event: {
-      channel,
       payload: { title, content },
     },
-  }: WebAppEventContext<AddNoteActivity>) => {
+    metadata: {
+      auth: { user, channel: chat },
+    },
+  }: WebviewActionContext<AddNoteAction>) => {
     let id = 1;
 
     await stateController
-      .channelState(channel)
-      .update<ChannelState>(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .channelState(chat)
+      .update<NoteDataState>(NOTE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return {
-            chatBeginAt: Date.now(),
             idCounter: 1,
-            notes: [{ id: 1, title, content }],
+            notes: [{ authorId: user.uid, id: 1, title, content }],
           };
         }
 
         const { idCounter, notes } = currentState;
         id = idCounter + 1;
         return {
-          ...currentState,
           idCounter: id,
-          notes: [...notes, { id, title, content }],
+          notes: [...notes, { authorId: user.uid, id, title, content }],
         };
       });
 
-    const notification: NoteAddedNotification = {
-      kind: 'app_data',
+    const notification: NoteAddedNotif = {
+      kind: 'notif',
       type: 'note_added',
-      payload: { id, title, content },
+      payload: {
+        note: { authorId: user.uid, id, title, content },
+      },
     };
 
-    bot.sendTopic(channel.uid, notification);
+    await bot.sendTopic(chat.uid, notification);
   }
 );
 
-export default handleAddNoteActivity;
+export default handleAddNoteAction;

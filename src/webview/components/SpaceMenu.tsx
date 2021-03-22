@@ -51,13 +51,13 @@ const SpaceDrawer = ({ open, setMenuOpen, profile }) => {
       badgeContent={
         <img
           alt={profile.platform}
-          src={`/webview/static/platform_badge_${profile.platform}.png`}
+          src={`/static/platform_badge_${profile.platform}.png`}
           className={classes.platformBadge}
         />
       }
     >
-      {profile.pictureURL ? (
-        <Avatar src={profile.pictureURL} className={classes.avatar} />
+      {profile.avatar ? (
+        <Avatar src={profile.avatar} className={classes.avatar} />
       ) : (
         <Avatar className={classes.avatar}>
           {profile.name[0].toUpperCase()}

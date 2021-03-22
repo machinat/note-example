@@ -24,16 +24,17 @@ import YAML from 'yaml';
 import Script from '@machinat/script';
 import Starting from './scenes/Starting';
 import Introduction from './scenes/Introduction';
+import useIntent from './utils/useIntent';
 
 import {
-  ENTRY_URL_I,
-  FB_PAGE_NAME_I,
-  TELEGRAM_BOT_NAME_I,
-  LINE_LIFF_ID_I,
-  LINE_CHANNEL_ID_I,
-  LINE_OFFICIAL_ACCOUNT_ID_I,
-} from './constant';
-import type { WebViewActivity } from './types';
+  EntryUrl,
+  FbPageName,
+  TelegramBotName,
+  LineLiffId,
+  LineChannelId,
+  LineOfficialAccountId,
+} from './interface';
+import type { WebviewAction } from './types';
 import nextConfig from './webview/next.config.js';
 
 const {
@@ -134,7 +135,7 @@ const app = Machinat.createApp({
 
     Webview.initModule<
       MessengerAuthorizer | LineAuthorizer | TelegramAuthorizer,
-      WebViewActivity
+      WebviewAction
     >({
       webviewHost: HOST,
       authSecret: AUTH_SECRET,
@@ -162,15 +163,16 @@ const app = Machinat.createApp({
 
     { provide: FileState.Serializer, withValue: YAML },
 
-    { provide: ENTRY_URL_I, withValue: ENTRY_URL },
-    { provide: FB_PAGE_NAME_I, withValue: MESSENGER_PAGE_ID },
-    { provide: TELEGRAM_BOT_NAME_I, withValue: TELEGRAM_BOT_NAME },
-    { provide: LINE_CHANNEL_ID_I, withValue: LINE_BOT_CHANNEL_ID },
-    { provide: LINE_LIFF_ID_I, withValue: LINE_LIFF_ID },
+    { provide: EntryUrl, withValue: ENTRY_URL },
+    { provide: FbPageName, withValue: MESSENGER_PAGE_ID },
+    { provide: TelegramBotName, withValue: TELEGRAM_BOT_NAME },
+    { provide: LineChannelId, withValue: LINE_BOT_CHANNEL_ID },
+    { provide: LineLiffId, withValue: LINE_LIFF_ID },
     {
-      provide: LINE_OFFICIAL_ACCOUNT_ID_I,
+      provide: LineOfficialAccountId,
       withValue: LINE_OFFICIAL_ACCOUNT_ID,
     },
+    useIntent,
   ],
 });
 

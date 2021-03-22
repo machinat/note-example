@@ -69,7 +69,6 @@ const NavBar = ({
   handleSearchChange,
 }) => {
   const classes = useStyles();
-  const spaceType = appData?.spaceType;
 
   return (
     <AppBar>
@@ -79,13 +78,11 @@ const NavBar = ({
         </IconButton>
 
         <Typography className={classes.title} variant="h5" noWrap>
-          {spaceType === 'own'
-            ? 'Your Own Space'
-            : spaceType === 'chat'
-            ? 'Chat Space'
-            : spaceType === 'group'
-            ? 'Group Space'
-            : ''}
+          {appData
+            ? appData.chat.isUserToBot
+              ? 'Your Own Space'
+              : 'Group Chat Space'
+            : null}
         </Typography>
 
         <div className={classes.search}>

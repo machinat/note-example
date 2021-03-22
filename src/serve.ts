@@ -1,4 +1,4 @@
-import { fromApp } from '@machinat/x-machinat';
+import { fromApp } from '@machinat/stream';
 import main from './main';
 import app from './app';
 

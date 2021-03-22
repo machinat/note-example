@@ -1,25 +1,33 @@
 import Machinat from '@machinat/core';
-import { QuickReply as MsgrQuickReply } from '@machinat/messenger/components';
-import { SwitchInlineQueryButton } from '@machinat/telegram/components';
+import { TextReply as MessengerTextReply } from '@machinat/messenger/components';
+import { SwitchQueryButton } from '@machinat/telegram/components';
 import {
   QuickReply as LineQuickReply,
   PostbackAction as LinePostbackAction,
 } from '@machinat/line/components';
-import { encodePostbackData } from '../utils';
+import encodePostbackData from '../utils/encodePostbackData';
 
 const ShareQuickReply = (_, { platform }) => {
   const title = 'Share to friend.';
   const payload = encodePostbackData({ action: 'share' });
 
-  return platform === 'messenger' ? (
-    <MsgrQuickReply title={title} payload={payload} />
-  ) : platform === 'line' ? (
-    <LineQuickReply
-      action={<LinePostbackAction label={title} data={payload} />}
-    />
-  ) : platform === 'telegram' ? (
-    <SwitchInlineQueryButton text={title} />
-  ) : null;
+  switch (platform) {
+    case 'messenger':
+      return <MessengerTextReply title={title} payload={payload} />;
+
+    case 'telegram':
+      return <SwitchQueryButton text={title} />;
+
+    case 'line':
+      return (
+        <LineQuickReply>
+          <LinePostbackAction label={title} data={payload} />
+        </LineQuickReply>
+      );
+
+    default:
+      return null;
+  }
 };
 
 export default ShareQuickReply;

@@ -1,7 +1,8 @@
 import React from 'react';
 import { convertFromRaw } from 'draft-js';
+import type { AppData, WebviewNotif, NoteData } from '../../types';
 
-const convertNoteFromRaw = (rawNote) => {
+const convertNoteFromRaw = (rawNote: NoteData) => {
   const content = convertFromRaw(rawNote.content);
   const text = content.getPlainText();
 
@@ -12,8 +13,8 @@ const convertNoteFromRaw = (rawNote) => {
   };
 };
 
-const noteAppReducer = (data, event) => {
-  if (event.type === 'profile_data') {
+const noteAppReducer = (data: null | AppData, event: WebviewNotif): AppData => {
+  if (event.type === 'app_data') {
     const { notes, ...restData } = event.payload;
     return {
       ...restData,
@@ -24,7 +25,7 @@ const noteAppReducer = (data, event) => {
   if (event.type === 'note_added') {
     return {
       ...data,
-      notes: [...data.notes, convertNoteFromRaw(event.payload)],
+      notes: [...data.notes, convertNoteFromRaw(event.payload.note)],
     };
   }
 
@@ -47,7 +48,7 @@ const noteAppReducer = (data, event) => {
     const { notes } = data;
     const updatedNote = event.payload;
 
-    const idx = notes.findIndex((note) => note.id === updatedNote.id);
+    const idx = notes.findIndex((note) => note.id === updatedNote.note.id);
     if (idx === -1) {
       return data;
     }
@@ -56,7 +57,7 @@ const noteAppReducer = (data, event) => {
       ...data,
       notes: [
         ...notes.slice(0, idx),
-        convertNoteFromRaw(updatedNote),
+        convertNoteFromRaw(updatedNote.note),
         ...notes.slice(idx + 1),
       ],
     };
@@ -65,7 +66,7 @@ const noteAppReducer = (data, event) => {
   return data;
 };
 
-const useAppData = (client) => {
+const useAppData = (client): null | AppData => {
   const [appData, dispatch] = React.useReducer(noteAppReducer, null);
   React.useEffect(() => {
     if (client) {

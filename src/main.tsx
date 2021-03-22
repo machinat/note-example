@@ -3,9 +3,9 @@ import { makeContainer } from '@machinat/core/service';
 
 import { MarkSeen } from '@machinat/messenger/components';
 import Script from '@machinat/script';
-import { Subject, merge, conditions } from '@machinat/x-machinat';
-import { StreamFrame } from '@machinat/x-machinat/types';
-import { filter, mapMetadata, tap } from '@machinat/x-machinat/operators';
+import { Subject, merge, conditions } from '@machinat/stream';
+import { StreamFrame } from '@machinat/stream/types';
+import { filter, mapMetadata, tap } from '@machinat/stream/operators';
 
 import handleStarting from './handlers/handleStarting';
 import handleSocketConnect from './handlers/handleSocketConnect';
@@ -14,10 +14,10 @@ import handleDeleteNote from './handlers/handleDeleteNote';
 import handleUpdateNote from './handlers/handleUpdateNote';
 import handleReplyMessage from './handlers/handleReplyMessage';
 import handlePostback from './handlers/handlePostback';
-import handleTelegramInlineQuery from './handlers/handleTelegramInlineQuery';
 
-import { isStarting, isPostback } from './utils';
-import type { AppEventContext, WebAppEventContext } from './types';
+import isStarting from './utils/isStarting';
+import isPostback from './utils/isPostback';
+import type { AppEventContext, WebviewActionContext } from './types';
 
 const main = (events$: Subject<AppEventContext>): void => {
   const webview$ = events$.pipe(
@@ -26,27 +26,27 @@ const main = (events$: Subject<AppEventContext>): void => {
 
   webview$
     .pipe(filter<AppEventContext>(({ event }) => event.type === 'connect'))
-    .subscribe(handleSocketConnect, console.error);
+    .subscribe(handleSocketConnect);
   webview$
     .pipe(filter(({ event }) => event.type === 'add_note'))
-    .subscribe(handleAddNote, console.error);
+    .subscribe(handleAddNote);
   webview$
     .pipe(filter(({ event }) => event.type === 'delete_note'))
-    .subscribe(handleDeleteNote, console.error);
+    .subscribe(handleDeleteNote);
   webview$
     .pipe(filter(({ event }) => event.type === 'update_note'))
-    .subscribe(handleUpdateNote, console.error);
+    .subscribe(handleUpdateNote);
 
   const chatroom$ = merge(
     events$.pipe(filter(({ platform }) => platform !== 'webview')),
     webview$.pipe(
-      mapMetadata(({ value: context }: StreamFrame<WebAppEventContext>) => ({
+      mapMetadata(({ value: context }: StreamFrame<WebviewActionContext>) => ({
         key: context.metadata.auth.channel.uid,
         value: context,
       }))
     )
   ).pipe(
-    filter(
+    filter<AppEventContext>(
       makeContainer({
         deps: [Machinat.Bot, Script.Processor] as const,
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
@@ -75,22 +75,15 @@ const main = (events$: Subject<AppEventContext>): void => {
     )
   );
 
-  const [
-    firstMeets$,
-    postbacks$,
-    messages$,
-    telegramInlineQuery$,
-  ] = conditions(chatroom$, [
+  const [firstMeets$, postbacks$, messages$] = conditions(chatroom$, [
     isStarting,
     isPostback,
     ({ event }) => event.kind === 'message',
-    ({ event }) =>
-      event.platform === 'telegram' && event.type === 'inline_query',
   ]);
 
-  firstMeets$.subscribe(handleStarting, console.error);
+  firstMeets$.subscribe(handleStarting);
 
-  postbacks$.subscribe(handlePostback, console.error);
+  postbacks$.subscribe(handlePostback);
 
   messages$
     .pipe(
@@ -101,9 +94,7 @@ const main = (events$: Subject<AppEventContext>): void => {
         }
       })
     )
-    .subscribe(handleReplyMessage, console.error);
-
-  telegramInlineQuery$.subscribe(handleTelegramInlineQuery, console.error);
+    .subscribe(handleReplyMessage);
 };
 
 export default main;

@@ -104,26 +104,17 @@ const NoteApp = () => {
   const [searchText, setSearchText] = React.useState('');
   const notesToShow = useSearchFilter(appData?.notes, searchText);
 
-  const spaceType = appData?.spaceType;
   return (
     <>
       <Head>
-        <title>
-          {spaceType === 'own'
-            ? 'Your Own Space'
-            : spaceType === 'chat'
-            ? 'Private Chat Space'
-            : spaceType === 'group'
-            ? 'Group Chat Space'
-            : 'Note Machina'}
-        </title>
+        <title>Machinat Note Example</title>
       </Head>
 
       <div className={classes.root}>
         <SpaceMenu
           open={isMenuOpen}
           setMenuOpen={setMenuOpen}
-          profile={appData?.profile}
+          profile={appData?.user}
         />
 
         <Box className={classes.frame}>

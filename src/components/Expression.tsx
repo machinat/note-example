@@ -24,10 +24,7 @@ const Expression = (
           {children}
         </MessengerExpression>
       );
-    case 'line':
-      return (
-        <LineExpression quickReplies={quickReplies}>{children}</LineExpression>
-      );
+
     case 'telegram':
       return (
         <TelegramExpression
@@ -36,6 +33,12 @@ const Expression = (
           {children}
         </TelegramExpression>
       );
+
+    case 'line':
+      return (
+        <LineExpression quickReplies={quickReplies}>{children}</LineExpression>
+      );
+
     default:
       return <>children</>;
   }

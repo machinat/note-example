@@ -1,28 +1,30 @@
 import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
-import { NOTE_SPACE_DATA_KEY } from '../constant';
+import { NOTE_DATA_KEY } from '../constant';
 import {
-  DeleteNoteActivity,
-  NoteDeletedNotification,
-  ChannelState,
-  WebAppEventContext,
+  DeleteNoteAction,
+  NoteDeletedNotif,
+  NoteDataState,
+  WebviewActionContext,
 } from '../types';
 
-const handleDeleteNoteActivity = makeContainer({
+const handleDeleteNoteAction = makeContainer({
   deps: [StateController],
 })(
   (stateController) => async ({
     bot,
     event: {
-      channel,
       payload: { id },
     },
-  }: WebAppEventContext<DeleteNoteActivity>) => {
+    metadata: {
+      auth: { channel: chat },
+    },
+  }: WebviewActionContext<DeleteNoteAction>) => {
     let isDeleted = false;
 
     await stateController
-      .channelState(channel)
-      .update<ChannelState>(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .channelState(chat)
+      .update<NoteDataState>(NOTE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return undefined;
         }
@@ -40,16 +42,16 @@ const handleDeleteNoteActivity = makeContainer({
         };
       });
 
-    const notification: NoteDeletedNotification = {
-      kind: 'app_data',
+    const notification: NoteDeletedNotif = {
+      kind: 'notif',
       type: 'note_deleted',
       payload: { id },
     };
 
     if (isDeleted) {
-      bot.sendTopic(channel.uid, notification);
+      await bot.sendTopic(chat.uid, notification);
     }
   }
 );
 
-export default handleDeleteNoteActivity;
+export default handleDeleteNoteAction;

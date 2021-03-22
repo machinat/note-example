@@ -5,14 +5,17 @@ import Messenger from '@machinat/messenger';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
 import LineAssetsManager from '@machinat/line/asset';
-import { encodePostbackData } from '../utils';
+import encodePostbackData from '../utils/encodePostbackData';
+import { MESSENGER_START_ACTION } from '../constant';
 
 const {
-  ENTRY_URL,
+  HOST,
   LINE_LIFF_ID,
   TELEGRAM_SECRET_PATH,
   LINE_ACCESS_TOKEN,
 } = process.env;
+
+const ENTRY_URL = `https://${HOST}`;
 
 export const up = async (app: MachinatApp<any>) => {
   const [
@@ -30,7 +33,7 @@ export const up = async (app: MachinatApp<any>) => {
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
     whitelisted_domains: [ENTRY_URL],
     get_started: {
-      payload: '__GET_STARTED__',
+      payload: encodePostbackData({ action: MESSENGER_START_ACTION }),
     },
     greeting: [
       {
@@ -48,14 +51,14 @@ export const up = async (app: MachinatApp<any>) => {
         call_to_actions: [
           {
             type: 'web_url',
-            title: '👤 My Space',
-            url: `${ENTRY_URL}/webview?platform=messenger`,
+            title: '📝 Open Notes',
+            url: `${ENTRY_URL}?platform=messenger`,
             webview_height_ratio: 'full',
             messenger_extensions: true,
           },
           {
             type: 'postback',
-            title: '👥 Use w/ Friends',
+            title: '📤 Share',
             payload: encodePostbackData({ action: 'share' }),
           },
         ],
@@ -69,7 +72,7 @@ export const up = async (app: MachinatApp<any>) => {
 
   const richMenuId = await lineAssetManager.createRichMenu('default_menu.en', {
     size: {
-      width: 800,
+      width: 2000,
       height: 250,
     },
     selected: false,
@@ -77,14 +80,14 @@ export const up = async (app: MachinatApp<any>) => {
     chatBarText: 'Open Notes',
     areas: [
       {
-        bounds: { x: 0, y: 0, width: 367, height: 250 },
+        bounds: { x: 0, y: 0, width: 1000, height: 250 },
         action: {
           type: 'uri',
-          uri: `https://liff.line.me/${LINE_LIFF_ID}/webview?platform=line&fromBotChannel=true`,
+          uri: `https://liff.line.me/${LINE_LIFF_ID}?platform=line`,
         },
       },
       {
-        bounds: { x: 367, y: 0, width: 433, height: 250 },
+        bounds: { x: 1000, y: 0, width: 1000, height: 250 },
         action: {
           type: 'postback',
           data: encodePostbackData({ action: 'share' }),
@@ -100,7 +103,7 @@ export const up = async (app: MachinatApp<any>) => {
       Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
       'Content-Type': 'image/png',
     },
-    data: fs.createReadStream('./assets/line_menu.en.png'),
+    data: fs.createReadStream('./assets/line_menu.jpg'),
   });
 
   await lineBot.makeApiCall(

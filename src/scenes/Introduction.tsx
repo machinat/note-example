@@ -1,162 +1,101 @@
 import Machinat from '@machinat/core';
-import DialogFlow from '@machinat/dialogflow';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
-import { IF, THEN, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
-import * as Messenger from '@machinat/messenger/components';
-import * as Telegram from '@machinat/telegram/components';
-import * as Line from '@machinat/line/components';
+import { WHILE, PROMPT, IF, THEN } from '@machinat/script/keywords';
 import Expression from '../components/Expression';
-import OwnSpaceCard from '../components/OwnSpaceCard';
-import ShareToFriend from '../components/ShareToFriend';
+import NoteSpaceCard from '../components/NoteSpaceCard';
 import YesOrNoReplies from '../components/YesOrNoReplies';
 import Pause from '../components/Pause';
-import { decodePostbackData, encodePostbackData } from '../utils';
+import encodePostbackData from '../utils/encodePostbackData';
+import useIntent from '../utils/useIntent';
+import { INTENT_OPEN, INTENT_NO } from '../constant';
+import { AppEventContext } from '../types';
 
-const handleAddFirstNoteReaction = makeContainer({
-  deps: [DialogFlow.IntentRecognizer],
-})((recognizer) => async ({ vars, channel }, { event }) => {
-  if (event.data) {
-    const payload = decodePostbackData(event.data);
-    return {
-      ...vars,
-      reactionType:
-        payload.action === 'open'
-          ? 'open'
-          : payload.action === 'reject'
-          ? 'reject'
-          : '?',
-    };
-  }
-
-  if (event.type === 'text') {
-    const { intentType } = await recognizer.detectText(channel, event.text, {
-      contexts: ['in-flow'],
-    });
-
-    return {
-      ...vars,
-      reactionType:
-        intentType === 'open' || intentType === 'positive'
-          ? 'open'
-          : intentType === 'negative' ||
-            intentType === 'curse' ||
-            intentType === 'skip-in-flow'
-          ? 'reject'
-          : '?',
-    };
-  }
-
-  return {
-    ...vars,
-    reactionType:
-      event.type === 'add_note'
-        ? 'done'
-        : event.type === 'webview_close' || event.type === 'disconnect'
-        ? 'cancel'
-        : event.kind === 'message'
-        ? '?'
-        : undefined,
-  };
-});
-
-const handleAskShareFriend = makeContainer({
-  deps: [DialogFlow.IntentRecognizer],
-})(
-  (recognizer: DialogFlow.IntentRecognizer) => async (
-    { vars, channel },
-    { event }
-  ) => {
-    if (event.data) {
-      const payload = decodePostbackData(event.data);
-      return {
-        ...vars,
-        shareAnswer: payload.action === 'reject' ? 'reject' : 'share',
-      };
-    }
-
-    if (event.type === 'text') {
-      const { intentType } = await recognizer.detectText(channel, event.text, {
-        contexts: ['in-flow'],
-      });
-
-      return {
-        ...vars,
-        shareAnswer:
-          intentType === 'negative' ||
-          intentType === 'curse' ||
-          intentType === 'skip-in-flow'
-            ? 'reject'
-            : 'share',
-      };
-    }
-
-    return { ...vars, shareAnswer: 'share' };
-  }
-);
+type IntroVars = {
+  createdNotesCounts: number;
+  reactionType: undefined | 'done' | 'ok' | 'no';
+};
 
 const openOrRejectReplies = (
   <YesOrNoReplies
     yesText="OK, open my space!"
-    yesPayload={encodePostbackData({ action: 'open' })}
+    yesPayload={encodePostbackData({ action: INTENT_OPEN })}
     noText="Maybe next time."
-    noPayload={encodePostbackData({ action: 'reject' })}
+    noPayload={encodePostbackData({ action: INTENT_NO })}
   />
 );
 
-const ending = (
-  <>
-    And that's how Note Machina work! There will be more features in the future,
-    I will let you know then.
-    <Pause />
-    Hope you enjoy! 🤩
-  </>
-);
-
-export default build(
-  'Introduction',
+export default build<void, IntroVars, AppEventContext>(
+  {
+    name: 'Introduction',
+    initVars: () => ({
+      reactionType: undefined,
+      createdNotesCounts: 0,
+    }),
+  },
   <>
     {() => (
       <>
         <Expression quickReplies={openOrRejectReplies}>
-          Note Machina is an app for taking note within chat room 💬.
+          I can help you taking notes in a chat room💬.
           <Pause />
-          You can press the "My Space" button at menu 👇 or just tell me to
-          "open" the webview to access your own space.
-          <Pause />
-          Now let's create a note!
+          <NoteSpaceCard>Let's create a note 📝!</NoteSpaceCard>
         </Expression>
       </>
     )}
 
-    {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <WHILE
+    <WHILE<IntroVars>
       condition={({ vars: { reactionType } }) =>
-        !reactionType || reactionType === 'open' || reactionType === '?'
+        reactionType !== 'no' && reactionType !== 'done'
       }
     >
-      {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-      <PROMPT key="add-first-note" set={handleAddFirstNoteReaction} />
+      <PROMPT<IntroVars, AppEventContext>
+        key="add-first-note"
+        set={makeContainer({
+          deps: [useIntent],
+        })(
+          (getIntent) => async (
+            { vars: { createdNotesCounts } },
+            { event }
+          ) => {
+            if (event.platform === 'webview') {
+              return {
+                reactionType: event.type === 'disconnect' ? 'done' : undefined,
+                createdNotesCounts:
+                  createdNotesCounts + (event.type === 'add_note' ? 1 : 0),
+              };
+            }
 
-      {({ vars: { reactionType } }) => {
+            if (createdNotesCounts > 0) {
+              return { createdNotesCounts, reactionType: 'done' };
+            }
+
+            const intent = await getIntent(event);
+            return {
+              createdNotesCounts,
+              reactionType: intent.type === INTENT_NO ? 'no' : 'ok',
+            };
+          }
+        )}
+      />
+
+      {({ vars: { createdNotesCounts, reactionType } }) => {
         switch (reactionType) {
-          case 'open':
-            return <OwnSpaceCard />;
           case 'done':
-            return <p>Well done! 👏 You got you first note! 🎉</p>;
-          case 'reject':
-            return <p>Oh... maybe next time. 😅</p>;
-          case 'cancel':
+          case 'no':
             return (
               <p>
-                You haven't create any note yet..., but you may come back for
-                this anytime. 😀
+                {createdNotesCounts
+                  ? `I see you create ${createdNotesCounts} notes 👍`
+                  : 'Ok, come back anytime when you need'}
+                <br />
+                Notes here are in your private space and available by you only!
               </p>
             );
-          case '?':
+          case 'ok':
             return (
               <Expression quickReplies={openOrRejectReplies}>
-                C'mon, have a try!
+                <NoteSpaceCard> C'mon, have a try!</NoteSpaceCard>
               </Expression>
             );
           default:
@@ -165,83 +104,14 @@ export default build(
       }}
     </WHILE>
 
-    {() => (
-      <Expression
-        quickReplies={
-          <YesOrNoReplies
-            yesText="Share to friends!"
-            yesPayload={encodePostbackData({ action: 'share' })}
-            noText="Maybe next time."
-            noPayload={encodePostbackData({ action: 'reject' })}
-          />
-        }
-      >
-        The notes you created in your own space are only accessible to you.
-        <Pause />
-        You can also take notes within other private chat or group chat, and the
-        notes are accessible to all the members in the chat room! 💬
-        <Pause />
-        Press the "Use w/ Friends" button at menu 👇 or tell me to "share" the
-        app with friends.
-        <Pause />
-        Wanna have a try?
-      </Expression>
-    )}
-
-    {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <PROMPT key="ask-share-friend" set={handleAskShareFriend} />
-
-    {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <IF condition={({ vars: { shareAnswer } }) => shareAnswer === 'reject'}>
-      {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
+    <IF condition={({ platform }) => platform !== 'messenger'}>
       <THEN>
-        {() => {
-          return (
-            <Expression>
-              OK, just tell me when you need it!
-              <Pause />
-              {ending}
-            </Expression>
-          );
-        }}
-        {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-        <RETURN />
+        {() => (
+          <p>You can also have notes shared with friends in group chat.</p>
+        )}
       </THEN>
     </IF>
 
-    {({ platform }) => {
-      return (
-        <>
-          <Expression
-            quickReplies={
-              platform === 'messenger' ? (
-                <Messenger.QuickReply title="Done!" payload="done" />
-              ) : platform === 'line' ? (
-                <Line.QuickReply
-                  action={<Line.MessageAction label="Done!" text="Done!" />}
-                />
-              ) : platform === 'telegram' ? (
-                <Telegram.ReplyButton text="Done!" />
-              ) : null
-            }
-          >
-            Cool! Forward this card to your friends you want to share a note
-            space with. 👇
-            <ShareToFriend noIndicator />
-          </Expression>
-        </>
-      );
-    }}
-
-    {/* @ts-expect-error: microsoft/TypeScript/issues/38367 */}
-    <PROMPT key="waiting-for-share" />
-
-    {() => (
-      <Expression>
-        Thank you for sharing! 😍
-        <Pause />
-        {ending}
-      </Expression>
-    )}
+    {() => <Expression>Hope you enjoy! 🤩</Expression>}
   </>
 );

@@ -1,131 +1,152 @@
+import type { MachinatProfile } from '@machinat/core/base/Profiler';
 import type { MessengerServerAuthorizer } from '@machinat/messenger/webview';
 import type { MessengerEventContext } from '@machinat/messenger/types';
-
 import type { TelegramServerAuthorizer } from '@machinat/telegram/webview';
 import type { TelegramEventContext } from '@machinat/telegram/types';
-
 import type { LineServerAuthorizer } from '@machinat/line/webview';
 import type { LineEventContext } from '@machinat/line/types';
-
 import type { WebviewEventContext } from '@machinat/webview/types';
 import type {
   ConnectEventValue,
   DisconnectEventValue,
 } from '@machinat/websocket/types';
+import type {
+  INTENT_OK,
+  INTENT_NO,
+  INTENT_OPEN,
+  INTENT_SHARE,
+  INTENT_GREETING,
+  INTENT_UNKNOWN,
+} from './constant';
 
-export type NoteData = { id: number; title: string; content: string };
+export type UserInfoState = {
+  profile: MachinatProfile;
+  updateAt: number;
+};
 
-export type ChannelState = {
-  chatBeginAt: undefined | number;
+export type ChatInfoState = {
+  beginAt: undefined | number;
+  name: undefined | string;
+  avatar: undefined | string;
+  memberUids: undefined | string[];
+  updateAt: number;
+};
+
+export type NoteData = {
+  authorId: string;
+  id: number;
+  title: string;
+  content: string;
+};
+
+export type NoteDataState = {
   idCounter: number;
   notes: NoteData[];
 };
 
-export type AddNoteActivity = {
-  kind: 'note_action';
+export type AddNoteAction = {
+  kind: 'app_action';
   type: 'add_note';
   payload: {
+    chatUid: undefined | string;
     title: string;
     content: string;
   };
 };
 
-export type UpdateNoteActivity = {
-  kind: 'note_action';
+export type UpdateNoteAction = {
+  kind: 'app_action';
   type: 'update_note';
-  payload: NoteData;
+  payload: {
+    chatUid: undefined | string;
+    id: number;
+    title: string;
+    content: string;
+  };
 };
 
-export type DeleteNoteActivity = {
-  kind: 'note_action';
+export type DeleteNoteAction = {
+  kind: 'app_action';
   type: 'delete_note';
   payload: {
+    chatUid: undefined | string;
     id: number;
   };
 };
 
-export type WebviewCloseActivity = {
-  kind: 'app_action';
-  type: 'webview_close';
-  payload: void;
-};
-
-export type SwitchNoteChannelActivity = {
-  kind: 'app_action';
-  type: 'switch_channel';
-  payload: {
-    uid: string;
-  };
-};
-
-export type WebViewActivity =
-  | AddNoteActivity
-  | UpdateNoteActivity
-  | DeleteNoteActivity
-  | SwitchNoteChannelActivity
-  | WebviewCloseActivity
+export type WebviewAction =
+  | AddNoteAction
+  | UpdateNoteAction
+  | DeleteNoteAction
   | ConnectEventValue
   | DisconnectEventValue;
 
-export type WebAppEventContext<
-  EventValue extends WebViewActivity = WebViewActivity
+export type WebviewActionContext<
+  EventValue extends WebviewAction = WebviewAction
 > = WebviewEventContext<
   MessengerServerAuthorizer | TelegramServerAuthorizer | LineServerAuthorizer,
   EventValue
 >;
 
-export type AppEventContext =
+export type ChatEventContext =
   | MessengerEventContext
   | TelegramEventContext
-  | LineEventContext
-  | WebAppEventContext;
+  | LineEventContext;
 
-export type NoteAddedNotification = {
-  kind: 'app_data';
+export type AppEventContext = ChatEventContext | WebviewActionContext;
+
+export type NoteAddedNotif = {
+  kind: 'notif';
   type: 'note_added';
-  payload: NoteData;
+  payload: {
+    note: NoteData;
+  };
 };
 
-export type NoteUpdatedNotification = {
-  kind: 'app_data';
+export type NoteUpdatedNotif = {
+  kind: 'notif';
   type: 'note_updated';
-  payload: NoteData;
+  payload: {
+    note: NoteData;
+  };
 };
 
-export type NoteDeletedNotification = {
-  kind: 'app_data';
+export type NoteDeletedNotif = {
+  kind: 'notif';
   type: 'note_deleted';
   payload: {
     id: number;
   };
 };
 
-type ChannelMember = {
-  uid: string;
-  name: string;
-  avatar?: string;
+export type AppData = {
+  platform: 'line' | 'messenger' | 'telegram';
+  user: MachinatProfile;
+  chat: {
+    isUserToBot: boolean;
+    name: undefined | string;
+    avatar: undefined | string;
+    members: undefined | MachinatProfile[];
+  };
+  notes: NoteData[];
 };
 
-export type UserData = {
-  kind: 'app_data';
-  type: 'user_data';
-  payload: {
-    platform: 'line' | 'messenger' | 'telegram';
-    profile: ChannelMember;
-    channels: Array<{
-      uid: string;
-      name: string;
-      members: ChannelMember[];
-    }>;
-  };
+export type AppDataNotif = {
+  kind: 'notif';
+  type: 'app_data';
+  payload: AppData;
 };
 
-export type ChannelData = {
-  kind: 'app_data';
-  type: 'channel_data';
-  payload: {
-    spaceType: 'private' | 'chat' | 'group';
-    notes: NoteData[];
-    members: ChannelMember[];
-  };
-};
+export type WebviewNotif =
+  | NoteAddedNotif
+  | NoteUpdatedNotif
+  | NoteDeletedNotif
+  | AppDataNotif;
+
+export type AppIntentType =
+  | typeof INTENT_OK
+  | typeof INTENT_NO
+  | typeof INTENT_OPEN
+  | typeof INTENT_SHARE
+  | typeof INTENT_GREETING
+  | typeof INTENT_UNKNOWN;

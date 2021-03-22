@@ -1,28 +1,30 @@
 import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
-import { NOTE_SPACE_DATA_KEY } from '../constant';
+import { NOTE_DATA_KEY } from '../constant';
 import {
-  UpdateNoteActivity,
-  WebAppEventContext,
-  NoteUpdatedNotification,
-  ChannelState,
+  UpdateNoteAction,
+  WebviewActionContext,
+  NoteUpdatedNotif,
+  NoteDataState,
 } from '../types';
 
-const handleUpdateNoteActivity = makeContainer({
+const handleUpdateNoteAction = makeContainer({
   deps: [StateController],
 })(
   (stateController) => async ({
     bot,
     event: {
-      channel,
       payload: { id, title, content },
     },
-  }: WebAppEventContext<UpdateNoteActivity>) => {
+    metadata: {
+      auth: { user, channel: chat },
+    },
+  }: WebviewActionContext<UpdateNoteAction>) => {
     let isUpdated = false;
 
     await stateController
-      .channelState(channel)
-      .update<ChannelState>(NOTE_SPACE_DATA_KEY, (currentState) => {
+      .channelState(chat)
+      .update<NoteDataState>(NOTE_DATA_KEY, (currentState) => {
         if (!currentState) {
           return undefined;
         }
@@ -38,22 +40,34 @@ const handleUpdateNoteActivity = makeContainer({
           ...currentState,
           notes: [
             ...notes.slice(0, idx),
-            { id, title, content },
+            {
+              authorId: user.uid,
+              id,
+              title,
+              content,
+            },
             ...notes.slice(idx + 1),
           ],
         };
       });
 
-    const notification: NoteUpdatedNotification = {
-      kind: 'app_data',
+    const notification: NoteUpdatedNotif = {
+      kind: 'notif',
       type: 'note_updated',
-      payload: { id, title, content },
+      payload: {
+        note: {
+          authorId: user.uid,
+          id,
+          title,
+          content,
+        },
+      },
     };
 
     if (isUpdated) {
-      bot.sendTopic(channel.uid, notification);
+      await bot.sendTopic(chat.uid, notification);
     }
   }
 );
 
-export default handleUpdateNoteActivity;
+export default handleUpdateNoteAction;

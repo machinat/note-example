@@ -3,25 +3,30 @@ import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
 import Script from '@machinat/script';
 import WhatToDoExpression from '../components/WhatToDoExpression';
-import { NOTE_SPACE_DATA_KEY } from '../constant';
-import { ChannelState } from '../types';
+import { CHAT_INFO_KEY } from '../constant';
+import { ChatInfoState } from '../types';
 import Starting from '../scenes/Starting';
 
 const handleStarting = (
   stateController: StateController,
-  processor: Script.Processor<any, any>
+  processor: Script.Processor<typeof Starting>
 ) => async ({ bot, event: { channel } }) => {
   const hasDataAlready = await stateController
     .channelState(channel)
-    .update<ChannelState>(
-      NOTE_SPACE_DATA_KEY,
-      (data) =>
-        data || {
-          chatBeginAt: Date.now(),
-          idCounter: 0,
-          notes: [],
-        }
-    );
+    .update<ChatInfoState>(CHAT_INFO_KEY, (data) => {
+      if (data) {
+        return data;
+      }
+
+      const now = Date.now();
+      return {
+        beginAt: now,
+        updateAt: now,
+        name: undefined,
+        avatar: undefined,
+        memberUids: undefined,
+      };
+    });
 
   if (hasDataAlready) {
     await bot.render(

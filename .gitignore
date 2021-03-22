@@ -1,6 +1,7 @@
 # Build
 lib
 dist
+tsconfig.tsbuildinfo
 
 # Local Config
 .env

@@ -8,7 +8,6 @@ const {
 
 module.exports = {
   distDir: '../../dist',
-  assetPrefix: '/webview',
   publicRuntimeConfig: {
     isProduction: NODE_ENV === 'production',
     fbAppId: MESSENGER_APP_ID,
