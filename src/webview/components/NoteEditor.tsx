@@ -98,7 +98,7 @@ const scrollWindowToTop = () => {
 
 const NoteEditor = ({ note, handleFinish, platform }) => {
   // dialog styles
-  const classes = useStyles();
+  const classes = useStyles({});
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 

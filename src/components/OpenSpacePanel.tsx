@@ -11,80 +11,78 @@ type OpenSpacePanelProps = {
   additionalButton?: MachinatNode;
 };
 
-const OpenSpacePanel = makeContainer({
-  deps: [EntryUrl, LineLiffId],
-})(
-  (entry, lineLiffId) => (
-    { children, additionalButton }: OpenSpacePanelProps,
-    { platform }
-  ) => {
-    const webviewUrl = new URL(`/?platform=${platform}`, entry);
+const OpenSpacePanel = (entry: string, lineLiffId: string) => (
+  { children, additionalButton }: OpenSpacePanelProps,
+  { platform }
+) => {
+  const webviewUrl = new URL(`/?platform=${platform}`, entry);
 
-    if (platform === 'messenger') {
-      return (
-        <Messenger.ButtonTemplate
-          buttons={
-            <>
-              <Messenger.UrlButton
-                title="Open 📝"
-                url={webviewUrl.href}
-                messengerExtensions
-              />
-              {additionalButton}
-            </>
-          }
-          sharable={false}
-        >
-          {children}
-        </Messenger.ButtonTemplate>
-      );
-    }
-
-    if (platform === 'telegram') {
-      return (
-        <Telegram.Text
-          replyMarkup={
-            <Telegram.InlineKeyboard>
-              <Telegram.UrlButton
-                login
-                text="Open 📝"
-                url={`${entry}/auth/telegram`}
-              />
-              {additionalButton}
-            </Telegram.InlineKeyboard>
-          }
-        >
-          {children}
-        </Telegram.Text>
-      );
-    }
-
-    if (platform === 'line') {
-      const liffUrl = `https://liff.line.me/${lineLiffId}?userToBot=true`;
-      return (
-        <Line.ButtonTemplate
-          defaultAction={<Line.UriAction uri={liffUrl} />}
-          altText={liffUrl}
-          actions={
-            <>
-              <Line.UriAction label="Open 📝" uri={liffUrl} />
-              {additionalButton}
-            </>
-          }
-        >
-          {children}
-        </Line.ButtonTemplate>
-      );
-    }
-
+  if (platform === 'messenger') {
     return (
-      <p>
+      <Messenger.ButtonTemplate
+        buttons={
+          <>
+            <Messenger.UrlButton
+              title="Open 📝"
+              url={webviewUrl.href}
+              messengerExtensions
+            />
+            {additionalButton}
+          </>
+        }
+        sharable={false}
+      >
         {children}
-        {'\n\n'}
-        {webviewUrl.href}
-      </p>
+      </Messenger.ButtonTemplate>
     );
   }
-);
 
-export default OpenSpacePanel;
+  if (platform === 'telegram') {
+    return (
+      <Telegram.Text
+        replyMarkup={
+          <Telegram.InlineKeyboard>
+            <Telegram.UrlButton
+              login
+              text="Open 📝"
+              url={`${entry}/auth/telegram`}
+            />
+            {additionalButton}
+          </Telegram.InlineKeyboard>
+        }
+      >
+        {children}
+      </Telegram.Text>
+    );
+  }
+
+  if (platform === 'line') {
+    const liffUrl = `https://liff.line.me/${lineLiffId}?userToBot=true`;
+    return (
+      <Line.ButtonTemplate
+        defaultAction={<Line.UriAction uri={liffUrl} />}
+        altText={liffUrl}
+        actions={
+          <>
+            <Line.UriAction label="Open 📝" uri={liffUrl} />
+            {additionalButton}
+          </>
+        }
+      >
+        {children}
+      </Line.ButtonTemplate>
+    );
+  }
+
+  return (
+    <p>
+      {children}
+      {'\n\n'}
+      {webviewUrl.href}
+    </p>
+  );
+};
+
+export default makeContainer({
+  deps: [EntryUrl, LineLiffId],
+})(OpenSpacePanel);

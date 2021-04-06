@@ -40,7 +40,7 @@ const main = (events$: Subject<AppEventContext>): void => {
   ).pipe(
     filter<AppEventContext>(
       makeContainer({
-        deps: [Machinat.Bot, Script.Processor] as const,
+        deps: [Machinat.BaseBot, Script.Processor] as const,
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
         const chatChannel =
           context.platform === 'webview'

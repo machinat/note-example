@@ -1,6 +1,6 @@
 import { makeContainer } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
-import { ConnectEventValue } from '@machinat/websocket/types';
+import { ConnectEventValue } from '@machinat/webview/types';
 
 import handleSocketConnect from './handleSocketConnect';
 import handleAddNote from './handleAddNote';

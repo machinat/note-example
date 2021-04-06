@@ -118,9 +118,15 @@ export const up = async ({ context: { app } }) => {
 };
 
 export const down = async ({ context: { app } }) => {
-  const [messengerBot, telegramBot, lineAssetManager] = (app as MachinatApp<
-    any
-  >).useServices([Messenger.Bot, Telegram.Bot, LineAssetsManager] as const);
+  const [
+    messengerBot,
+    telegramBot,
+    lineAssetManager,
+  ] = (app as MachinatApp<any>).useServices([
+    Messenger.Bot,
+    Telegram.Bot,
+    LineAssetsManager,
+  ] as const);
 
   await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {
     fields: [
