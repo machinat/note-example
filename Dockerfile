@@ -12,9 +12,7 @@ USER app
 
 COPY package.json package-lock.json ./
 
-ARG npm_registry=https://registry.npmjs.org
-
-RUN npm ci --no-fund --registry $npm_registry
+RUN npm ci --no-fund
 
 COPY . ./
 
