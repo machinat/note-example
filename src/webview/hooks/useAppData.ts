@@ -13,7 +13,7 @@ const convertNoteFromRaw = (rawNote: NoteData) => {
   };
 };
 
-const noteAppReducer = (data: null | AppData, event: WebviewNotif): AppData => {
+const appDataReducer = (data: null | AppData, event: WebviewNotif): AppData => {
   if (event.type === 'app_data') {
     const { notes, ...restData } = event.payload;
     return {
@@ -67,16 +67,11 @@ const noteAppReducer = (data: null | AppData, event: WebviewNotif): AppData => {
 };
 
 const useAppData = (client): null | AppData => {
-  const [appData, dispatch] = React.useReducer(noteAppReducer, null);
+  const [appData, dispatch] = React.useReducer(appDataReducer, null);
   React.useEffect(() => {
     if (client) {
       client.onEvent((event) => {
         dispatch(event);
-      });
-
-      window.addEventListener('beforeunload', () => {
-        client.send({ type: 'webview_close' });
-        client.disconnect();
       });
     }
   }, [client]);
