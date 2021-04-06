@@ -96,7 +96,7 @@ const scrollWindowToTop = () => {
   window.scrollTo(0, 0);
 };
 
-const NoteEditor = ({ note, handleFinish }) => {
+const NoteEditor = ({ note, handleFinish, platform }) => {
   // dialog styles
   const classes = useStyles();
   const theme = useTheme();
@@ -147,7 +147,7 @@ const NoteEditor = ({ note, handleFinish }) => {
   const [focusCount, setFocusCount] = React.useState(0);
   const [
     iosKeyboardAdjustment,
-    setIOSKeyboardAdjestments,
+    setIosKeyboardAdjestments,
   ] = React.useState<null | Record<string, string>>(null);
 
   const setFocus = () => {
@@ -175,15 +175,17 @@ const NoteEditor = ({ note, handleFinish }) => {
           visualViewport: { height: viewportHeight },
         } = window;
 
-        setIOSKeyboardAdjestments({
+        setIosKeyboardAdjestments({
           height: `${viewportHeight}px`,
-          'padding-bottom': `${outerHeight - viewportHeight}px`,
+          'padding-bottom': `${
+            outerHeight - viewportHeight - (platform === 'telegram' ? 95 : 0)
+          }px`,
           'touch-action': 'none',
         });
         window.addEventListener('scroll', scrollWindowToTop);
       }, 400);
     } else if (iosKeyboardAdjustment) {
-      setIOSKeyboardAdjestments(null);
+      setIosKeyboardAdjestments(null);
       window.scrollTo(0, 0);
       window.removeEventListener('scroll', scrollWindowToTop);
     }
@@ -199,7 +201,9 @@ const NoteEditor = ({ note, handleFinish }) => {
       classes={{ paper: classes.dialogPaper }}
       aria-labelledby="responsive-dialog-title"
       PaperProps={
-        iosKeyboardAdjustment ? { style: iosKeyboardAdjustment } : undefined
+        iosKeyboardAdjustment
+          ? { style: { ...iosKeyboardAdjustment } }
+          : undefined
       }
     >
       <div

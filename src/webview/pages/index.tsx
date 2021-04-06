@@ -147,7 +147,11 @@ const NoteApp = () => {
           )}
         </Box>
 
-        <NoteEditor note={editingNote} handleFinish={handleEditorFinish} />
+        <NoteEditor
+          note={editingNote}
+          handleFinish={handleEditorFinish}
+          platform={client?.authContext.platform}
+        />
       </div>
     </>
   );
