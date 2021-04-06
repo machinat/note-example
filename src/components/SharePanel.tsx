@@ -1,5 +1,6 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
+import { MachinatNode } from '@machinat/core/types';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 import {
@@ -8,33 +9,39 @@ import {
   FbPageName,
 } from '../interface';
 
-const ShareApp = (
+type SharePanelProps = {
+  children?: MachinatNode;
+  additionalButton?: MachinatNode;
+};
+
+const defaultWords =
+  'Add me to a group for sharing notes, or simply share this App:';
+
+const SharePanel = (
   fbPageName: string,
   tgBotName: string,
   lineAccountId: string
-) => (_, { platform }) => {
-  const shareWords =
-    'You can add me to a group to open a shared notes space, or simply share this App.';
-
+) => ({ children, additionalButton }: SharePanelProps, { platform }) => {
   if (platform === 'telegram') {
     return (
       <Telegram.Expression
         replyMarkup={
           <Telegram.InlineKeyboard>
             <Telegram.UrlButton
-              text="Add to Group"
+              text="Add to Group 👥"
               url={`https://t.me/${tgBotName}?startgroup=📝`}
             />
             <Telegram.UrlButton
-              text="Share App"
+              text="Share App 🤖"
               url={`https://t.me/share/url?url=${encodeURIComponent(
                 `https://t.me/${tgBotName}`
               )}&text=${encodeURIComponent('Machinat Note Example')}`}
             />
+            {additionalButton}
           </Telegram.InlineKeyboard>
         }
       >
-        {shareWords}
+        {children || defaultWords}
       </Telegram.Expression>
     );
   }
@@ -42,26 +49,30 @@ const ShareApp = (
   if (platform === 'line') {
     return (
       <Line.ButtonTemplate
-        altText={shareWords}
+        altText={(template) => `${template.text}\n
+To share this app, send this link to friends:
+https://line.me/R/ti/p/${lineAccountId}`}
         actions={
-          <Line.UriAction
-            label="Share App"
-            uri={`https://line.me/R/nv/recommendOA/${lineAccountId}`}
-          />
+          <>
+            <Line.UriAction
+              label="Share App 🤖"
+              uri={`https://line.me/R/nv/recommendOA/${lineAccountId}`}
+            />
+            {additionalButton}
+          </>
         }
       >
-        {shareWords}
+        {children || defaultWords}
       </Line.ButtonTemplate>
     );
   }
 
   if (platform === 'messenger') {
     return (
-      <p>
-        Share the App link to friends:
-        <br />
-        http://m.me/{fbPageName}
-      </p>
+      <>
+        <p>Please share this link to friends:</p>
+        <p>https://m.me/{fbPageName}</p>
+      </>
     );
   }
 
@@ -70,4 +81,4 @@ const ShareApp = (
 
 export default makeContainer({
   deps: [FbPageName, TelegramBotName, LineOfficialAccountId],
-})(ShareApp);
+})(SharePanel);

@@ -17,13 +17,13 @@ const {
 
 const ENTRY_URL = `https://${HOST}`;
 
-export const up = async (app: MachinatApp<any>) => {
+export const up = async ({ context: { app } }) => {
   const [
     messengerBot,
     telegramBot,
     lineBot,
     lineAssetManager,
-  ] = app.useServices([
+  ] = (app as MachinatApp<any>).useServices([
     Messenger.Bot,
     Telegram.Bot,
     Line.Bot,
@@ -66,8 +66,12 @@ export const up = async (app: MachinatApp<any>) => {
     ],
   });
 
-  telegramBot.makeApiCall('setWebhook', {
+  await telegramBot.makeApiCall('setWebhook', {
     url: `${ENTRY_URL}/webhook/telegram/${TELEGRAM_SECRET_PATH}`,
+  });
+
+  await telegramBot.makeApiCall('setMyCommands', {
+    commands: [{ command: 'note', description: 'Open notes' }],
   });
 
   const richMenuId = await lineAssetManager.createRichMenu('default_menu.en', {
@@ -113,12 +117,10 @@ export const up = async (app: MachinatApp<any>) => {
   );
 };
 
-export const down = async (app: MachinatApp<any>) => {
-  const [messengerBot, telegramBot, lineAssetManager] = app.useServices([
-    Messenger.Bot,
-    Telegram.Bot,
-    LineAssetsManager,
-  ] as const);
+export const down = async ({ context: { app } }) => {
+  const [messengerBot, telegramBot, lineAssetManager] = (app as MachinatApp<
+    any
+  >).useServices([Messenger.Bot, Telegram.Bot, LineAssetsManager] as const);
 
   await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {
     fields: [
@@ -129,7 +131,8 @@ export const down = async (app: MachinatApp<any>) => {
     ],
   });
 
-  telegramBot.makeApiCall('deleteWebhook');
+  await telegramBot.makeApiCall('deleteWebhook');
+  await telegramBot.makeApiCall('setMyCommands', { commands: [] });
 
   await lineAssetManager.deleteRichMenu('default_menu.en');
 };

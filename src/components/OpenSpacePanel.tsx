@@ -1,23 +1,37 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
+import { MachinatNode } from '@machinat/core/types';
 import * as Messenger from '@machinat/messenger/components';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 import { EntryUrl, LineLiffId } from '../interface';
 
-const OwnSpaceCard = makeContainer({ deps: [EntryUrl, LineLiffId] })(
-  (entry, liffId) => ({ children }, { platform }) => {
-    const webviewURL = new URL(`/?platform=${platform}`, entry);
+type OpenSpacePanelProps = {
+  children: MachinatNode;
+  additionalButton?: MachinatNode;
+};
+
+const OpenSpacePanel = makeContainer({
+  deps: [EntryUrl, LineLiffId],
+})(
+  (entry, lineLiffId) => (
+    { children, additionalButton }: OpenSpacePanelProps,
+    { platform }
+  ) => {
+    const webviewUrl = new URL(`/?platform=${platform}`, entry);
 
     if (platform === 'messenger') {
       return (
         <Messenger.ButtonTemplate
           buttons={
-            <Messenger.UrlButton
-              title="Go"
-              url={webviewURL.href}
-              messengerExtensions
-            />
+            <>
+              <Messenger.UrlButton
+                title="Open 📝"
+                url={webviewUrl.href}
+                messengerExtensions
+              />
+              {additionalButton}
+            </>
           }
           sharable={false}
         >
@@ -33,9 +47,10 @@ const OwnSpaceCard = makeContainer({ deps: [EntryUrl, LineLiffId] })(
             <Telegram.InlineKeyboard>
               <Telegram.UrlButton
                 login
-                text="Go"
-                url={`${EntryUrl}/auth/telegram/login`}
+                text="Open 📝"
+                url={`${entry}/auth/telegram`}
               />
+              {additionalButton}
             </Telegram.InlineKeyboard>
           }
         >
@@ -45,12 +60,17 @@ const OwnSpaceCard = makeContainer({ deps: [EntryUrl, LineLiffId] })(
     }
 
     if (platform === 'line') {
-      const liffLocation = `https://liff.line.me/${liffId}?userToBot=true`;
+      const liffUrl = `https://liff.line.me/${lineLiffId}?userToBot=true`;
       return (
         <Line.ButtonTemplate
-          defaultAction={<Line.UriAction uri={liffLocation} />}
-          altText={liffLocation}
-          actions={<Line.UriAction label="Go" uri={liffLocation} />}
+          defaultAction={<Line.UriAction uri={liffUrl} />}
+          altText={liffUrl}
+          actions={
+            <>
+              <Line.UriAction label="Open 📝" uri={liffUrl} />
+              {additionalButton}
+            </>
+          }
         >
           {children}
         </Line.ButtonTemplate>
@@ -61,10 +81,10 @@ const OwnSpaceCard = makeContainer({ deps: [EntryUrl, LineLiffId] })(
       <p>
         {children}
         {'\n\n'}
-        {webviewURL.href}
+        {webviewUrl.href}
       </p>
     );
   }
 );
 
-export default OwnSpaceCard;
+export default OpenSpacePanel;

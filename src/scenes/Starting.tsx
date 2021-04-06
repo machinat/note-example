@@ -3,10 +3,10 @@ import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { $, IF, THEN, PROMPT, CALL, RETURN } from '@machinat/script/keywords';
 
-import useIntent from '../utils/useIntent';
+import useEventIntent from '../utils/useEventIntent';
 import Greeting from '../components/Greeting';
 import Expression from '../components/Expression';
-import YesOrNoReplies from '../components/YesOrNoReplies';
+import QuickReply from '../components/QuickReply';
 import type { AppIntentType, AppEventContext } from '../types';
 import { INTENT_OK, INTENT_NO } from '../constant';
 import Introduction from './Introduction';
@@ -23,7 +23,12 @@ export default build<void, StartingVars, AppEventContext>(
   <$<StartingVars>>
     {() => (
       <Expression
-        quickReplies={<YesOrNoReplies yesText="OK!" noText="I already knew." />}
+        quickReplies={
+          <>
+            <QuickReply text="OK!" action={INTENT_OK} />
+            <QuickReply text="No, thanks." action={INTENT_NO} />
+          </>
+        }
       >
         <Greeting firstTime />
         Would you like to hear introduction?
@@ -33,7 +38,7 @@ export default build<void, StartingVars, AppEventContext>(
     <PROMPT<StartingVars, AppEventContext>
       key="ask-should-intro"
       set={makeContainer({
-        deps: [useIntent],
+        deps: [useEventIntent],
       })((getIntent) => async ({ vars }, { event }) => {
         if (event.platform === 'webview') {
           return vars;
@@ -48,7 +53,7 @@ export default build<void, StartingVars, AppEventContext>(
       condition={({ vars: { intentType } }) => intentType === INTENT_NO}
     >
       <THEN>
-        {() => <p>Alright, ask me any time if you have any problem. 😊</p>}
+        {() => <p>Alright, ask me any time 😊</p>}
         <RETURN />
       </THEN>
     </IF>
@@ -63,6 +68,6 @@ export default build<void, StartingVars, AppEventContext>(
 
     <CALL key="start-intro" script={Introduction} />
 
-    {() => <Expression>Hope you enjoy! 🤩</Expression>}
+    {() => <p>That's it. Hope you enjoy!</p>}
   </$>
 );

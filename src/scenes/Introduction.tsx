@@ -2,116 +2,128 @@ import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { WHILE, PROMPT, IF, THEN } from '@machinat/script/keywords';
-import Expression from '../components/Expression';
-import NoteSpaceCard from '../components/NoteSpaceCard';
-import YesOrNoReplies from '../components/YesOrNoReplies';
+import OpenSpacePanel from '../components/OpenSpacePanel';
 import Pause from '../components/Pause';
-import encodePostbackData from '../utils/encodePostbackData';
-import useIntent from '../utils/useIntent';
-import { INTENT_OPEN, INTENT_NO } from '../constant';
-import { AppEventContext } from '../types';
+import SharePanel from '../components/SharePanel';
+import PostbackButton from '../components/PostbackButton';
+import useEventIntent from '../utils/useEventIntent';
+import { INTENT_NO, INTENT_OK } from '../constant';
+import { AppEventContext, AppIntentType } from '../types';
 
 type IntroVars = {
-  createdNotesCounts: number;
-  reactionType: undefined | 'done' | 'ok' | 'no';
+  addedNotesCounts: number;
+  intentType: undefined | AppIntentType;
+  isDone: boolean;
 };
 
-const openOrRejectReplies = (
-  <YesOrNoReplies
-    yesText="OK, open my space!"
-    yesPayload={encodePostbackData({ action: INTENT_OPEN })}
-    noText="Maybe next time."
-    noPayload={encodePostbackData({ action: INTENT_NO })}
-  />
-);
+const rejectButton = <PostbackButton text="Not Now 🙅" action={INTENT_NO} />;
 
 export default build<void, IntroVars, AppEventContext>(
   {
     name: 'Introduction',
     initVars: () => ({
-      reactionType: undefined,
-      createdNotesCounts: 0,
+      intentType: undefined,
+      addedNotesCounts: 0,
+      isDone: false,
     }),
   },
   <>
     {() => (
       <>
-        <Expression quickReplies={openOrRejectReplies}>
-          I can help you taking notes in a chat room💬.
-          <Pause />
-          <NoteSpaceCard>Let's create a note 📝!</NoteSpaceCard>
-        </Expression>
+        I can help you taking notes in chat room 💬
+        <Pause />
+        <OpenSpacePanel additionalButton={rejectButton}>
+          Let's create first note:
+        </OpenSpacePanel>
       </>
     )}
 
     <WHILE<IntroVars>
-      condition={({ vars: { reactionType } }) =>
-        reactionType !== 'no' && reactionType !== 'done'
+      condition={({ vars: { isDone, intentType } }) =>
+        !isDone && intentType !== INTENT_NO
       }
     >
       <PROMPT<IntroVars, AppEventContext>
         key="add-first-note"
         set={makeContainer({
-          deps: [useIntent],
-        })(
-          (getIntent) => async (
-            { vars: { createdNotesCounts } },
-            { event }
-          ) => {
-            if (event.platform === 'webview') {
-              return {
-                reactionType: event.type === 'disconnect' ? 'done' : undefined,
-                createdNotesCounts:
-                  createdNotesCounts + (event.type === 'add_note' ? 1 : 0),
-              };
-            }
-
-            if (createdNotesCounts > 0) {
-              return { createdNotesCounts, reactionType: 'done' };
-            }
-
-            const intent = await getIntent(event);
+          deps: [useEventIntent],
+        })((getIntent) => async ({ vars }, { event }) => {
+          if (event.platform === 'webview') {
             return {
-              createdNotesCounts,
-              reactionType: intent.type === INTENT_NO ? 'no' : 'ok',
+              isDone: event.type === 'disconnect',
+              intentType: undefined,
+              addedNotesCounts:
+                vars.addedNotesCounts + (event.type === 'add_note' ? 1 : 0),
             };
           }
-        )}
+
+          if (vars.addedNotesCounts > 0) {
+            return { ...vars, intentType: undefined, isDone: true };
+          }
+
+          const intent = await getIntent(event);
+          return { ...vars, intentType: intent.type };
+        })}
       />
 
-      {({ vars: { createdNotesCounts, reactionType } }) => {
-        switch (reactionType) {
-          case 'done':
-          case 'no':
-            return (
+      {({ vars: { addedNotesCounts, isDone, intentType } }) => {
+        if (isDone || intentType === INTENT_NO) {
+          return (
+            <>
               <p>
-                {createdNotesCounts
-                  ? `I see you create ${createdNotesCounts} notes 👍`
-                  : 'Ok, come back anytime when you need'}
-                <br />
-                Notes here are in your private space and available by you only!
+                {addedNotesCounts
+                  ? `I see you create ${addedNotesCounts} notes 💪`
+                  : 'Ok, take a try anytime'}
               </p>
-            );
-          case 'ok':
-            return (
-              <Expression quickReplies={openOrRejectReplies}>
-                <NoteSpaceCard> C'mon, have a try!</NoteSpaceCard>
-              </Expression>
-            );
-          default:
-            return null;
+              <p>
+                Here is your private space, and the notes are available only by
+                you.
+              </p>
+            </>
+          );
         }
+        if (intentType !== undefined) {
+          return (
+            <OpenSpacePanel additionalButton={rejectButton}>
+              C'mon, have a try!
+            </OpenSpacePanel>
+          );
+        }
+        return null;
       }}
     </WHILE>
 
     <IF condition={({ platform }) => platform !== 'messenger'}>
-      <THEN>
+      <THEN<IntroVars>>
         {() => (
-          <p>You can also have notes shared with friends in group chat.</p>
+          <>
+            <Pause />
+            <SharePanel additionalButton={rejectButton}>
+              You can also share notes with friends by adding me to a group
+              chat:
+            </SharePanel>
+          </>
         )}
+
+        <PROMPT<IntroVars, AppEventContext>
+          key="wait-for-share"
+          set={makeContainer({
+            deps: [useEventIntent],
+          })((getIntent) => async ({ vars }, { event }) => {
+            if (event.platform === 'webview') {
+              return { ...vars, intentType: undefined };
+            }
+            const { type: intentType } = await getIntent(event);
+            return { ...vars, intentType };
+          })}
+        />
+
+        {({ vars }) =>
+          vars.intentType === INTENT_OK
+            ? 'Thank you!'
+            : 'Ok, tell me when you need.'
+        }
       </THEN>
     </IF>
-
-    {() => <Expression>Hope you enjoy! 🤩</Expression>}
   </>
 );

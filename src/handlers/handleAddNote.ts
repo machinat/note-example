@@ -8,48 +8,46 @@ import {
   NoteDataState,
 } from '../types';
 
-const handleAddNoteAction = makeContainer({
-  deps: [StateController],
-})(
-  (stateController) => async ({
-    bot,
-    event: {
-      payload: { title, content },
-    },
-    metadata: {
-      auth: { user, channel: chat },
-    },
-  }: WebviewActionContext<AddNoteAction>) => {
-    let id = 1;
+const handleAddNoteAction = (stateController: StateController) => async ({
+  bot,
+  event: {
+    payload: { title, content },
+  },
+  metadata: {
+    auth: { user, channel: chat },
+  },
+}: WebviewActionContext<AddNoteAction>) => {
+  let id = 1;
 
-    await stateController
-      .channelState(chat)
-      .update<NoteDataState>(NOTE_DATA_KEY, (currentState) => {
-        if (!currentState) {
-          return {
-            idCounter: 1,
-            notes: [{ authorId: user.uid, id: 1, title, content }],
-          };
-        }
-
-        const { idCounter, notes } = currentState;
-        id = idCounter + 1;
+  await stateController
+    .channelState(chat)
+    .update<NoteDataState>(NOTE_DATA_KEY, (currentState) => {
+      if (!currentState) {
         return {
-          idCounter: id,
-          notes: [...notes, { authorId: user.uid, id, title, content }],
+          idCounter: 1,
+          notes: [{ authorId: user.uid, id: 1, title, content }],
         };
-      });
+      }
 
-    const notification: NoteAddedNotif = {
-      kind: 'notif',
-      type: 'note_added',
-      payload: {
-        note: { authorId: user.uid, id, title, content },
-      },
-    };
+      const { idCounter, notes } = currentState;
+      id = idCounter + 1;
+      return {
+        idCounter: id,
+        notes: [...notes, { authorId: user.uid, id, title, content }],
+      };
+    });
 
-    await bot.sendTopic(chat.uid, notification);
-  }
-);
+  const notification: NoteAddedNotif = {
+    category: 'webview_notif',
+    type: 'note_added',
+    payload: {
+      note: { authorId: user.uid, id, title, content },
+    },
+  };
 
-export default handleAddNoteAction;
+  await bot.sendTopic(chat.uid, notification);
+};
+
+export default makeContainer({
+  deps: [StateController],
+})(handleAddNoteAction);

@@ -11,4 +11,5 @@ export const INTENT_NO = 'no';
 export const INTENT_GREETING = 'greeting';
 export const INTENT_OPEN = 'open';
 export const INTENT_SHARE = 'share';
+export const INTENT_INTRODUCE = 'introduce';
 export const INTENT_UNKNOWN = 'unknown';

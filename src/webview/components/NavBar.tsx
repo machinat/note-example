@@ -79,9 +79,9 @@ const NavBar = ({
 
         <Typography className={classes.title} variant="h5" noWrap>
           {appData
-            ? appData.chat.isUserToBot
-              ? 'Your Own Space'
-              : 'Group Chat Space'
+            ? appData.chat.isGroupChat
+              ? 'Group Chat Space'
+              : 'Your Own Space'
             : null}
         </Typography>
 

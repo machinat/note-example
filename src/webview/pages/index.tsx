@@ -18,8 +18,12 @@ import NotesArea from '../components/NotesArea';
 import SpaceMenu from '../components/SpaceMenu';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
+import { WebviewAction } from '../../types';
 
-let client;
+let client: WebviewClient<
+  MessengerClientAuthorizer | TelegramClientAuthorizer | LineClientAuthorizer,
+  WebviewAction
+>;
 if (typeof window !== 'undefined') {
   const {
     publicRuntimeConfig: { fbAppId, lineLIFFId },
@@ -77,11 +81,13 @@ const NoteApp = () => {
 
     if (id === undefined) {
       client.send({
+        category: 'webview_action',
         type: 'add_note',
         payload: { title, content: rawContent },
       });
     } else {
       client.send({
+        category: 'webview_action',
         type: 'update_note',
         payload: { id, title, content: rawContent },
       });
@@ -91,6 +97,7 @@ const NoteApp = () => {
   // note operations
   const deleteNote = (note) => {
     client.send({
+      category: 'webview_action',
       type: 'delete_note',
       payload: { id: note.id },
     });

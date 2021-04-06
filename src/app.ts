@@ -24,7 +24,9 @@ import YAML from 'yaml';
 import Script from '@machinat/script';
 import Starting from './scenes/Starting';
 import Introduction from './scenes/Introduction';
-import useIntent from './utils/useIntent';
+import useEventIntent from './utils/useEventIntent';
+import useChatState from './utils/useChatState';
+import useUserState from './utils/useUserState';
 
 import {
   EntryUrl,
@@ -42,7 +44,6 @@ const {
   PORT,
   HOST,
   NODE_ENV,
-  ENTRY_URL,
   // auth
   AUTH_SECRET,
   // messenger
@@ -163,7 +164,7 @@ const app = Machinat.createApp({
 
     { provide: FileState.Serializer, withValue: YAML },
 
-    { provide: EntryUrl, withValue: ENTRY_URL },
+    { provide: EntryUrl, withValue: `https://${HOST}` },
     { provide: FbPageName, withValue: MESSENGER_PAGE_ID },
     { provide: TelegramBotName, withValue: TELEGRAM_BOT_NAME },
     { provide: LineChannelId, withValue: LINE_BOT_CHANNEL_ID },
@@ -172,7 +173,9 @@ const app = Machinat.createApp({
       provide: LineOfficialAccountId,
       withValue: LINE_OFFICIAL_ACCOUNT_ID,
     },
-    useIntent,
+    useEventIntent,
+    useChatState,
+    useUserState,
   ],
 });
 

@@ -1,45 +1,37 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
-
 import { MarkSeen } from '@machinat/messenger/components';
+import { AnswerCallbackQuery } from '@machinat/telegram/components';
 import Script from '@machinat/script';
 import { Subject, merge, conditions } from '@machinat/stream';
 import { StreamFrame } from '@machinat/stream/types';
 import { filter, mapMetadata, tap } from '@machinat/stream/operators';
 
 import handleStarting from './handlers/handleStarting';
-import handleSocketConnect from './handlers/handleSocketConnect';
-import handleAddNote from './handlers/handleAddNote';
-import handleDeleteNote from './handlers/handleDeleteNote';
-import handleUpdateNote from './handlers/handleUpdateNote';
+import handleWebviewAction from './handlers/handleWebviewAction';
 import handleReplyMessage from './handlers/handleReplyMessage';
+import handleGroupEvent from './handlers/handleGroupEvent';
 import handlePostback from './handlers/handlePostback';
-
-import isStarting from './utils/isStarting';
-import isPostback from './utils/isPostback';
+import isStartingEvent from './utils/isStartingEvent';
+import isPostbackEvent from './utils/isPostbackEvent';
+import isGroupChat from './utils/isGroupChat';
 import type { AppEventContext, WebviewActionContext } from './types';
 
 const main = (events$: Subject<AppEventContext>): void => {
-  const webview$ = events$.pipe(
+  const nativeChatEvent$ = events$.pipe(
+    filter(({ platform }) => platform !== 'webview')
+  );
+  const webviewAction$ = events$.pipe(
     filter(({ platform }: AppEventContext) => platform === 'webview')
   );
 
-  webview$
-    .pipe(filter<AppEventContext>(({ event }) => event.type === 'connect'))
-    .subscribe(handleSocketConnect);
-  webview$
-    .pipe(filter(({ event }) => event.type === 'add_note'))
-    .subscribe(handleAddNote);
-  webview$
-    .pipe(filter(({ event }) => event.type === 'delete_note'))
-    .subscribe(handleDeleteNote);
-  webview$
-    .pipe(filter(({ event }) => event.type === 'update_note'))
-    .subscribe(handleUpdateNote);
+  webviewAction$
+    .pipe(tap<AppEventContext>(handleWebviewAction))
+    .catch(console.error);
 
-  const chatroom$ = merge(
-    events$.pipe(filter(({ platform }) => platform !== 'webview')),
-    webview$.pipe(
+  const chatroomEvent$ = merge(
+    nativeChatEvent$,
+    webviewAction$.pipe(
       mapMetadata(({ value: context }: StreamFrame<WebviewActionContext>) => ({
         key: context.metadata.auth.channel.uid,
         value: context,
@@ -50,51 +42,63 @@ const main = (events$: Subject<AppEventContext>): void => {
       makeContainer({
         deps: [Machinat.Bot, Script.Processor] as const,
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
-        const channel =
+        const chatChannel =
           context.platform === 'webview'
             ? context.metadata.auth.channel
             : context.event.channel;
 
         if (
-          !channel ||
-          !['message', 'postback', 'note_action', 'app_action'].includes(
-            context.event.kind
+          !chatChannel ||
+          isGroupChat(chatChannel) ||
+          !['message', 'postback', 'connection', 'webview_action'].includes(
+            context.event.category
           )
         ) {
           return true;
         }
 
-        const runtime = await scriptProcessor.continue(channel, context);
+        const runtime = await scriptProcessor.continue(chatChannel, context);
         if (!runtime) {
           return true;
         }
 
-        await bot.render(channel, runtime.output());
+        await bot.render(chatChannel, runtime.output());
         return false;
       })
     )
   );
 
-  const [firstMeets$, postbacks$, messages$] = conditions(chatroom$, [
-    isStarting,
-    isPostback,
-    ({ event }) => event.kind === 'message',
+  const [
+    starting$,
+    postback$,
+    groupEvent$,
+    privateMessage$,
+  ] = conditions(chatroomEvent$, [
+    isStartingEvent,
+    isPostbackEvent,
+    ({ event }) => isGroupChat(event.channel),
+    ({ event }) => event.category === 'message',
   ]);
 
-  firstMeets$.subscribe(handleStarting);
+  starting$.pipe(tap(handleStarting)).catch(console.error);
 
-  postbacks$.subscribe(handlePostback);
+  postback$.pipe(tap(handlePostback)).catch(console.error);
 
-  messages$
-    .pipe(
-      tap(({ platform, bot, event: { channel } }) => {
-        if (platform === 'messenger') {
-          // don't await
-          bot.render(channel, <MarkSeen />).catch(console.error);
-        }
-      })
-    )
-    .subscribe(handleReplyMessage);
+  groupEvent$.pipe(tap(handleGroupEvent)).catch(console.error);
+
+  privateMessage$.pipe(tap(handleReplyMessage)).catch(console.error);
+
+  events$.subscribe(async ({ platform, reply }) => {
+    if (platform === 'messenger') {
+      await reply(<MarkSeen />);
+    }
+  }, console.error);
+
+  events$.subscribe(async ({ platform, event, reply }) => {
+    if (platform === 'telegram' && event.type === 'callback_query') {
+      await reply(<AnswerCallbackQuery queryId={event.queryId} />);
+    }
+  }, console.error);
 };
 
 export default main;

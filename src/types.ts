@@ -16,6 +16,7 @@ import type {
   INTENT_OPEN,
   INTENT_SHARE,
   INTENT_GREETING,
+  INTENT_INTRODUCE,
   INTENT_UNKNOWN,
 } from './constant';
 
@@ -45,7 +46,7 @@ export type NoteDataState = {
 };
 
 export type AddNoteAction = {
-  kind: 'app_action';
+  category: 'webview_action';
   type: 'add_note';
   payload: {
     chatUid: undefined | string;
@@ -55,7 +56,7 @@ export type AddNoteAction = {
 };
 
 export type UpdateNoteAction = {
-  kind: 'app_action';
+  category: 'webview_action';
   type: 'update_note';
   payload: {
     chatUid: undefined | string;
@@ -66,7 +67,7 @@ export type UpdateNoteAction = {
 };
 
 export type DeleteNoteAction = {
-  kind: 'app_action';
+  category: 'webview_action';
   type: 'delete_note';
   payload: {
     chatUid: undefined | string;
@@ -96,7 +97,7 @@ export type ChatEventContext =
 export type AppEventContext = ChatEventContext | WebviewActionContext;
 
 export type NoteAddedNotif = {
-  kind: 'notif';
+  category: 'webview_notif';
   type: 'note_added';
   payload: {
     note: NoteData;
@@ -104,7 +105,7 @@ export type NoteAddedNotif = {
 };
 
 export type NoteUpdatedNotif = {
-  kind: 'notif';
+  category: 'webview_notif';
   type: 'note_updated';
   payload: {
     note: NoteData;
@@ -112,7 +113,7 @@ export type NoteUpdatedNotif = {
 };
 
 export type NoteDeletedNotif = {
-  kind: 'notif';
+  category: 'webview_notif';
   type: 'note_deleted';
   payload: {
     id: number;
@@ -123,7 +124,7 @@ export type AppData = {
   platform: 'line' | 'messenger' | 'telegram';
   user: MachinatProfile;
   chat: {
-    isUserToBot: boolean;
+    isGroupChat: boolean;
     name: undefined | string;
     avatar: undefined | string;
     members: undefined | MachinatProfile[];
@@ -132,7 +133,7 @@ export type AppData = {
 };
 
 export type AppDataNotif = {
-  kind: 'notif';
+  category: 'webview_notif';
   type: 'app_data';
   payload: AppData;
 };
@@ -149,4 +150,5 @@ export type AppIntentType =
   | typeof INTENT_OPEN
   | typeof INTENT_SHARE
   | typeof INTENT_GREETING
+  | typeof INTENT_INTRODUCE
   | typeof INTENT_UNKNOWN;

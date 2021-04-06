@@ -10,7 +10,7 @@ type AppIntentResult = {
   payload: null;
 };
 
-const useIntent = makeFactoryProvider({
+const useEventIntent = makeFactoryProvider({
   lifetime: 'scoped',
   deps: [DialogFlow.IntentRecognizer],
 })((recognizer) => async (event: ChatEventContext['event']): Promise<
@@ -48,7 +48,7 @@ const useIntent = makeFactoryProvider({
 
     const intent = await recognizer.detectText(event.channel, event.text);
     return {
-      type: intent.type as AppIntentType,
+      type: (intent.type || INTENT_UNKNOWN) as AppIntentType,
       confidence: intent.confidence,
       payload: null,
     };
@@ -61,4 +61,4 @@ const useIntent = makeFactoryProvider({
   };
 });
 
-export default useIntent;
+export default useEventIntent;

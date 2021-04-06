@@ -1,15 +1,18 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
-import AnswerSharing from '../components/AnswerSharing';
-import NoteSpaceCard from '../components/NoteSpaceCard';
+import { StartRuntime } from '@machinat/script';
+import SharePanel from '../components/SharePanel';
+import OpenSpacePanel from '../components/OpenSpacePanel';
 import WhatToDoExpression from '../components/WhatToDoExpression';
-import useIntent from '../utils/useIntent';
+import Introduce from '../scenes/Introduction';
+import useEventIntent from '../utils/useEventIntent';
 import {
   INTENT_OK,
   INTENT_NO,
   INTENT_GREETING,
   INTENT_OPEN,
   INTENT_SHARE,
+  INTENT_INTRODUCE,
   INTENT_UNKNOWN,
 } from '../constant';
 import { ChatEventContext } from '../types';
@@ -21,7 +24,7 @@ const NEGATIVE_REPLIES = ['😭', '😣', '😖', '🤯', '🤐', '😢', '😳'
 const GREETING_REPLIES = ['Hi!', 'Hello!', '😁', '✋', '🖖', '🤗'];
 const UNKNOWN_REPLIES = ['🧐', '🤔', '😻', '😼', '🙈', '🙉', '🙊'];
 
-const handleReplyMessage = makeContainer({ deps: [useIntent] })(
+const handleReplyMessage = makeContainer({ deps: [useEventIntent] })(
   (getIntent) => async ({ reply, event }: ChatEventContext) => {
     const intent = await getIntent(event);
     await reply(
@@ -34,9 +37,11 @@ const handleReplyMessage = makeContainer({ deps: [useIntent] })(
       ) : intent.type === INTENT_UNKNOWN ? (
         random(UNKNOWN_REPLIES)
       ) : intent.type === INTENT_SHARE ? (
-        <AnswerSharing />
+        <SharePanel />
+      ) : intent.type === INTENT_INTRODUCE ? (
+        <StartRuntime script={Introduce} channel={event.channel!} />
       ) : intent.type === INTENT_OPEN ? (
-        <NoteSpaceCard>Open Notes Space 📝</NoteSpaceCard>
+        <OpenSpacePanel>Open Notes Space 📝</OpenSpacePanel>
       ) : (
         <WhatToDoExpression>Hi! What can I help?</WhatToDoExpression>
       )

@@ -7,7 +7,7 @@ import Line, { LineUser, LineChat } from '@machinat/line';
 
 import { CHAT_INFO_KEY } from '../constant';
 import { ChatInfoState } from '../types';
-import isUserToBot from './isUserToBot';
+import isGroupChat from './isGroupChat';
 
 const PROFILE_CACHE_TIME = 864000000; // 10 day
 
@@ -51,7 +51,7 @@ const useChatStateFactory = (
   }
 
   if (
-    !isUserToBot(chat) &&
+    isGroupChat(chat) &&
     !chatState.memberUids?.find((id) => id === user.uid)
   ) {
     chatState.memberUids = [...(chatState.memberUids || []), user.uid];

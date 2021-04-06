@@ -1,8 +1,8 @@
 import Machinat from '@machinat/core';
 import { StartRuntime } from '@machinat/script';
 import decodePostbackData from '../utils/decodePostbackData';
-import NoteSpaceCard from '../components/NoteSpaceCard';
-import AnswerSharing from '../components/AnswerSharing';
+import OpenSpacePanel from '../components/OpenSpacePanel';
+import SharePanel from '../components/SharePanel';
 import Introduction from '../scenes/Introduction';
 import type { AppEventContext } from '../types';
 
@@ -23,20 +23,16 @@ const handlePostback = async ({
     (channel.platform === 'line' && channel.type !== 'user') ||
     (channel.platform === 'telegram' && channel.type !== 'private');
 
-  if (action === 'introduce') {
-    await reply(<StartRuntime script={Introduction} channel={channel} />);
-  }
-
   await reply(
-    <>
-      {action === 'open' ? (
-        <NoteSpaceCard>
-          Open {isGroupChat ? 'Group' : 'Private'} Notes Space
-        </NoteSpaceCard>
-      ) : action === 'share' ? (
-        <AnswerSharing />
-      ) : null}
-    </>
+    action === 'open' ? (
+      <OpenSpacePanel>
+        Open {isGroupChat ? 'Group' : 'Private'} Notes Space
+      </OpenSpacePanel>
+    ) : action === 'share' ? (
+      <SharePanel />
+    ) : action === 'introduce' ? (
+      <StartRuntime script={Introduction} channel={channel} />
+    ) : null
   );
 };
 
