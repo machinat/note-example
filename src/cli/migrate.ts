@@ -1,4 +1,4 @@
-import path from 'path';
+import { resolve as resolvePath } from 'path';
 import Machinat from '@machinat/core';
 import Messenger from '@machinat/messenger';
 import MessengerAssetsManager from '@machinat/messenger/asset';
@@ -7,7 +7,6 @@ import Line from '@machinat/line';
 import LineAssetsManager from '@machinat/line/asset';
 import FileState from '@machinat/local-state/file';
 import RedisState from '@machinat/redis-state';
-import YAML from 'yaml';
 import { Umzug, JSONStorage } from 'umzug';
 import commander from 'commander';
 
@@ -18,9 +17,9 @@ const {
   MESSENGER_ACCESS_TOKEN,
   TELEGRAM_BOT_TOKEN,
   LINE_PROVIDER_ID,
-  LINE_BOT_CHANNEL_ID,
+  LINE_CHANNEL_ID,
   LINE_ACCESS_TOKEN,
-} = process.env;
+} = process.env as Record<string, string>;
 
 const DEV = NODE_ENV !== 'production';
 
@@ -38,35 +37,48 @@ const app = Machinat.createApp({
   ],
   platforms: [
     Messenger.initModule({
-      pageId: MESSENGER_PAGE_ID as string,
-      accessToken: MESSENGER_ACCESS_TOKEN as string,
+      pageId: Number(MESSENGER_PAGE_ID),
+      accessToken: MESSENGER_ACCESS_TOKEN,
       noServer: true,
     }),
     Telegram.initModule({
-      botToken: TELEGRAM_BOT_TOKEN as string,
+      botToken: TELEGRAM_BOT_TOKEN,
       noServer: true,
     }),
     Line.initModule({
-      providerId: LINE_PROVIDER_ID as string,
-      channelId: LINE_BOT_CHANNEL_ID as string,
-      accessToken: LINE_ACCESS_TOKEN as string,
+      providerId: LINE_PROVIDER_ID,
+      channelId: LINE_CHANNEL_ID,
+      accessToken: LINE_ACCESS_TOKEN,
       noServer: true,
     }),
   ],
-  services: [
-    { provide: FileState.Serializer, withValue: YAML },
-
-    LineAssetsManager,
-    MessengerAssetsManager,
-  ],
+  services: [LineAssetsManager, MessengerAssetsManager],
 });
 
 const umzug = new Umzug({
-  storage: new JSONStorage({ path: path.resolve('./.migrated.json') }),
+  storage: new JSONStorage({ path: resolvePath('./.migrated.json') }),
   logger: console,
-  context: { app },
   migrations: {
-    glob: path.resolve(__dirname, '../migrations/*.js'),
+    glob: resolvePath(__dirname, '../migrations/*.js'),
+    resolve: ({ name, path }) => {
+      return {
+        name: name.replace(/.[t|j]s$/, ''),
+        up: async () => {
+          const { up } = await import(path as string);
+          if (up) {
+            const scope = app.serviceSpace.createScope();
+            await scope.injectContainer(up);
+          }
+        },
+        down: async () => {
+          const { down } = await import(path as string);
+          if (down) {
+            const scope = app.serviceSpace.createScope();
+            await scope.injectContainer(down);
+          }
+        },
+      };
+    },
   },
 });
 
@@ -78,33 +90,14 @@ commander
 (async function migrate() {
   await app.start();
 
-  const [lineBot, messengerBot] = app.useServices([
-    Line.Bot,
-    Messenger.Bot,
-  ] as const);
-  lineBot.start();
-  messengerBot.start();
-
   if (commander.down) {
     await umzug.down();
   } else {
     await umzug.up();
   }
-})()
-  .then(() => {
-    const [lineBot, messengerBot, redisClient] = app.useServices([
-      Line.Bot,
-      Messenger.Bot,
-      { require: RedisState.Client, optional: true },
-    ] as const);
 
-    lineBot.stop();
-    messengerBot.stop();
-    if (redisClient) {
-      redisClient.quit();
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  await app.stop();
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

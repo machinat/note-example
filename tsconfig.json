@@ -2,6 +2,7 @@
   "include": ["./src/**/*"],
   "exclude": ["./src/webview/**/*"],
   "compilerOptions": {
+    "outDir": "./lib",
     "lib": ["es2018"],
     "module": "commonjs",
     "target": "es2018",
@@ -12,6 +13,9 @@
     "jsxFragmentFactory": "Machinat.Fragment",
     "skipLibCheck": true,
     "noUnusedLocals": true,
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true,
     "types": ["node"],
     "rootDir": "./src",
     "outDir": "./lib"

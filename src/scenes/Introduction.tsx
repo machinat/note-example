@@ -18,7 +18,7 @@ type IntroVars = {
 
 const rejectButton = <PostbackButton text="Not Now 🙅" action={INTENT_NO} />;
 
-export default build<void, IntroVars, AppEventContext>(
+export default build<IntroVars, AppEventContext>(
   {
     name: 'Introduction',
     initVars: () => ({

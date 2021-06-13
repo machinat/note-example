@@ -15,7 +15,7 @@ type StartingVars = {
   intentType: AppIntentType;
 };
 
-export default build<void, StartingVars, AppEventContext>(
+export default build<StartingVars, AppEventContext>(
   {
     name: 'Starting',
     initVars: () => ({ intentType: INTENT_OK }),

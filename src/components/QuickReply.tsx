@@ -25,9 +25,11 @@ const QuickReply = ({ text, action }: QuickReplyProps, { platform }) => {
 
     case 'line':
       return (
-        <LineQuickReply>
-          <LinePostbackAction label={text} displayText={text} data={data} />
-        </LineQuickReply>
+        <LineQuickReply
+          action={
+            <LinePostbackAction label={text} displayText={text} data={data} />
+          }
+        />
       );
 
     default:

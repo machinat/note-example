@@ -1,5 +1,5 @@
-import Machinat from '@machinat/core';
-import { MachinatNode } from '@machinat/core/types';
+import Machinat, { MachinatNode } from '@machinat/core';
+
 import { Expression as MessengerExpression } from '@machinat/messenger/components';
 import {
   Expression as TelegramExpression,

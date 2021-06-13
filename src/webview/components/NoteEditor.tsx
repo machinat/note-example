@@ -145,10 +145,8 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
 
   // polish ios soft keyboard experience
   const [focusCount, setFocusCount] = React.useState(0);
-  const [
-    iosKeyboardAdjustment,
-    setIosKeyboardAdjestments,
-  ] = React.useState<null | Record<string, string>>(null);
+  const [iosKeyboardAdjustment, setIosKeyboardAdjestments] =
+    React.useState<null | Record<string, string>>(null);
 
   const setFocus = () => {
     setFocusCount((c) => c + 1);

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import axios from 'axios';
-import type { MachinatApp } from '@machinat/core/types';
+import { makeContainer } from '@machinat/core/service';
 import Messenger from '@machinat/messenger';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
@@ -8,28 +8,14 @@ import LineAssetsManager from '@machinat/line/asset';
 import encodePostbackData from '../utils/encodePostbackData';
 import { MESSENGER_START_ACTION } from '../constant';
 
-const {
-  HOST,
-  LINE_LIFF_ID,
-  TELEGRAM_SECRET_PATH,
-  LINE_ACCESS_TOKEN,
-} = process.env;
+const { DOMAIN, LINE_LIFF_ID, TELEGRAM_SECRET_PATH, LINE_ACCESS_TOKEN } =
+  process.env;
 
-const ENTRY_URL = `https://${HOST}`;
+const ENTRY_URL = `https://${DOMAIN}`;
 
-export const up = async ({ context: { app } }) => {
-  const [
-    messengerBot,
-    telegramBot,
-    lineBot,
-    lineAssetManager,
-  ] = (app as MachinatApp<any>).useServices([
-    Messenger.Bot,
-    Telegram.Bot,
-    Line.Bot,
-    LineAssetsManager,
-  ] as const);
-
+export const up = makeContainer({
+  deps: [Messenger.Bot, Telegram.Bot, Line.Bot, LineAssetsManager] as const,
+})(async (messengerBot, telegramBot, lineBot, lineAssetManager) => {
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
     whitelisted_domains: [ENTRY_URL],
     get_started: {
@@ -115,19 +101,11 @@ export const up = async ({ context: { app } }) => {
     `v2/bot/user/all/richmenu/${richMenuId}`,
     null
   );
-};
+});
 
-export const down = async ({ context: { app } }) => {
-  const [
-    messengerBot,
-    telegramBot,
-    lineAssetManager,
-  ] = (app as MachinatApp<any>).useServices([
-    Messenger.Bot,
-    Telegram.Bot,
-    LineAssetsManager,
-  ] as const);
-
+export const down = makeContainer({
+  deps: [Messenger.Bot, Telegram.Bot, LineAssetsManager] as const,
+})(async (messengerBot, telegramBot, lineAssetManager) => {
   await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {
     fields: [
       'get_started',
@@ -141,4 +119,4 @@ export const down = async ({ context: { app } }) => {
   await telegramBot.makeApiCall('setMyCommands', { commands: [] });
 
   await lineAssetManager.deleteRichMenu('default_menu.en');
-};
+});

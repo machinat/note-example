@@ -1,6 +1,7 @@
 import React from 'react';
 import { convertFromRaw } from 'draft-js';
-import type { AppData, WebviewNotif, NoteData } from '../../types';
+import type { AppData, NoteData } from '../../types';
+import { AppWebviewClient, AppWeviewEvent } from '../types';
 
 const convertNoteFromRaw = (rawNote: NoteData) => {
   const content = convertFromRaw(rawNote.content);
@@ -13,7 +14,10 @@ const convertNoteFromRaw = (rawNote: NoteData) => {
   };
 };
 
-const appDataReducer = (data: null | AppData, event: WebviewNotif): AppData => {
+const appDataReducer = (
+  data: null | AppData,
+  event: AppWeviewEvent
+): AppData => {
   if (event.type === 'app_data') {
     const { notes, ...restData } = event.payload;
     return {
@@ -66,11 +70,11 @@ const appDataReducer = (data: null | AppData, event: WebviewNotif): AppData => {
   return data;
 };
 
-const useAppData = (client): null | AppData => {
+const useAppData = (client: AppWebviewClient): null | AppData => {
   const [appData, dispatch] = React.useReducer(appDataReducer, null);
   React.useEffect(() => {
     if (client) {
-      client.onEvent((event) => {
+      client.onEvent(({ event }) => {
         dispatch(event);
       });
     }

@@ -3,13 +3,12 @@ import { makeContainer } from '@machinat/core/service';
 import { MarkSeen } from '@machinat/messenger/components';
 import { AnswerCallbackQuery } from '@machinat/telegram/components';
 import Script from '@machinat/script';
-import { Subject, merge, conditions } from '@machinat/stream';
-import { StreamFrame } from '@machinat/stream/types';
+import { Stream, merge, conditions, StreamingFrame } from '@machinat/stream';
 import { filter, mapMetadata, tap } from '@machinat/stream/operators';
 
 import handleStarting from './handlers/handleStarting';
 import handleWebviewAction from './handlers/handleWebviewAction';
-import handleReplyMessage from './handlers/handleReplyMessage';
+import handleMessage from './handlers/handleMessage';
 import handleGroupEvent from './handlers/handleGroupEvent';
 import handlePostback from './handlers/handlePostback';
 import isStartingEvent from './utils/isStartingEvent';
@@ -17,7 +16,7 @@ import isPostbackEvent from './utils/isPostbackEvent';
 import isGroupChat from './utils/isGroupChat';
 import type { AppEventContext, WebviewActionContext } from './types';
 
-const main = (events$: Subject<AppEventContext>): void => {
+const main = (events$: Stream<AppEventContext>): void => {
   const nativeChatEvent$ = events$.pipe(
     filter(({ platform }) => platform !== 'webview')
   );
@@ -32,13 +31,15 @@ const main = (events$: Subject<AppEventContext>): void => {
   const chatroomEvent$ = merge(
     nativeChatEvent$,
     webviewAction$.pipe(
-      mapMetadata(({ value: context }: StreamFrame<WebviewActionContext>) => ({
-        key: context.metadata.auth.channel.uid,
-        value: context,
-      }))
+      mapMetadata(
+        ({ value: context }: StreamingFrame<WebviewActionContext>) => ({
+          key: context.metadata.auth.channel.uid,
+          value: context,
+        })
+      )
     )
   ).pipe(
-    filter<AppEventContext>(
+    filter(
       makeContainer({
         deps: [Machinat.BaseBot, Script.Processor] as const,
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
@@ -68,25 +69,20 @@ const main = (events$: Subject<AppEventContext>): void => {
     )
   );
 
-  const [
-    starting$,
-    postback$,
-    groupEvent$,
-    privateMessage$,
-  ] = conditions(chatroomEvent$, [
-    isStartingEvent,
-    isPostbackEvent,
-    ({ event }) => isGroupChat(event.channel),
-    ({ event }) => event.category === 'message',
-  ]);
+  const [starting$, postback$, groupEvent$, privateMessage$] = conditions(
+    chatroomEvent$,
+    [
+      isStartingEvent,
+      isPostbackEvent,
+      ({ event }) => isGroupChat(event.channel),
+      (ctx) => ctx.event.category === 'message',
+    ] as const
+  );
 
   starting$.pipe(tap(handleStarting)).catch(console.error);
-
   postback$.pipe(tap(handlePostback)).catch(console.error);
-
   groupEvent$.pipe(tap(handleGroupEvent)).catch(console.error);
-
-  privateMessage$.pipe(tap(handleReplyMessage)).catch(console.error);
+  privateMessage$.pipe(tap(handleMessage)).catch(console.error);
 
   events$.subscribe(async ({ platform, reply }) => {
     if (platform === 'messenger') {

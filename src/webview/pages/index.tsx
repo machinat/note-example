@@ -1,11 +1,5 @@
 import React from 'react';
 import Head from 'next/head';
-import getConfig from 'next/config';
-
-import WebviewClient from '@machinat/webview/client';
-import { MessengerClientAuthorizer } from '@machinat/messenger/webview';
-import { LineClientAuthorizer } from '@machinat/line/webview';
-import { TelegramClientAuthorizer } from '@machinat/telegram/webview';
 
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -18,25 +12,11 @@ import NotesArea from '../components/NotesArea';
 import SpaceMenu from '../components/SpaceMenu';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
-import { WebviewAction } from '../../types';
+import { AppWebviewClient } from '../types';
 
-let client: WebviewClient<
-  MessengerClientAuthorizer | TelegramClientAuthorizer | LineClientAuthorizer,
-  WebviewAction
->;
-if (typeof window !== 'undefined') {
-  const {
-    publicRuntimeConfig: { fbAppId, lineLIFFId },
-  } = getConfig();
-
-  client = new WebviewClient({
-    authorizers: [
-      new MessengerClientAuthorizer({ appId: fbAppId }),
-      new TelegramClientAuthorizer(),
-      new LineClientAuthorizer({ liffId: lineLIFFId }),
-    ],
-  });
-}
+type WebAppProps = {
+  client: AppWebviewClient;
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,13 +39,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const NoteApp = () => {
+const NoteHome = ({ client }: WebAppProps) => {
   const classes = useStyles();
   const appData = useAppData(client);
 
   const [isMenuOpen, setMenuOpen] = React.useState(false);
-
-  // control editor
   const [editingNote, setEditingNote] = React.useState<null | { content: any }>(
     null
   );
@@ -150,18 +128,11 @@ const NoteApp = () => {
         <NoteEditor
           note={editingNote}
           handleFinish={handleEditorFinish}
-          platform={client?.authContext.platform}
+          platform={client?.authContext?.platform}
         />
       </div>
     </>
   );
 };
 
-// NOTE: to activate publicRuntimeConfig
-export const getServerSideProps = async () => ({
-  props: {
-    initialData: null,
-  },
-});
-
-export default NoteApp;
+export default NoteHome;

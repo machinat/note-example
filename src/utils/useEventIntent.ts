@@ -14,53 +14,52 @@ const useEventIntent = makeFactoryProvider({
   lifetime: 'scoped',
   deps: [DialogFlow.IntentRecognizer],
 })(
-  (recognizer) => async (
-    event: ChatEventContext['event']
-  ): Promise<AppIntentResult> => {
-    if (
-      event.type === 'postback' ||
-      event.type === 'callback_query' ||
-      event.type === 'quick_reply'
-    ) {
-      if (!event.data) {
-        return {
-          type: INTENT_UNKNOWN,
-          confidence: 0,
-          payload: null,
-        };
-      }
+  (recognizer) =>
+    async (event: ChatEventContext['event']): Promise<AppIntentResult> => {
+      if (
+        event.type === 'postback' ||
+        event.type === 'callback_query' ||
+        event.type === 'quick_reply'
+      ) {
+        if (!event.data) {
+          return {
+            type: INTENT_UNKNOWN,
+            confidence: 0,
+            payload: null,
+          };
+        }
 
-      const { action } = decodePostbackData(event.data);
-      return {
-        type: action as AppIntentType,
-        confidence: 1,
-        payload: null,
-      };
-    }
-
-    if (event.type === 'text') {
-      if (event.text === '👌' || event.text === '👍') {
+        const { action } = decodePostbackData(event.data);
         return {
-          type: INTENT_OK,
+          type: action as AppIntentType,
           confidence: 1,
           payload: null,
         };
       }
 
-      const intent = await recognizer.detectText(event.channel, event.text);
+      if (event.type === 'text') {
+        if (event.text === '👌' || event.text === '👍') {
+          return {
+            type: INTENT_OK,
+            confidence: 1,
+            payload: null,
+          };
+        }
+
+        const intent = await recognizer.detectText(event.channel, event.text);
+        return {
+          type: (intent.type || INTENT_UNKNOWN) as AppIntentType,
+          confidence: intent.confidence,
+          payload: null,
+        };
+      }
+
       return {
-        type: (intent.type || INTENT_UNKNOWN) as AppIntentType,
-        confidence: intent.confidence,
+        type: INTENT_UNKNOWN,
+        confidence: 0,
         payload: null,
       };
     }
-
-    return {
-      type: INTENT_UNKNOWN,
-      confidence: 0,
-      payload: null,
-    };
-  }
 );
 
 export default useEventIntent;

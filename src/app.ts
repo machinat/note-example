@@ -16,10 +16,8 @@ import TelegramAssetsManager from '@machinat/telegram/asset';
 import TelegramAuthorizer from '@machinat/telegram/webview';
 
 import Webview from '@machinat/webview';
-import RedisState from '@machinat/redis-state';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
-import YAML from 'yaml';
 
 import Script from '@machinat/script';
 import Starting from './scenes/Starting';
@@ -37,23 +35,23 @@ import {
   LineOfficialAccountId,
 } from './interface';
 import type { WebviewAction } from './types';
-import nextConfig from './webview/next.config.js';
 
 const {
   // location
   PORT,
-  HOST,
+  DOMAIN,
   NODE_ENV,
-  // auth
-  AUTH_SECRET,
+  // webview
+  WEBVIEW_AUTH_SECRET,
   // messenger
   MESSENGER_PAGE_ID,
+  MESSENGER_APP_ID,
   MESSENGER_ACCESS_TOKEN,
   MESSENGER_APP_SECRET,
   MESSENGER_VERIFY_TOKEN,
   // line
   LINE_PROVIDER_ID,
-  LINE_BOT_CHANNEL_ID,
+  LINE_CHANNEL_ID,
   LINE_OFFICIAL_ACCOUNT_ID,
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
@@ -67,8 +65,6 @@ const {
   DIALOG_FLOW_PROJECT_ID,
   DIALOG_FLOW_CLIENT_EMAIL,
   DIALOG_FLOW_PRIVATE_KEY,
-  // redis
-  REDIS_URL,
 } = process.env as Record<string, string>;
 
 const DEV = NODE_ENV !== 'production';
@@ -81,15 +77,9 @@ const app = Machinat.createApp({
       },
     }),
 
-    DEV
-      ? FileState.initModule({
-          path: './.state_storage',
-        })
-      : RedisState.initModule({
-          clientOptions: {
-            url: REDIS_URL as string,
-          },
-        }),
+    FileState.initModule({
+      path: './.state_storage',
+    }),
 
     Script.initModule({
       libs: [Starting, Introduction],
@@ -112,7 +102,7 @@ const app = Machinat.createApp({
   platforms: [
     Messenger.initModule({
       entryPath: '/webhook/messenger',
-      pageId: MESSENGER_PAGE_ID as string,
+      pageId: Number(MESSENGER_PAGE_ID),
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
@@ -128,7 +118,7 @@ const app = Machinat.createApp({
     Line.initModule({
       entryPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID,
-      channelId: LINE_BOT_CHANNEL_ID,
+      channelId: LINE_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
       channelSecret: LINE_CHANNEL_SECRET,
       liffChannelIds: [LINE_LIFF_ID.split('-')[0]],
@@ -138,13 +128,22 @@ const app = Machinat.createApp({
       MessengerAuthorizer | LineAuthorizer | TelegramAuthorizer,
       WebviewAction
     >({
-      webviewHost: HOST,
-      authSecret: AUTH_SECRET,
+      webviewHost: DOMAIN,
+      authSecret: WEBVIEW_AUTH_SECRET,
       sameSite: 'none',
       nextServerOptions: {
         dev: DEV,
         dir: `./${DEV ? 'src' : 'lib'}/webview`,
-        conf: nextConfig,
+        conf: {
+          distDir: '../../dist',
+          publicRuntimeConfig: {
+            isProduction: NODE_ENV === 'production',
+            messengerAppId: MESSENGER_APP_ID,
+            lineProviderId: LINE_PROVIDER_ID,
+            lineBotChannelId: LINE_CHANNEL_ID,
+            lineLiffId: LINE_LIFF_ID,
+          },
+        },
       },
     }),
   ],
@@ -162,12 +161,10 @@ const app = Machinat.createApp({
     TelegramAssetsManager,
     { provide: Webview.AuthorizerList, withProvider: TelegramAuthorizer },
 
-    { provide: FileState.Serializer, withValue: YAML },
-
-    { provide: EntryUrl, withValue: `https://${HOST}` },
+    { provide: EntryUrl, withValue: `https://${DOMAIN}` },
     { provide: FbPageName, withValue: MESSENGER_PAGE_ID },
     { provide: TelegramBotName, withValue: TELEGRAM_BOT_NAME },
-    { provide: LineChannelId, withValue: LINE_BOT_CHANNEL_ID },
+    { provide: LineChannelId, withValue: LINE_CHANNEL_ID },
     { provide: LineLiffId, withValue: LINE_LIFF_ID },
     {
       provide: LineOfficialAccountId,
