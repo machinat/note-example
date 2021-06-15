@@ -1,7 +1,7 @@
-import React from 'react';
+import { useEventReducer, ClientEventContext } from '@machinat/webview/client';
 import { convertFromRaw } from 'draft-js';
 import type { AppData, NoteData } from '../../types';
-import { AppWebviewClient, AppWeviewEvent } from '../types';
+import { WebAppClient, WebAppEventContext } from '../types';
 
 const convertNoteFromRaw = (rawNote: NoteData) => {
   const content = convertFromRaw(rawNote.content);
@@ -16,14 +16,18 @@ const convertNoteFromRaw = (rawNote: NoteData) => {
 
 const appDataReducer = (
   data: null | AppData,
-  event: AppWeviewEvent
-): AppData => {
+  { event }: WebAppEventContext
+): null | AppData => {
   if (event.type === 'app_data') {
     const { notes, ...restData } = event.payload;
     return {
       ...restData,
       notes: notes.map(convertNoteFromRaw),
     };
+  }
+
+  if (!data) {
+    return null;
   }
 
   if (event.type === 'note_added') {
@@ -70,17 +74,7 @@ const appDataReducer = (
   return data;
 };
 
-const useAppData = (client: AppWebviewClient): null | AppData => {
-  const [appData, dispatch] = React.useReducer(appDataReducer, null);
-  React.useEffect(() => {
-    if (client) {
-      client.onEvent(({ event }) => {
-        dispatch(event);
-      });
-    }
-  }, [client]);
-
-  return appData;
-};
+const useAppData = (client: WebAppClient): null | AppData =>
+  useEventReducer(client, appDataReducer, null);
 
 export default useAppData;

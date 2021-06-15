@@ -96,24 +96,24 @@ export type ChatEventContext =
 
 export type AppEventContext = ChatEventContext | WebviewActionContext;
 
-export type NoteAddedNotif = {
-  category: 'webview_notif';
+export type NoteAddedPush = {
+  category: 'webview_push';
   type: 'note_added';
   payload: {
     note: NoteData;
   };
 };
 
-export type NoteUpdatedNotif = {
-  category: 'webview_notif';
+export type NoteUpdatedPush = {
+  category: 'webview_push';
   type: 'note_updated';
   payload: {
     note: NoteData;
   };
 };
 
-export type NoteDeletedNotif = {
-  category: 'webview_notif';
+export type NoteDeletedPush = {
+  category: 'webview_push';
   type: 'note_deleted';
   payload: {
     id: number;
@@ -132,17 +132,17 @@ export type AppData = {
   notes: NoteData[];
 };
 
-export type AppDataNotif = {
-  category: 'webview_notif';
+export type AppDataPush = {
+  category: 'webview_push';
   type: 'app_data';
   payload: AppData;
 };
 
-export type WebviewNotif =
-  | NoteAddedNotif
-  | NoteUpdatedNotif
-  | NoteDeletedNotif
-  | AppDataNotif;
+export type WebviewPush =
+  | NoteAddedPush
+  | NoteUpdatedPush
+  | NoteDeletedPush
+  | AppDataPush;
 
 export type AppIntentType =
   | typeof INTENT_OK

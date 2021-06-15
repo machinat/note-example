@@ -4,9 +4,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import MenuIcon from '@material-ui/icons/Menu';
+import Badge from '@material-ui/core/Badge';
+import Avatar from '@material-ui/core/Avatar';
 import CreateIcon from '@material-ui/icons/Create';
 import SearchIcon from '@material-ui/icons/Search';
+import PersonIcon from '@material-ui/icons/Person';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -16,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     display: 'none',
+    marginLeft: theme.spacing(2),
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
@@ -27,10 +30,10 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: theme.palette.action.focus,
     },
-    marginLeft: 0,
+    marginLeft: theme.spacing(2),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
+      marginLeft: theme.spacing(4),
       width: 'auto',
     },
   },
@@ -43,10 +46,10 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  inputRoot: {
+  searchRoot: {
     color: 'inherit',
   },
-  inputInput: {
+  searchInput: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
@@ -59,23 +62,52 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  avatar: {
+    width: theme.spacing(5),
+    height: theme.spacing(5),
+  },
+  platformBadge: {
+    width: 22,
+    height: 22,
+  },
+  unknownPersonIcon: {
+    width: '120%',
+    height: '120%',
+    marginBottom: theme.spacing(-1),
+  },
 }));
 
-const NavBar = ({
-  openMenu,
-  appData,
-  handleAddNote,
-  searchText,
-  handleSearchChange,
-}) => {
+const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
   const classes = useStyles();
 
   return (
     <AppBar>
       <Toolbar>
-        <IconButton onClick={openMenu}>
-          <MenuIcon />
-        </IconButton>
+        {appData ? (
+          <Badge
+            overlap="circle"
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            badgeContent={
+              <img
+                alt={appData.platform}
+                src={`/webview/static/platform_badge_${appData.platform}.png`}
+                className={classes.platformBadge}
+              />
+            }
+          >
+            {appData.user.avatar ? (
+              <Avatar src={appData.user.avatar} className={classes.avatar} />
+            ) : (
+              <Avatar className={appData.user.avatar}>
+                {appData.user.name[0].toUpperCase()}
+              </Avatar>
+            )}
+          </Badge>
+        ) : (
+          <Avatar className={classes.avatar}>
+            <PersonIcon className={classes.unknownPersonIcon} />
+          </Avatar>
+        )}
 
         <Typography className={classes.title} variant="h5" noWrap>
           {appData
@@ -95,8 +127,8 @@ const NavBar = ({
             value={searchText}
             onChange={(e) => handleSearchChange(e.target.value)}
             classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
+              root: classes.searchRoot,
+              input: classes.searchInput,
             }}
             inputProps={{ 'aria-label': 'search' }}
           />

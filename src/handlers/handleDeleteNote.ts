@@ -3,7 +3,7 @@ import StateController from '@machinat/core/base/StateController';
 import { NOTE_DATA_KEY } from '../constant';
 import {
   DeleteNoteAction,
-  NoteDeletedNotif,
+  NoteDeletedPush,
   NoteDataState,
   WebviewActionContext,
 } from '../types';
@@ -41,8 +41,8 @@ const handleDeleteNoteAction =
         };
       });
 
-    const notification: NoteDeletedNotif = {
-      category: 'webview_notif',
+    const notification: NoteDeletedPush = {
+      category: 'webview_push',
       type: 'note_deleted',
       payload: { id },
     };

@@ -13,7 +13,7 @@ type OpenSpacePanelProps = {
 const OpenSpacePanel =
   (entry: string, lineLiffId: string) =>
   ({ children, additionalButton }: OpenSpacePanelProps, { platform }) => {
-    const webviewUrl = new URL(`/?platform=${platform}`, entry);
+    const webviewUrl = new URL(`/webview?platform=${platform}`, entry);
 
     if (platform === 'messenger') {
       return (

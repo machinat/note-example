@@ -2,11 +2,6 @@ import React from 'react';
 import NextApp from 'next/app';
 import getConfig from 'next/config';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-
-import WebviewClient from '@machinat/webview/client';
-import { MessengerClientAuthorizer } from '@machinat/messenger/webview';
-import { TelegramClientAuthorizer } from '@machinat/telegram/webview';
-import { LineClientAuthorizer } from '@machinat/line/webview';
 import amber from '@material-ui/core/colors/amber';
 
 const theme = createMuiTheme({
@@ -19,22 +14,6 @@ const theme = createMuiTheme({
 });
 
 const { publicRuntimeConfig } = getConfig();
-
-const client = new WebviewClient(
-  typeof window === 'undefined'
-    ? { mockupMode: true, authorizers: [] }
-    : {
-        authorizers: [
-          new MessengerClientAuthorizer({
-            appId: publicRuntimeConfig.messengerAppId,
-          }),
-          new TelegramClientAuthorizer(),
-          new LineClientAuthorizer({
-            liffId: publicRuntimeConfig.lineLiffId,
-          }),
-        ],
-      }
-);
 
 class NoteApp extends NextApp {
   // to activate publicRuntimeConfig
@@ -58,7 +37,7 @@ class NoteApp extends NextApp {
     const { Component, pageProps } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        <Component {...pageProps} client={client} />
+        <Component {...pageProps} />
       </ThemeProvider>
     );
   }

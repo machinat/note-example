@@ -1,30 +1,26 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
-
 import Messenger from '@machinat/messenger';
 import MessengerAuthorizer from '@machinat/messenger/webview';
 import MessengerAssetsManager, {
   saveReusableAttachments,
 } from '@machinat/messenger/asset';
-
 import Line from '@machinat/line';
 import LineAuthorizer from '@machinat/line/webview';
 import LineAssetsManager from '@machinat/line/asset';
-
 import Telegram from '@machinat/telegram';
 import TelegramAssetsManager from '@machinat/telegram/asset';
 import TelegramAuthorizer from '@machinat/telegram/webview';
-
 import Webview from '@machinat/webview';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
-
 import Script from '@machinat/script';
 import Starting from './scenes/Starting';
 import Introduction from './scenes/Introduction';
 import useEventIntent from './utils/useEventIntent';
 import useChatState from './utils/useChatState';
 import useUserState from './utils/useUserState';
+import nextConfigs from './webview/next.config.js'
 
 import {
   EntryUrl,
@@ -101,7 +97,7 @@ const app = Machinat.createApp({
 
   platforms: [
     Messenger.initModule({
-      entryPath: '/webhook/messenger',
+      webhookPath: '/webhook/messenger',
       pageId: Number(MESSENGER_PAGE_ID),
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
@@ -111,12 +107,12 @@ const app = Machinat.createApp({
 
     Telegram.initModule({
       botToken: TELEGRAM_BOT_TOKEN,
-      entryPath: '/webhook/telegram',
+      webhookPath: '/webhook/telegram',
       secretPath: TELEGRAM_SECRET_PATH,
     }),
 
     Line.initModule({
-      entryPath: '/webhook/line',
+      webhookPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID,
       channelId: LINE_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
@@ -129,13 +125,14 @@ const app = Machinat.createApp({
       WebviewAction
     >({
       webviewHost: DOMAIN,
+      webviewPath: '/webview',
       authSecret: WEBVIEW_AUTH_SECRET,
       sameSite: 'none',
       nextServerOptions: {
         dev: DEV,
         dir: `./${DEV ? 'src' : 'lib'}/webview`,
         conf: {
-          distDir: '../../dist',
+          ...nextConfigs,
           publicRuntimeConfig: {
             isProduction: NODE_ENV === 'production',
             messengerAppId: MESSENGER_APP_ID,

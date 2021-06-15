@@ -7,7 +7,7 @@ import useChatState from '../utils/useChatState';
 import { USER_INFO_KEY, NOTE_DATA_KEY } from '../constant';
 import {
   UserInfoState,
-  AppDataNotif,
+  AppDataPush,
   WebviewActionContext,
   NoteDataState,
 } from '../types';
@@ -45,8 +45,8 @@ const handleSocketConnect =
         .map((state) => state.profile);
     }
 
-    const appData: AppDataNotif = {
-      category: 'webview_notif',
+    const appData: AppDataPush = {
+      category: 'webview_push',
       type: 'app_data',
       payload: {
         platform,

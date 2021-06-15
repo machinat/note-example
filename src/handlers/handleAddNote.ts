@@ -4,7 +4,7 @@ import { NOTE_DATA_KEY } from '../constant';
 import {
   AddNoteAction,
   WebviewActionContext,
-  NoteAddedNotif,
+  NoteAddedPush,
   NoteDataState,
 } from '../types';
 
@@ -39,8 +39,8 @@ const handleAddNoteAction =
         };
       });
 
-    const notification: NoteAddedNotif = {
-      category: 'webview_notif',
+    const notification: NoteAddedPush = {
+      category: 'webview_push',
       type: 'note_added',
       payload: {
         note: { authorId: user.uid, id, title, content },

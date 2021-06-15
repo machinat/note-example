@@ -1,22 +1,20 @@
 import React from 'react';
 import Head from 'next/head';
-
+import getConfig from 'next/config';
+import WebviewClient from '@machinat/webview/client';
+import { MessengerClientAuthorizer } from '@machinat/messenger/webview';
+import { TelegramClientAuthorizer } from '@machinat/telegram/webview';
+import { LineClientAuthorizer } from '@machinat/line/webview';
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
 import { ContentState, convertToRaw } from 'draft-js';
-
 import NavBar from '../components/NavBar';
 import NoteEditor from '../components/NoteEditor';
 import NotesArea from '../components/NotesArea';
-import SpaceMenu from '../components/SpaceMenu';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
-import { AppWebviewClient } from '../types';
-
-type WebAppProps = {
-  client: AppWebviewClient;
-};
+import {WebAppClient} from '../types'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,11 +37,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const NoteHome = ({ client }: WebAppProps) => {
+const { publicRuntimeConfig } = getConfig();
+
+const client :WebAppClient= new WebviewClient(
+  typeof window === 'undefined'
+    ? { mockupMode: true, authorizers: [] }
+    : {
+        authorizers: [
+          new MessengerClientAuthorizer({
+            appId: publicRuntimeConfig.messengerAppId,
+          }),
+          new TelegramClientAuthorizer(),
+          new LineClientAuthorizer({
+            liffId: publicRuntimeConfig.lineLiffId,
+          }),
+        ],
+      }
+);
+
+const NoteHome = () => {
   const classes = useStyles();
   const appData = useAppData(client);
 
-  const [isMenuOpen, setMenuOpen] = React.useState(false);
   const [editingNote, setEditingNote] = React.useState<null | { content: any }>(
     null
   );
@@ -96,15 +111,8 @@ const NoteHome = ({ client }: WebAppProps) => {
       </Head>
 
       <div className={classes.root}>
-        <SpaceMenu
-          open={isMenuOpen}
-          setMenuOpen={setMenuOpen}
-          profile={appData?.user}
-        />
-
         <Box className={classes.frame}>
           <NavBar
-            openMenu={() => setMenuOpen(true)}
             appData={appData}
             handleAddNote={handleAddNote}
             searchText={searchText}
