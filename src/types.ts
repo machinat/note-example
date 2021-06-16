@@ -1,4 +1,4 @@
-import type { MachinatProfile } from '@machinat/core/base/Profiler';
+import type { MachinatProfile } from '@machinat/core';
 import type { MessengerEventContext } from '@machinat/messenger';
 import type { MessengerServerAuthorizer } from '@machinat/messenger/webview';
 import type { TelegramEventContext } from '@machinat/telegram';
@@ -19,19 +19,6 @@ import type {
   INTENT_INTRODUCE,
   INTENT_UNKNOWN,
 } from './constant';
-
-export type UserInfoState = {
-  profile: MachinatProfile;
-  updateAt: number;
-};
-
-export type ChatInfoState = {
-  beginAt: undefined | number;
-  name: undefined | string;
-  avatar: undefined | string;
-  memberUids: undefined | string[];
-  updateAt: number;
-};
 
 export type NoteData = {
   authorId: string;
@@ -122,13 +109,8 @@ export type NoteDeletedPush = {
 
 export type AppData = {
   platform: 'line' | 'messenger' | 'telegram';
-  user: MachinatProfile;
-  chat: {
-    isGroupChat: boolean;
-    name: undefined | string;
-    avatar: undefined | string;
-    members: undefined | MachinatProfile[];
-  };
+  profile: MachinatProfile;
+  isGroupChat: boolean;
   notes: NoteData[];
 };
 

@@ -14,7 +14,7 @@ import NoteEditor from '../components/NoteEditor';
 import NotesArea from '../components/NotesArea';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
-import {WebAppClient} from '../types'
+import { WebAppClient } from '../types';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 const { publicRuntimeConfig } = getConfig();
 
-const client :WebAppClient= new WebviewClient(
+const client: WebAppClient = new WebviewClient(
   typeof window === 'undefined'
     ? { mockupMode: true, authorizers: [] }
     : {

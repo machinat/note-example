@@ -80,38 +80,45 @@ const useStyles = makeStyles((theme) => ({
 const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
   const classes = useStyles();
 
+  let avatarWidget;
+  if (appData) {
+    const { platform, profile } = appData;
+    avatarWidget = (
+      <Badge
+        overlap="circle"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        badgeContent={
+          <img
+            alt={platform}
+            src={`/webview/static/platform_badge_${platform}.png`}
+            className={classes.platformBadge}
+          />
+        }
+      >
+        {profile.avatarUrl ? (
+          <Avatar src={profile.avatarUrl} className={classes.avatar} />
+        ) : (
+          <Avatar className={profile.avatarUrl}>
+            {profile.name[0].toUpperCase()}
+          </Avatar>
+        )}
+      </Badge>
+    );
+  } else {
+    avatarWidget = (
+      <Avatar className={classes.avatar}>
+        <PersonIcon className={classes.unknownPersonIcon} />
+      </Avatar>
+    );
+  }
+
   return (
     <AppBar>
       <Toolbar>
-        {appData ? (
-          <Badge
-            overlap="circle"
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            badgeContent={
-              <img
-                alt={appData.platform}
-                src={`/webview/static/platform_badge_${appData.platform}.png`}
-                className={classes.platformBadge}
-              />
-            }
-          >
-            {appData.user.avatar ? (
-              <Avatar src={appData.user.avatar} className={classes.avatar} />
-            ) : (
-              <Avatar className={appData.user.avatar}>
-                {appData.user.name[0].toUpperCase()}
-              </Avatar>
-            )}
-          </Badge>
-        ) : (
-          <Avatar className={classes.avatar}>
-            <PersonIcon className={classes.unknownPersonIcon} />
-          </Avatar>
-        )}
-
+        {avatarWidget}
         <Typography className={classes.title} variant="h5" noWrap>
           {appData
-            ? appData.chat.isGroupChat
+            ? appData.isGroupChat
               ? 'Group Chat Space'
               : 'Your Own Space'
             : null}

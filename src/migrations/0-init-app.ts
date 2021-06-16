@@ -8,8 +8,16 @@ import LineAssetsManager from '@machinat/line/asset';
 import encodePostbackData from '../utils/encodePostbackData';
 import { MESSENGER_START_ACTION } from '../constant';
 
-const { DOMAIN, LINE_LIFF_ID, TELEGRAM_SECRET_PATH, LINE_ACCESS_TOKEN } =
-  process.env;
+const {
+  DOMAIN,
+  MESSENGER_APP_ID,
+  MESSENGER_APP_SECRET,
+  MESSENGER_VERIFY_TOKEN,
+  MESSENGER_PAGE_ID,
+  TELEGRAM_SECRET_PATH,
+  LINE_ACCESS_TOKEN,
+  LINE_LIFF_ID,
+} = process.env;
 
 const ENTRY_URL = `https://${DOMAIN}`;
 

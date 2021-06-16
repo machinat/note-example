@@ -8,9 +8,9 @@ const WhatToDoExpression = ({ children }) => {
     <Expression
       quickReplies={
         <>
-          <QuickReply text="What's this?" action={INTENT_INTRODUCE} />
-          <QuickReply text="Open notes space" action={INTENT_OPEN} />
-          <QuickReply text="Share to friend" action={INTENT_SHARE} />
+          <QuickReply text="What's this❓" action={INTENT_INTRODUCE} />
+          <QuickReply text="Open Notes 📝" action={INTENT_OPEN} />
+          <QuickReply text="Share 🔗" action={INTENT_SHARE} />
         </>
       }
     >

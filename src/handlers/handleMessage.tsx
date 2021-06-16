@@ -5,7 +5,7 @@ import SharePanel from '../components/SharePanel';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import WhatToDoExpression from '../components/WhatToDoExpression';
 import Introduce from '../scenes/Introduction';
-import useEventIntent from '../utils/useEventIntent';
+import useIntent from '../services/useIntent';
 import {
   INTENT_OK,
   INTENT_NO,
@@ -13,19 +13,13 @@ import {
   INTENT_OPEN,
   INTENT_SHARE,
   INTENT_INTRODUCE,
-  INTENT_UNKNOWN,
 } from '../constant';
 import { ChatEventContext } from '../types';
 
 const random = (arr) => arr[Math.floor(arr.length * Math.random())];
 
-const POSITIVE_REPLIES = ['♥', '👍', '💪', '😊', '😎', '😘', '😍', '😇'];
-const NEGATIVE_REPLIES = ['😭', '😣', '😖', '🤯', '🤐', '😢', '😳'];
-const GREETING_REPLIES = ['Hi!', 'Hello!', '😁', '✋', '🖖', '🤗'];
-const UNKNOWN_REPLIES = ['🧐', '🤔', '😻', '😼', '🙈', '🙉', '🙊'];
-
 const handleMessage = makeContainer({
-  deps: [Script.Processor, useEventIntent] as const,
+  deps: [Script.Processor, useIntent] as const,
 })(
   (processor, getIntent) =>
     async ({
@@ -39,22 +33,25 @@ const handleMessage = makeContainer({
         return reply(runtime.output());
       }
 
+      if (intent.type === INTENT_SHARE) {
+        return reply(<SharePanel />);
+      }
+
+      if (intent.type === INTENT_OPEN) {
+        return reply(<OpenSpacePanel>Open private notes:</OpenSpacePanel>);
+      }
+
       await reply(
-        intent.type === INTENT_OK ? (
-          random(POSITIVE_REPLIES)
-        ) : intent.type === INTENT_NO ? (
-          random(NEGATIVE_REPLIES)
-        ) : intent.type === INTENT_GREETING ? (
-          random(GREETING_REPLIES)
-        ) : intent.type === INTENT_UNKNOWN ? (
-          random(UNKNOWN_REPLIES)
-        ) : intent.type === INTENT_SHARE ? (
-          <SharePanel />
-        ) : intent.type === INTENT_OPEN ? (
-          <OpenSpacePanel>Open Notes Space 📝</OpenSpacePanel>
-        ) : (
-          <WhatToDoExpression>Hi! What can I help?</WhatToDoExpression>
-        )
+        <WhatToDoExpression>
+          {intent.type === INTENT_OK
+            ? random(['👍', '💪', '😊'])
+            : intent.type === INTENT_NO
+            ? random(['😣', '😖', '🤯'])
+            : intent.type === INTENT_GREETING
+            ? random(['Hi!', 'Hello!', '🤗'])
+            : random(['🧐', '🤔', '😼'])}{' '}
+          What can I help?
+        </WhatToDoExpression>
       );
     }
 );

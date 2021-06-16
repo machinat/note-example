@@ -1,6 +1,4 @@
-export const USER_INFO_KEY = 'user_info';
-
-export const CHAT_INFO_KEY = 'chat_info';
+export const PROFILE_CACHE_KEY = 'profile_cache';
 
 export const NOTE_DATA_KEY = 'note_data';
 

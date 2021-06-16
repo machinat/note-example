@@ -15,12 +15,12 @@ import Webview from '@machinat/webview';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
-import Starting from './scenes/Starting';
+import Guide from './scenes/Guide';
 import Introduction from './scenes/Introduction';
-import useEventIntent from './utils/useEventIntent';
-import useChatState from './utils/useChatState';
-import useUserState from './utils/useUserState';
-import nextConfigs from './webview/next.config.js'
+import NoteController from './services/NoteController';
+import useIntent from './services/useIntent';
+import useUserProfile from './services/useUserProfile';
+import nextConfigs from './webview/next.config.js';
 
 import {
   EntryUrl,
@@ -78,7 +78,7 @@ const app = Machinat.createApp({
     }),
 
     Script.initModule({
-      libs: [Starting, Introduction],
+      libs: [Guide, Introduction],
     }),
 
     DialogFlow.initModule({
@@ -167,9 +167,9 @@ const app = Machinat.createApp({
       provide: LineOfficialAccountId,
       withValue: LINE_OFFICIAL_ACCOUNT_ID,
     },
-    useEventIntent,
-    useChatState,
-    useUserState,
+    NoteController,
+    useIntent,
+    useUserProfile,
   ],
 });
 

@@ -67,7 +67,7 @@ https://line.me/R/ti/p/${lineAccountId}`}
     if (platform === 'messenger') {
       return (
         <>
-          <p>Please share this link to friends:</p>
+          <p>You can share me by this link:</p>
           <p>https://m.me/{fbPageName}</p>
         </>
       );

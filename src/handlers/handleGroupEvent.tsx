@@ -15,12 +15,12 @@ const handleGroupEvent =
     const linkToBotButton =
       platform === 'telegram' ? (
         <Telegram.UrlButton
-          text="Learn More 🤖"
+          text="Learn More 💬"
           url={`https://t.me/${telegramBotName}`}
         />
       ) : platform === 'line' ? (
         <Line.UriAction
-          label="Learn More 🤖"
+          label="Learn More 💬"
           uri={`https://line.me/R/ti/p/${lineAccountId}`}
         />
       ) : null;
@@ -28,17 +28,17 @@ const handleGroupEvent =
     if (isJoiningGroupEvent(context)) {
       await reply(
         <OpenSpacePanel additionalButton={linkToBotButton}>
-          Hi, I'm a bot for taking notes in chat.{'\n\n'}You can{' '}
+          Hi, I'm a <b>Note Taking Bot 🤖</b> .{'\n\n'}You can{' '}
           {platform === 'telegram' ? (
             <>
-              use <b>/note</b> command
+              use <i>/note</i> command
             </>
           ) : platform === 'line' ? (
             `tag me with ${lineAccountId}`
           ) : (
             'call me'
           )}{' '}
-          to open notes space in the chat room.
+          to take notes in chat.
         </OpenSpacePanel>
       );
     } else if (
@@ -48,7 +48,7 @@ const handleGroupEvent =
     ) {
       await reply(
         <OpenSpacePanel additionalButton={linkToBotButton}>
-          Open Notes Space of this Chatroom
+          Open group notes:
         </OpenSpacePanel>
       );
     }

@@ -10,7 +10,6 @@ import type { AppEventContext } from '../types';
 const handlePostback = makeContainer({ deps: [Script.Processor] })(
   (processor) =>
     async ({
-      platform,
       reply,
       event,
     }: AppEventContext & {

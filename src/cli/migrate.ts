@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+import { config as configEnv } from 'dotenv';
 import { resolve as resolvePath } from 'path';
 import Machinat from '@machinat/core';
 import Messenger from '@machinat/messenger';
@@ -10,6 +12,7 @@ import RedisState from '@machinat/redis-state';
 import { Umzug, JSONStorage } from 'umzug';
 import commander from 'commander';
 
+configEnv();
 const {
   NODE_ENV,
   REDIS_URL,
@@ -59,7 +62,7 @@ const umzug = new Umzug({
   storage: new JSONStorage({ path: resolvePath('./.migrated.json') }),
   logger: console,
   migrations: {
-    glob: resolvePath(__dirname, '../migrations/*.js'),
+    glob: resolvePath(__dirname, '../migrations/*.+(js|ts)'),
     resolve: ({ name, path }) => {
       return {
         name: name.replace(/.[t|j]s$/, ''),

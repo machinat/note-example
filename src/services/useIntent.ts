@@ -2,7 +2,7 @@ import { makeFactoryProvider } from '@machinat/core/service';
 import DialogFlow from '@machinat/dialogflow';
 import { INTENT_OK, INTENT_UNKNOWN } from '../constant';
 import type { ChatEventContext, AppIntentType } from '../types';
-import decodePostbackData from './decodePostbackData';
+import decodePostbackData from '../utils/decodePostbackData';
 
 type AppIntentResult = {
   type: AppIntentType;
@@ -10,7 +10,7 @@ type AppIntentResult = {
   payload: null;
 };
 
-const useEventIntent = makeFactoryProvider({
+const useIntent = makeFactoryProvider({
   lifetime: 'scoped',
   deps: [DialogFlow.IntentRecognizer],
 })(
@@ -62,4 +62,4 @@ const useEventIntent = makeFactoryProvider({
     }
 );
 
-export default useEventIntent;
+export default useIntent;
