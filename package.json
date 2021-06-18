@@ -7,7 +7,7 @@
     "migrate": "per-env",
     "migrate:development": "ts-node ./src/cli/migrate.ts",
     "migrate:production": "node ./lib/cli/migrate.js",
-    "build": "npm run build:source && npm run build:webview && npm run build:next",
+    "build": "npm run clean && npm run build:source && npm run build:webview && npm run build:next",
     "build:source": "tsc",
     "build:webview": "mkdir -p ./lib/webview && cp ./src/webview/next.config.js ./lib/webview/",
     "build:next": "next build ./src/webview",
