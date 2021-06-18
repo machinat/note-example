@@ -16,4 +16,4 @@ RUN npm ci --no-fund
 
 COPY . ./
 
-CMD ["node", "./lib/serve.js"]
+CMD ["node", "./lib/index.js"]
