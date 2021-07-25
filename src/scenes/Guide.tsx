@@ -66,7 +66,7 @@ export default build<GuideVars, AppEventContext>(
         })}
       />
 
-      {({ vars: { addedNotesCounts, isDone, intentType } }) => {
+      {({ channel, vars: { addedNotesCounts, isDone, intentType } }) => {
         if (isDone || intentType === INTENT_NO) {
           return (
             <>
@@ -75,7 +75,15 @@ export default build<GuideVars, AppEventContext>(
                   ? `I see you create ${addedNotesCounts} notes 💪`
                   : 'Ok, you can try it anytime 😊'}
               </p>
-              <p>Notes here are available only to you.</p>
+              <p>Notes here are your private notes</p>
+              <Pause time={3000} />
+              <p>
+                You can tell me "open" or use{' '}
+                {channel.platform === 'telegram'
+                  ? '/note command'
+                  : 'button in menu'}{' '}
+                to go notes space
+              </p>
             </>
           );
         }
