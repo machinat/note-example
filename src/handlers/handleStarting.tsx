@@ -1,7 +1,7 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import Script from '@machinat/script';
-import WhatToDoExpression from '../components/WhatToDoExpression';
+import WithActions from '../components/WithActions';
 import useUserProfile from '../services/useUserProfile';
 import Introduction from '../scenes/Introduction';
 
@@ -22,9 +22,9 @@ const handleIntroduction = makeContainer({
         );
       } else {
         await reply(
-          <WhatToDoExpression>
+          <WithActions>
             Welecome back, {profile.name}! What can I help?
-          </WhatToDoExpression>
+          </WithActions>
         );
       }
     }

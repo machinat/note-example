@@ -3,7 +3,7 @@ import { makeContainer } from '@machinat/core/service';
 import Script from '@machinat/script';
 import SharePanel from '../components/SharePanel';
 import OpenSpacePanel from '../components/OpenSpacePanel';
-import WhatToDoExpression from '../components/WhatToDoExpression';
+import WithActions from '../components/WithActions';
 import Introduce from '../scenes/Introduction';
 import useIntent from '../services/useIntent';
 import {
@@ -42,7 +42,7 @@ const handleMessage = makeContainer({
       }
 
       await reply(
-        <WhatToDoExpression>
+        <WithActions>
           {intent.type === INTENT_OK
             ? random(['👍', '💪', '😊'])
             : intent.type === INTENT_NO
@@ -51,7 +51,7 @@ const handleMessage = makeContainer({
             ? random(['Hi!', 'Hello!', '🤗'])
             : random(['🧐', '🤔', '😼'])}{' '}
           What can I help?
-        </WhatToDoExpression>
+        </WithActions>
       );
     }
 );

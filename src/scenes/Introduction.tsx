@@ -2,10 +2,10 @@ import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import { $, IF, THEN, PROMPT, CALL, RETURN } from '@machinat/script/keywords';
-
 import useIntent from '../services/useIntent';
 import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';
+import WithActions from '../components/WithActions';
 import type { AppIntentType, AppEventContext } from '../types';
 import { INTENT_OK, INTENT_NO } from '../constant';
 import Guide from './Guide';
@@ -29,7 +29,7 @@ export default build<IntroductionVars, AppEventContext>(
           </>
         }
       >
-        <p>I'm a Note Taking Bot 🤖</p>
+        <p>I'm a bot for taking notes 🤖</p>
         <p>Do you like to hear introduction?</p>
       </Expression>
     )}
@@ -52,7 +52,11 @@ export default build<IntroductionVars, AppEventContext>(
       condition={({ vars: { intentType } }) => intentType === INTENT_NO}
     >
       <THEN>
-        {() => <p>Alright, ask me any time 😊</p>}
+        {() => (
+          <WithActions>
+            <p>Alright, ask me any time! 😊</p>
+          </WithActions>
+        )}
         <RETURN />
       </THEN>
     </IF>
@@ -65,6 +69,10 @@ export default build<IntroductionVars, AppEventContext>(
 
     <CALL key="guiding" script={Guide} />
 
-    {() => <p>Hope you enjoy!</p>}
+    {() => (
+      <WithActions>
+        <p>Hope you enjoy!</p>
+      </WithActions>
+    )}
   </$>
 );

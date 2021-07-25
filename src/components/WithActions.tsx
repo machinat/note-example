@@ -3,7 +3,7 @@ import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';
 import { INTENT_INTRODUCE, INTENT_OPEN, INTENT_SHARE } from '../constant';
 
-const WhatToDoExpression = ({ children }) => {
+const WithActions = ({ children }) => {
   return (
     <Expression
       quickReplies={
@@ -19,4 +19,4 @@ const WhatToDoExpression = ({ children }) => {
   );
 };
 
-export default WhatToDoExpression;
+export default WithActions;

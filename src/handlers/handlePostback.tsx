@@ -33,7 +33,7 @@ const handlePostback = makeContainer({ deps: [Script.Processor] })(
       await reply(
         action === 'open' ? (
           <OpenSpacePanel>
-            Open {isGroupChat ? 'Group' : 'Private'} Notes Space
+            Open {isGroupChat ? 'group' : 'private'} notes:
           </OpenSpacePanel>
         ) : action === 'share' ? (
           <SharePanel />

@@ -13,8 +13,15 @@ type SharePanelProps = {
   additionalButton?: MachinatNode;
 };
 
-const defaultWords =
-  'Add me to a group for sharing notes, or simply share this App:';
+const defaultWords = (
+  <>
+    Thank you! 🤗
+    <br />
+    You can invite me in a group to share notes with friends!
+    <br />
+    Or simply share me.
+  </>
+);
 
 const SharePanel =
   (fbPageName: string, tgBotName: string, lineAccountId: string) =>
@@ -25,11 +32,11 @@ const SharePanel =
           replyMarkup={
             <Telegram.InlineKeyboard>
               <Telegram.UrlButton
-                text="Add to Group 👥"
+                text="Add to group 👥"
                 url={`https://t.me/${tgBotName}?startgroup=📝`}
               />
               <Telegram.UrlButton
-                text="Share App 🤖"
+                text="Share me 🤖"
                 url={`https://t.me/share/url?url=${encodeURIComponent(
                   `https://t.me/${tgBotName}`
                 )}&text=${encodeURIComponent('Machinat Note Example')}`}
@@ -52,7 +59,7 @@ https://line.me/R/ti/p/${lineAccountId}`}
           actions={
             <>
               <Line.UriAction
-                label="Share App 🤖"
+                label="Share me 🤖"
                 uri={`https://line.me/R/nv/recommendOA/${lineAccountId}`}
               />
               {additionalButton}
@@ -67,7 +74,11 @@ https://line.me/R/ti/p/${lineAccountId}`}
     if (platform === 'messenger') {
       return (
         <>
-          <p>You can share me by this link:</p>
+          <p>
+            Thank you! 🤗
+            <br />
+            You can share this link to friends:
+          </p>
           <p>https://m.me/{fbPageName}</p>
         </>
       );

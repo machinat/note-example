@@ -1,7 +1,6 @@
 {
   "name": "note-example",
   "private": true,
-  "version": "0.1.0-beta.5",
   "scripts": {
     "clean": "rm -rf ./lib ./dist && rm tsconfig.tsbuildinfo",
     "migrate": "per-env",
@@ -21,7 +20,7 @@
     "@machinat/core": "^0.4.1-alpha.46",
     "@machinat/dialogflow": "^0.4.1-alpha.44",
     "@machinat/http": "^0.4.1-alpha.44",
-    "@machinat/line": "^0.4.1-alpha.49",
+    "@machinat/line": "^0.4.1-alpha.50",
     "@machinat/local-state": "^0.4.1-alpha.44",
     "@machinat/messenger": "^0.4.1-alpha.46",
     "@machinat/per-env": "^1.1.0",

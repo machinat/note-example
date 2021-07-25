@@ -16,7 +16,7 @@ type GuideVars = {
   isDone: boolean;
 };
 
-const rejectButton = <PostbackButton text="Not Now 🙅" action={INTENT_NO} />;
+const rejectButton = <PostbackButton text="Got it 👍" action={INTENT_NO} />;
 
 export default build<GuideVars, AppEventContext>(
   {
@@ -33,7 +33,7 @@ export default build<GuideVars, AppEventContext>(
         I can help you taking notes in chat room 💬
         <Pause />
         <OpenSpacePanel additionalButton={rejectButton}>
-          Let's create first note! Tap the "Open" button to start 👇
+          Let's create first note! Tap the "Open" button to create a note 👇
         </OpenSpacePanel>
       </>
     )}
@@ -73,7 +73,7 @@ export default build<GuideVars, AppEventContext>(
               <p>
                 {addedNotesCounts
                   ? `I see you create ${addedNotesCounts} notes 💪`
-                  : 'Ok, you can try it anytime'}
+                  : 'Ok, you can try it anytime 😊'}
               </p>
               <p>Notes here are available only to you.</p>
             </>
@@ -96,7 +96,7 @@ export default build<GuideVars, AppEventContext>(
           <>
             <Pause />
             <SharePanel additionalButton={rejectButton}>
-              You can also share notes with friends by adding me to a group
+              You can also share notes with friends by inviting me to a group
               chat:
             </SharePanel>
           </>
@@ -116,9 +116,7 @@ export default build<GuideVars, AppEventContext>(
         />
 
         {({ vars }) =>
-          vars.intentType === INTENT_OK
-            ? 'Thank you!'
-            : 'Ok, tell me when you need.'
+          vars.intentType === INTENT_OK ? 'Thank you! 👍' : 'Ok!'
         }
       </THEN>
     </IF>
