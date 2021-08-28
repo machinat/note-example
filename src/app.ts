@@ -13,6 +13,7 @@ import TelegramAssetsManager from '@machinat/telegram/asset';
 import TelegramAuthorizer from '@machinat/telegram/webview';
 import Webview from '@machinat/webview';
 import { FileState } from '@machinat/local-state';
+import RedisState from '@machinat/redis-state';
 import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
 import Guide from './scenes/Guide';
@@ -37,6 +38,7 @@ const {
   PORT,
   DOMAIN,
   NODE_ENV,
+  REDIS_URL,
   // webview
   WEBVIEW_AUTH_SECRET,
   // messenger
@@ -73,9 +75,16 @@ const app = Machinat.createApp({
       },
     }),
 
-    FileState.initModule({
-      path: './.state_storage',
-    }),
+    DEV
+      ? FileState.initModule({
+          path: './.state_data.json',
+        })
+      : RedisState.initModule({
+          clientOptions: {
+            url: REDIS_URL,
+          },
+        }),
+
 
     Script.initModule({
       libs: [Guide, Introduction],
