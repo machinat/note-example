@@ -1,7 +1,7 @@
 import { makeFactoryProvider } from '@machinat/core/service';
 import DialogFlow from '@machinat/dialogflow';
 import { INTENT_OK, INTENT_UNKNOWN } from '../constant';
-import type { ChatEventContext, AppIntentType } from '../../types';
+import type { ChatEventContext, AppIntentType } from '../types';
 import decodePostbackData from '../utils/decodePostbackData';
 
 type AppIntentResult = {

@@ -31,7 +31,7 @@ import {
   LineChannelId,
   LineOfficialAccountId,
 } from './interface';
-import type { WebviewAction } from '../types';
+import type { WebviewAction } from './types';
 
 const {
   // location

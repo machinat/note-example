@@ -6,7 +6,7 @@ import {
 } from '@machinat/line/components';
 import { TextReply } from '@machinat/telegram/components';
 import encodePostbackData from '../utils/encodePostbackData';
-import type { AppIntentType } from '../../types';
+import type { AppIntentType } from '../types';
 
 type QuickReplyProps = {
   text: string;

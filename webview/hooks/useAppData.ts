@@ -1,7 +1,6 @@
 import { useEventReducer } from '@machinat/webview/client';
 import { convertFromRaw } from 'draft-js';
-import type { AppData, NoteData } from '../../types';
-import { WebAppClient, WebAppEventContext } from '../types';
+import { AppData, NoteData, WebAppClient, WebAppEventContext } from '../types';
 
 const convertNoteFromRaw = (rawNote: NoteData) => {
   const content = convertFromRaw(rawNote.content);

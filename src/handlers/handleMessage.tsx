@@ -14,7 +14,7 @@ import {
   INTENT_SHARE,
   INTENT_INTRODUCE,
 } from '../constant';
-import { ChatEventContext } from '../../types';
+import { ChatEventContext } from '../types';
 
 const random = (arr) => arr[Math.floor(arr.length * Math.random())];
 

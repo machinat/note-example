@@ -1,4 +1,4 @@
-import type { AppEventContext } from '../../types';
+import type { AppEventContext } from '../types';
 
 const isJoiningGroupEvent = ({ event }: AppEventContext): boolean =>
   (event.platform === 'telegram' &&

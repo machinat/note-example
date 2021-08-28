@@ -7,7 +7,7 @@ import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';
 import WithActions from '../components/WithActions';
 import Pause from '../components/Pause';
-import type { AppIntentType, AppEventContext } from '../../types';
+import type { AppIntentType, AppEventContext } from '../types';
 import { INTENT_OK, INTENT_NO } from '../constant';
 import Guide from './Guide';
 

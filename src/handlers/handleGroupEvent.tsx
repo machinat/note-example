@@ -5,7 +5,7 @@ import * as Line from '@machinat/line/components';
 import isJoiningGroupEvent from '../utils/isJoiningGroupEvent';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import { TelegramBotName, LineOfficialAccountId } from '../interface';
-import { AppEventContext } from '../../types';
+import { AppEventContext } from '../types';
 
 const handleGroupEvent =
   (telegramBotName: string, lineAccountId: string) =>

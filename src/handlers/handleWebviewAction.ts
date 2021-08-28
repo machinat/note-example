@@ -8,7 +8,7 @@ import type {
   NoteAddedPush,
   NoteDeletedPush,
   NoteUpdatedPush,
-} from '../../types';
+} from '../types';
 
 const handleWebviewAction = makeContainer({
   deps: [NoteController, useUserProfile] as const,

@@ -3,7 +3,7 @@ import { PostbackButton as MessengerPostbackButton } from '@machinat/messenger/c
 import { CallbackButton as TelegramCallbackButton } from '@machinat/telegram/components';
 import { PostbackAction as LinePostbackAction } from '@machinat/line/components';
 import encodePostbackData from '../utils/encodePostbackData';
-import { AppIntentType } from '../../types';
+import { AppIntentType } from '../types';
 
 type PostbackButtonProps = {
   text: string;
