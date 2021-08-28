@@ -17,10 +17,5 @@
     "noEmit": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "references": [
-    {
-      "path": "../../"
-    }
-  ],
   "exclude": ["node_modules"]
 }

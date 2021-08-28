@@ -8,7 +8,7 @@ import SharePanel from '../components/SharePanel';
 import PostbackButton from '../components/PostbackButton';
 import useIntent from '../services/useIntent';
 import { INTENT_NO, INTENT_OK } from '../constant';
-import { AppEventContext, AppIntentType } from '../types';
+import { AppEventContext, AppIntentType } from '../../types';
 
 type GuideVars = {
   addedNotesCounts: number;

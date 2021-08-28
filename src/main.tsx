@@ -14,7 +14,7 @@ import handlePostback from './handlers/handlePostback';
 import isStartingEvent from './utils/isStartingEvent';
 import isPostbackEvent from './utils/isPostbackEvent';
 import isGroupChat from './utils/isGroupChat';
-import type { AppEventContext, WebviewActionContext } from './types';
+import type { AppEventContext, WebviewActionContext } from '../types';
 
 const main = (events$: Stream<AppEventContext>): void => {
   const nativeChatEvent$ = events$.pipe(

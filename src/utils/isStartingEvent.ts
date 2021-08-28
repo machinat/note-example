@@ -1,4 +1,4 @@
-import type { AppEventContext } from '../types';
+import type { AppEventContext } from '../../types';
 import { MESSENGER_START_ACTION } from '../constant';
 import decodePostbackData from './decodePostbackData';
 

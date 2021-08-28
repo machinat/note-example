@@ -1,4 +1,4 @@
-import { useEventReducer, ClientEventContext } from '@machinat/webview/client';
+import { useEventReducer } from '@machinat/webview/client';
 import { convertFromRaw } from 'draft-js';
 import type { AppData, NoteData } from '../../types';
 import { WebAppClient, WebAppEventContext } from '../types';

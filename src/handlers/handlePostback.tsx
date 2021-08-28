@@ -5,7 +5,7 @@ import decodePostbackData from '../utils/decodePostbackData';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import SharePanel from '../components/SharePanel';
 import Introduction from '../scenes/Introduction';
-import type { AppEventContext } from '../types';
+import type { AppEventContext } from '../../types';
 
 const handlePostback = makeContainer({ deps: [Script.Processor] })(
   (processor) =>

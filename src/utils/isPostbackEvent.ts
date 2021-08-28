@@ -1,4 +1,4 @@
-import type { AppEventContext, ChatEventContext } from '../types';
+import type { AppEventContext, ChatEventContext } from '../../types';
 
 const isPostback = (
   ctx: AppEventContext

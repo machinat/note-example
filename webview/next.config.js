@@ -1,5 +1,5 @@
 module.exports = {
-  distDir: '../../dist',
+  distDir: '../dist',
   basePath: '/webview',
   publicRuntimeConfig: {},
 };

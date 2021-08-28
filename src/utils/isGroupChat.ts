@@ -1,4 +1,4 @@
-import type { AppEventContext } from '../types';
+import type { AppEventContext } from '../../types';
 
 const isGroupChat = (channel: AppEventContext['event']['channel']) =>
   !!channel &&

@@ -18,7 +18,7 @@ import type {
   INTENT_GREETING,
   INTENT_INTRODUCE,
   INTENT_UNKNOWN,
-} from './constant';
+} from './src/constant';
 
 export type NoteData = {
   authorId: string;

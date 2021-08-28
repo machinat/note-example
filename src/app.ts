@@ -20,7 +20,7 @@ import Introduction from './scenes/Introduction';
 import NoteController from './services/NoteController';
 import useIntent from './services/useIntent';
 import useUserProfile from './services/useUserProfile';
-import nextConfigs from './webview/next.config.js';
+import nextConfigs from '../webview/next.config.js';
 
 import {
   EntryUrl,
@@ -30,7 +30,7 @@ import {
   LineChannelId,
   LineOfficialAccountId,
 } from './interface';
-import type { WebviewAction } from './types';
+import type { WebviewAction } from '../types';
 
 const {
   // location
@@ -130,7 +130,7 @@ const app = Machinat.createApp({
       sameSite: 'none',
       nextServerOptions: {
         dev: DEV,
-        dir: `./${DEV ? 'src' : 'lib'}/webview`,
+        dir: './webview',
         conf: {
           ...nextConfigs,
           publicRuntimeConfig: {

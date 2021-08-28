@@ -2,7 +2,7 @@ import type { MachinatChannel, MachinatUser } from '@machinat/core';
 import { makeClassProvider } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
 import { NOTE_DATA_KEY } from '../constant';
-import type { NoteData, NoteDataState } from '../types';
+import type { NoteData, NoteDataState } from '../../types';
 
 export class NoteController {
   stateController: StateController;
