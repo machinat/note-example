@@ -7,6 +7,10 @@ import Line, { LineUser, LineChat } from '@machinat/line';
 import getStream from 'get-stream';
 import { PROFILE_CACHE_KEY } from '../constant';
 
+type UserInfo = {
+  profile: null | MachinatProfile;
+};
+
 const useUserProfile = makeFactoryProvider({
   lifetime: 'singleton',
   deps: [
@@ -20,14 +24,14 @@ const useUserProfile = makeFactoryProvider({
     async (
       user: MessengerUser | TelegramUser | LineUser,
       chat: MessengerChat | TelegramChat | LineChat
-    ): Promise<{ isNewUser: boolean; profile: MachinatProfile }> => {
-      const cachedProfile = await stateController
+    ): Promise<{ isNewUser: boolean; profile: null | MachinatProfile }> => {
+      const userInfo = await stateController
         .userState(user)
-        .get<MachinatProfile>(PROFILE_CACHE_KEY);
+        .get<UserInfo>(PROFILE_CACHE_KEY);
 
-      let profile = cachedProfile;
+      let profile = userInfo?.profile || null;
 
-      if (!profile) {
+      if (!userInfo) {
         if (user.platform === 'telegram') {
           const photo = await telegramProfiler.fetchUserPhoto(user);
           let avatarUrl;
@@ -53,10 +57,10 @@ const useUserProfile = makeFactoryProvider({
 
         await stateController
           .userState(user)
-          .set<MachinatProfile>(PROFILE_CACHE_KEY, profile);
+          .set<UserInfo>(PROFILE_CACHE_KEY, { profile });
       }
 
-      return { isNewUser: !cachedProfile, profile };
+      return { isNewUser: !userInfo, profile };
     }
 );
 

@@ -109,7 +109,7 @@ export type NoteDeletedPush = {
 
 export type AppData = {
   platform: 'line' | 'messenger' | 'telegram';
-  profile: MachinatProfile;
+  profile: null | MachinatProfile;
   isGroupChat: boolean;
   notes: NoteData[];
 };

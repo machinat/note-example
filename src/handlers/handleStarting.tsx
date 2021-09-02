@@ -16,14 +16,14 @@ const handleIntroduction = makeContainer({
         const runtime = await processor.start(channel, Introduction);
         await reply(
           <>
-            <p>Hi, {profile.name}! Nice to meet you!</p>
+            <p>Hi{profile ? `, ${profile.name}` : ''}! Nice to meet you!</p>
             {runtime.output()}
           </>
         );
       } else {
         await reply(
           <WithActions>
-            Welecome back, {profile.name}! What can I help?
+            Welecome back{profile ? `, ${profile.name}` : ''}! What can I help?
           </WithActions>
         );
       }

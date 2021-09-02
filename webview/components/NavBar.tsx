@@ -95,7 +95,11 @@ const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
           />
         }
       >
-        {profile.avatarUrl ? (
+        {!profile ? (
+          <Avatar className={classes.avatar}>
+            <PersonIcon className={classes.unknownPersonIcon} />
+          </Avatar>
+        ) : profile.avatarUrl ? (
           <Avatar src={profile.avatarUrl} className={classes.avatar} />
         ) : (
           <Avatar className={profile.avatarUrl}>

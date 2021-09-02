@@ -85,7 +85,6 @@ const app = Machinat.createApp({
           },
         }),
 
-
     Script.initModule({
       libs: [Guide, Introduction],
     }),
