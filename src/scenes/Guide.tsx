@@ -73,7 +73,7 @@ export default build<GuideVars, AppEventContext>(
               <p>
                 {addedNotesCounts
                   ? `I see you create ${addedNotesCounts} notes 💪`
-                  : 'Ok, you can try it anytime 😊'}
+                  : 'OK, you can try it anytime 😊'}
               </p>
               <p>Notes here are your private notes</p>
               <Pause time={3000} />
@@ -124,7 +124,7 @@ export default build<GuideVars, AppEventContext>(
         />
 
         {({ vars }) =>
-          vars.intentType === INTENT_OK ? 'Thank you! 👍' : 'Ok!'
+          vars.intentType === INTENT_OK ? 'Thank you! 👍' : 'OK!'
         }
       </THEN>
     </IF>
