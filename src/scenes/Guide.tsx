@@ -1,7 +1,7 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
-import { WHILE, PROMPT, IF, THEN } from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import Pause from '../components/Pause';
 import SharePanel from '../components/SharePanel';
@@ -38,12 +38,12 @@ export default build<GuideVars, AppEventContext>(
       </>
     )}
 
-    <WHILE<GuideVars>
+    <$.WHILE<GuideVars>
       condition={({ vars: { isDone, intentType } }) =>
         !isDone && intentType !== INTENT_NO
       }
     >
-      <PROMPT<GuideVars, AppEventContext>
+      <$.PROMPT<GuideVars, AppEventContext>
         key="add-first-note"
         set={makeContainer({
           deps: [useIntent],
@@ -96,10 +96,10 @@ export default build<GuideVars, AppEventContext>(
         }
         return null;
       }}
-    </WHILE>
+    </$.WHILE>
 
-    <IF condition={({ platform }) => platform !== 'messenger'}>
-      <THEN<GuideVars>>
+    <$.IF condition={({ platform }) => platform !== 'messenger'}>
+      <$.THEN<GuideVars>>
         {() => (
           <>
             <Pause />
@@ -110,7 +110,7 @@ export default build<GuideVars, AppEventContext>(
           </>
         )}
 
-        <PROMPT<GuideVars, AppEventContext>
+        <$.PROMPT<GuideVars, AppEventContext>
           key="wait-for-share"
           set={makeContainer({
             deps: [useIntent],
@@ -126,7 +126,7 @@ export default build<GuideVars, AppEventContext>(
         {({ vars }) =>
           vars.intentType === INTENT_OK ? 'Thank you! 👍' : 'OK!'
         }
-      </THEN>
-    </IF>
+      </$.THEN>
+    </$.IF>
   </>
 );

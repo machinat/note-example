@@ -1,7 +1,7 @@
 import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
-import { $, IF, THEN, PROMPT, CALL, RETURN } from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import useIntent from '../services/useIntent';
 import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';
@@ -20,7 +20,7 @@ export default build<IntroductionVars, AppEventContext>(
     name: 'Introduction',
     initVars: () => ({ intentType: INTENT_OK }),
   },
-  <$<IntroductionVars>>
+  <$.BLOCK<IntroductionVars>>
     {() => (
       <Expression
         quickReplies={
@@ -35,7 +35,7 @@ export default build<IntroductionVars, AppEventContext>(
       </Expression>
     )}
 
-    <PROMPT<IntroductionVars, AppEventContext>
+    <$.PROMPT<IntroductionVars, AppEventContext>
       key="ask-should-intro"
       set={makeContainer({
         deps: [useIntent],
@@ -49,18 +49,18 @@ export default build<IntroductionVars, AppEventContext>(
       })}
     />
 
-    <IF<IntroductionVars>
+    <$.IF<IntroductionVars>
       condition={({ vars: { intentType } }) => intentType === INTENT_NO}
     >
-      <THEN>
+      <$.THEN>
         {() => (
           <WithActions>
             <p>Alright, ask me any time! 😊</p>
           </WithActions>
         )}
-        <RETURN />
-      </THEN>
-    </IF>
+        <$.RETURN />
+      </$.THEN>
+    </$.IF>
 
     {({ vars: { intentType } }) => (
       <p>
@@ -68,7 +68,7 @@ export default build<IntroductionVars, AppEventContext>(
       </p>
     )}
 
-    <CALL key="guiding" script={Guide} />
+    <$.CALL key="guiding" script={Guide} />
 
     {() => (
       <WithActions>
@@ -76,5 +76,5 @@ export default build<IntroductionVars, AppEventContext>(
         <p>Hope you enjoy!</p>
       </WithActions>
     )}
-  </$>
+  </$.BLOCK>
 );

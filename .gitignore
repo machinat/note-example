@@ -7,7 +7,7 @@ tsconfig.tsbuildinfo
 .env
 .assets.toml
 .executed_migrations.json
-.state_data.json
+.state_storage.json
 
 # Logs
 logs

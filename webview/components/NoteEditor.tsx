@@ -1,79 +1,30 @@
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Divider from '@material-ui/core/Divider';
-import DoneIcon from '@material-ui/icons/Done';
-// import MoreVertIcon from '@material-ui/icons/MoreVert';
-import TitleIcon from '@material-ui/icons/Title';
-import FormatQuoteIcon from '@material-ui/icons/FormatQuote';
-import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
-import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
-import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
-import CodeSharpIcon from '@material-ui/icons/CodeSharp';
-import FormatBoldIcon from '@material-ui/icons/FormatBold';
-import FormatItalicIcon from '@material-ui/icons/FormatItalic';
-import FormatUnderlinedIcon from '@material-ui/icons/FormatUnderlined';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
+import Divider from '@mui/material/Divider';
+import DoneIcon from '@mui/icons-material/Done';
+import TitleIcon from '@mui/icons-material/Title';
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
+import CodeSharpIcon from '@mui/icons-material/CodeSharp';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import { Editor, RichUtils, EditorState } from 'draft-js';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const IS_ON_IOS_SAFARI =
   typeof window === 'object' &&
   /iPad|iPhone|iPod/.test(window.navigator.platform);
-
-const useStyles = makeStyles<any, any>((theme) => ({
-  dialogPaper: {
-    margin: 0,
-    maxHeight: '100%',
-    width: '100%',
-    backgroundColor: theme.palette.secondary[200],
-  },
-  titleInput: {
-    fontSize: 'x-large',
-    fontWeight: 'bold',
-  },
-  closeModalButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500],
-  },
-  editorContent: {
-    minHeight: '5em',
-    fontSize: 'larger',
-    fontFamily: 'serif',
-  },
-  editorHeader: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: theme.spacing(1, 2, 1, 3),
-  },
-  editorHeaderButton: {
-    marginLeft: theme.spacing(1),
-  },
-  editorTitle: {
-    flexGrow: 1,
-  },
-  editorFooter: {
-    padding: theme.spacing(1),
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  editorFooterButton: {
-    border: 'none',
-  },
-  barSpacer: {
-    width: theme.spacing(2),
-    flexShrink: 1,
-  },
-}));
 
 const EMPTY_EDITOR_STATE = EditorState.createEmpty();
 
@@ -98,7 +49,6 @@ const scrollWindowToTop = () => {
 
 const NoteEditor = ({ note, handleFinish, platform }) => {
   // dialog styles
-  const classes = useStyles({});
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -112,10 +62,6 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
       note ? EditorState.createWithContent(note.content) : EMPTY_EDITOR_STATE
     );
   }, [note]);
-
-  const handleEditorChange = (state) => {
-    setEditorState(state);
-  };
 
   const finishEditing = (e) => {
     if (e) {
@@ -144,117 +90,134 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
     .getType();
 
   // polish ios soft keyboard experience
+  const [isIosKeyBoardOpened, setIosKeyBoardOpened] = React.useState(false);
   const [focusCount, setFocusCount] = React.useState(0);
-  const [iosKeyboardAdjustment, setIosKeyboardAdjestments] =
-    React.useState<null | Record<string, string>>(null);
+  const isInputFocus = focusCount> 0
 
-  const setFocus = () => {
+  const incrementFocus = () => {
     setFocusCount((c) => c + 1);
   };
-
-  const setBlur = () => {
+  const decrementFocus = () => {
     // setTimeout to handle focus immediatly after blur
     setTimeout(() => {
       setFocusCount((c) => c - 1);
     }, 30);
   };
 
-  const isInputFocus = !!focusCount;
+
   React.useEffect(() => {
     if (!IS_ON_IOS_SAFARI) {
       return;
     }
-
     if (isInputFocus) {
       // wait for keyboard popup
       setTimeout(() => {
-        const {
-          outerHeight,
-          visualViewport: { height: viewportHeight },
-        } = window;
-
-        setIosKeyboardAdjestments({
-          height: `${viewportHeight}px`,
-          'padding-bottom': `${
-            outerHeight - viewportHeight - (platform === 'telegram' ? 95 : 0)
-          }px`,
-          'touch-action': 'none',
-        });
+        setIosKeyBoardOpened(true);
         window.addEventListener('scroll', scrollWindowToTop);
       }, 400);
-    } else if (iosKeyboardAdjustment) {
-      setIosKeyboardAdjestments(null);
+    } else if (isIosKeyBoardOpened) {
+      setIosKeyBoardOpened(false);
       window.scrollTo(0, 0);
       window.removeEventListener('scroll', scrollWindowToTop);
     }
   }, [isInputFocus]);
 
+  const isOpen = !!note;
+  React.useEffect(() => {
+    if (isOpen) {
+      editorRef.current?.focus();
+    }
+  }, [isOpen]);
+
   return (
     <Dialog
-      open={!!note}
+      open={isOpen}
       fullScreen={fullScreen}
-      maxWidth="sm"
-      onEnter={() => editorRef.current?.focus()}
-      onClose={finishEditing}
-      classes={{ paper: classes.dialogPaper }}
       aria-labelledby="responsive-dialog-title"
-      PaperProps={
-        iosKeyboardAdjustment
-          ? { style: { ...iosKeyboardAdjustment } }
-          : undefined
-      }
+      onClose={finishEditing}
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          margin: 0,
+          maxHeight: '100%',
+          width: '100%',
+          backgroundColor: theme.palette.secondary[200],
+          ...(typeof window !== 'undefined' && isIosKeyBoardOpened
+            ? {
+                height: `${window.visualViewport.height}px`,
+                paddingBottom: `${
+                  window.outerHeight -
+                  window.visualViewport.height -
+                  (platform === 'telegram' ? 95 : 0)
+                }px`,
+                touchAction: 'none',
+              }
+            : {}),
+        },
+      }}
     >
-      <div
-        className={classes.editorHeader}
+      <Box
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: theme.spacing(1, 2, 1, 3),
+        }}
         onClick={() => titleInputRef.current?.focus()}
       >
-        <Typography variant="h6" className={classes.editorTitle}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
           <InputBase
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className={classes.titleInput}
+            sx={{ fontSize: 'x-large', fontWeight: 'bold' }}
             inputRef={titleInputRef}
-            onFocus={setFocus}
-            onBlur={setBlur}
+            onFocus={incrementFocus}
+            onBlur={decrementFocus}
           />
         </Typography>
 
-        {
-          // <IconButton
-          //   className={classes.editorHeaderButton}
-          //   color="inherit"
-          //   aria-label="editor actions"
-          // >
-          //   <MoreVertIcon />
-          // </IconButton>
-        }
-
         <IconButton
-          className={classes.editorHeaderButton}
+          sx={{ marginLeft: theme.spacing(1) }}
           color="inherit"
           aria-label="close editor"
           onClick={finishEditing}
         >
           <DoneIcon />
         </IconButton>
-      </div>
+      </Box>
 
-      <DialogContent className={classes.editorContent} onClick={focusEditor}>
+      <DialogContent
+      onClick={focusEditor}
+        sx={{
+          minHeight: '5em',
+          fontSize: 'larger',
+          fontFamily: 'serif',
+        }}
+      >
         <Editor
           ref={editorRef}
           editorState={editorState}
-          onChange={handleEditorChange}
-          onFocus={setFocus}
-          onBlur={setBlur}
+          onChange={setEditorState}
+          onFocus={incrementFocus}
+          onBlur={decrementFocus}
         />
       </DialogContent>
 
-      <div className={classes.editorFooter} onClick={focusEditor}>
+      <Box
+        sx={{
+          padding: theme.spacing(1),
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: "sticky"
+        }}
+        onClick={focusEditor}
+      >
         <ToggleButtonGroup size="small">
           {SUPPORTED_BLOCK_TYPE.map(({ type, iconComonent: Icon }) => (
             <ToggleButton
-              className={classes.editorFooterButton}
+              sx={{ border: 'none' }}
               component="span"
               aria-label={`format ${type}`}
               value={type}
@@ -262,9 +225,7 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
               selected={locatedBlockType === type}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleEditorChange(
-                  RichUtils.toggleBlockType(editorState, type)
-                );
+                setEditorState(RichUtils.toggleBlockType(editorState, type));
               }}
             >
               <Icon fontSize="small" />
@@ -272,14 +233,14 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
           ))}
         </ToggleButtonGroup>
 
-        <div className={classes.barSpacer} />
-        <Divider flexItem orientation="vertical" className={classes.divider} />
-        <div className={classes.barSpacer} />
+        <Box sx={{ width: theme.spacing(2), flexShrink: 1 }} />
+        <Divider flexItem orientation="vertical" />
+        <Box sx={{ width: theme.spacing(2), flexShrink: 1 }} />
 
         <ToggleButtonGroup size="small">
           {SUPPORTED_INLINE_STYLE.map(({ name, key, iconComonent: Icon }) => (
             <ToggleButton
-              className={classes.editorFooterButton}
+              sx={{ border: 'none' }}
               component="span"
               aria-label={`format ${name}`}
               value={name}
@@ -287,16 +248,14 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
               selected={currentInlineStyle.has(key)}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleEditorChange(
-                  RichUtils.toggleInlineStyle(editorState, key)
-                );
+                setEditorState(RichUtils.toggleInlineStyle(editorState, key));
               }}
             >
               <Icon fontSize="small" />
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
-      </div>
+      </Box>
     </Dialog>
   );
 };

@@ -12,7 +12,7 @@ type AppIntentResult = {
 
 const useIntent = makeFactoryProvider({
   lifetime: 'scoped',
-  deps: [DialogFlow.IntentRecognizer],
+  deps: [DialogFlow.Recognizer],
 })(
   (recognizer) =>
     async (event: ChatEventContext['event']): Promise<AppIntentResult> => {

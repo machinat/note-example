@@ -1,36 +1,31 @@
 import React from 'react';
-import CreateIcon from '@material-ui/icons/Create';
-import Container from '@material-ui/core/Container';
-import { makeStyles } from '@material-ui/core/styles';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import CreateIcon from '@mui/icons-material/Create';
+import { useTheme } from '@mui/material/styles';
 
 import NoteCard from './NoteCard';
 
-const useStyles = makeStyles((theme) => ({
-  notesColumns: {
-    columnWidth: '19em',
-    columnGap: theme.spacing(2),
-  },
-  emptyHint: {
-    fontSize: '1.5em',
-    textAlign: 'center',
-    padding: theme.spacing(7, 7),
-    color: theme.palette.primary.dark,
-  },
-}));
-
 const NoteArea = ({ notes, isEmpty, editNote, deleteNote }) => {
-  const classes = useStyles();
+  const theme = useTheme();
 
   if (isEmpty) {
     return (
-      <div className={classes.emptyHint}>
+      <Box
+        sx={{
+          fontSize: '1.5em',
+          textAlign: 'center',
+          padding: theme.spacing(7, 7),
+          color: theme.palette.primary.dark,
+        }}
+      >
         You don't have any note yet, press <CreateIcon /> to create one!
-      </div>
+      </Box>
     );
   }
 
   return (
-    <Container className={classes.notesColumns}>
+    <Container sx={{ columnWidth: '19em', columnGap: theme.spacing(2) }}>
       {notes.map((note) => (
         <NoteCard
           key={note.id}

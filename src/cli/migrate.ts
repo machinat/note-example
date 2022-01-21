@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { config as configEnv } from 'dotenv';
 import { resolve as resolvePath } from 'path';
 import Machinat from '@machinat/core';
 import Messenger from '@machinat/messenger';
@@ -7,12 +6,13 @@ import MessengerAssetsManager from '@machinat/messenger/asset';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';
 import LineAssetsManager from '@machinat/line/asset';
-import FileState from '@machinat/local-state/file';
+import DialogFlow from '@machinat/dialogflow';
+import { FileState } from '@machinat/dev-tools';
 import RedisState from '@machinat/redis-state';
 import { Umzug, JSONStorage } from 'umzug';
 import commander from 'commander';
+import recognitionData from '../recognitionData';
 
-configEnv();
 const {
   NODE_ENV,
   REDIS_URL,
@@ -22,32 +22,27 @@ const {
   LINE_PROVIDER_ID,
   LINE_CHANNEL_ID,
   LINE_ACCESS_TOKEN,
+  DIALOG_FLOW_PROJECT_ID,
+  DIALOG_FLOW_CLIENT_EMAIL,
+  DIALOG_FLOW_PRIVATE_KEY,
+  GOOGLE_APPLICATION_CREDENTIALS,
 } = process.env as Record<string, string>;
 
 const DEV = NODE_ENV !== 'production';
 
 const app = Machinat.createApp({
-  modules: [
-    DEV
-      ? FileState.initModule({
-          path: './.state_storage',
-        })
-      : RedisState.initModule({
-          clientOptions: {
-            url: REDIS_URL,
-          },
-        }),
-  ],
   platforms: [
     Messenger.initModule({
       pageId: Number(MESSENGER_PAGE_ID),
       accessToken: MESSENGER_ACCESS_TOKEN,
       noServer: true,
     }),
+
     Telegram.initModule({
       botToken: TELEGRAM_BOT_TOKEN,
       noServer: true,
     }),
+
     Line.initModule({
       providerId: LINE_PROVIDER_ID,
       channelId: LINE_CHANNEL_ID,
@@ -55,6 +50,33 @@ const app = Machinat.createApp({
       noServer: true,
     }),
   ],
+
+  modules: [
+    DEV
+      ? FileState.initModule({
+          path: './.state_storage.json',
+        })
+      : RedisState.initModule({
+          clientOptions: {
+            url: REDIS_URL,
+          },
+        }),
+
+    DialogFlow.initModule({
+      recognitionData,
+      projectId: DIALOG_FLOW_PROJECT_ID,
+      environment: `note-example-${DEV ? 'dev' : 'prod'}`,
+      clientOptions: GOOGLE_APPLICATION_CREDENTIALS
+        ? undefined
+        : {
+            credentials: {
+              client_email: DIALOG_FLOW_CLIENT_EMAIL,
+              private_key: DIALOG_FLOW_PRIVATE_KEY,
+            },
+          },
+    }),
+  ],
+
   services: [LineAssetsManager, MessengerAssetsManager],
 });
 
@@ -103,6 +125,16 @@ commander
   } else {
     await umzug.up();
   }
+
+  const [dialogFlowRecognizer] = app.useServices([DialogFlow.Recognizer]);
+
+  console.log('[dialogflow:train] start updating dialogflow');
+  const isUpdated = await dialogFlowRecognizer.train();
+  console.log(
+    `[dialogflow:train] ${
+      isUpdated ? 'new agent version is created' : 'agent version is up to date'
+    }`
+  );
 
   await app.stop();
 })().catch((err) => {

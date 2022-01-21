@@ -1,38 +1,17 @@
 import React from 'react';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { makeStyles } from '@material-ui/core/styles';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useTheme } from '@mui/material/styles';
 import { EditorState, Editor } from 'draft-js';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    breakInside: 'avoid',
-    marginBottom: theme.spacing(2),
-  },
-  noteHeader: {
-    padding: theme.spacing(1, 1, 0, 2),
-    position: 'relative',
-  },
-  moreButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-  },
-  noteBody: {
-    minHeight: '10em',
-    fontSize: 'large',
-    fontFamily: 'serif',
-    backgroundColor: theme.palette.secondary[200],
-  },
-}));
-
 const NoteCard = ({ note, handleEdit, handleDelete }) => {
-  const classes = useStyles();
+  const theme = useTheme();
 
   const editorState = React.useMemo(
     () => EditorState.createWithContent(note.content),
@@ -57,15 +36,32 @@ const NoteCard = ({ note, handleEdit, handleDelete }) => {
   };
 
   return (
-    <div className={classes.root}>
-      <Card className={classes.noteBody} onClick={handleEdit}>
-        <div className={classes.noteHeader}>
+    <Box sx={{ breakInside: 'avoid', marginBottom: theme.spacing(2) }}>
+      <Card
+        sx={{
+          minHeight: '10em',
+          fontSize: 'large',
+          fontFamily: 'serif',
+          backgroundColor: theme.palette.secondary[200],
+        }}
+        onClick={handleEdit}
+      >
+        <Box
+          sx={{
+            padding: theme.spacing(1, 1, 0, 2),
+            position: 'relative',
+          }}
+        >
           <Typography variant="h6" noWrap>
             {note.title}
           </Typography>
 
           <IconButton
-            className={classes.moreButton}
+            sx={{
+              position: 'absolute',
+              right: theme.spacing(1),
+              top: theme.spacing(1),
+            }}
             size="small"
             aria-controls="card-operations"
             aria-haspopup="true"
@@ -82,13 +78,13 @@ const NoteCard = ({ note, handleEdit, handleDelete }) => {
           >
             <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
           </Menu>
-        </div>
+        </Box>
 
         <CardContent>
           <Editor readOnly editorState={editorState} />
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 

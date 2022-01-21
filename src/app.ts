@@ -1,27 +1,28 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
 import Messenger from '@machinat/messenger';
-import MessengerAuthorizer from '@machinat/messenger/webview';
+import MessengerAuthenticator from '@machinat/messenger/webview';
 import MessengerAssetsManager, {
   saveReusableAttachments,
 } from '@machinat/messenger/asset';
 import Line from '@machinat/line';
-import LineAuthorizer from '@machinat/line/webview';
+import LineAuthenticator from '@machinat/line/webview';
 import LineAssetsManager from '@machinat/line/asset';
 import Telegram from '@machinat/telegram';
 import TelegramAssetsManager from '@machinat/telegram/asset';
-import TelegramAuthorizer from '@machinat/telegram/webview';
+import TelegramAuthenticator from '@machinat/telegram/webview';
 import Webview from '@machinat/webview';
-import { FileState } from '@machinat/local-state';
+import { FileState } from '@machinat/dev-tools';
 import RedisState from '@machinat/redis-state';
 import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
+import nextConfigs from '../webview/next.config.js';
+import recognitionData from './recognitionData';
+import useIntent from './services/useIntent';
+import useUserProfile from './services/useUserProfile';
 import Guide from './scenes/Guide';
 import Introduction from './scenes/Introduction';
 import NoteController from './services/NoteController';
-import useIntent from './services/useIntent';
-import useUserProfile from './services/useUserProfile';
-import nextConfigs from '../webview/next.config.js';
 
 import {
   EntryUrl,
@@ -43,7 +44,6 @@ const {
   WEBVIEW_AUTH_SECRET,
   // messenger
   MESSENGER_PAGE_ID,
-  MESSENGER_APP_ID,
   MESSENGER_ACCESS_TOKEN,
   MESSENGER_APP_SECRET,
   MESSENGER_VERIFY_TOKEN,
@@ -77,7 +77,7 @@ const app = Machinat.createApp({
 
     DEV
       ? FileState.initModule({
-          path: './.state_data.json',
+          path: './.state_storage.json',
         })
       : RedisState.initModule({
           clientOptions: {
@@ -90,8 +90,10 @@ const app = Machinat.createApp({
     }),
 
     DialogFlow.initModule({
-      projectId: DIALOG_FLOW_PROJECT_ID as string,
-      gcpAuthConfig: GOOGLE_APPLICATION_CREDENTIALS
+      recognitionData,
+      projectId: DIALOG_FLOW_PROJECT_ID,
+      environment: `note-example-${DEV ? 'dev' : 'prod'}`,
+      clientOptions: GOOGLE_APPLICATION_CREDENTIALS
         ? undefined
         : {
             credentials: {
@@ -99,7 +101,6 @@ const app = Machinat.createApp({
               private_key: DIALOG_FLOW_PRIVATE_KEY,
             },
           },
-      defaultLanguageCode: 'en-US',
     }),
   ],
 
@@ -129,7 +130,7 @@ const app = Machinat.createApp({
     }),
 
     Webview.initModule<
-      MessengerAuthorizer | LineAuthorizer | TelegramAuthorizer,
+      MessengerAuthenticator | LineAuthenticator | TelegramAuthenticator,
       WebviewAction
     >({
       webviewHost: DOMAIN,
@@ -139,32 +140,23 @@ const app = Machinat.createApp({
       nextServerOptions: {
         dev: DEV,
         dir: './webview',
-        conf: {
-          ...nextConfigs,
-          publicRuntimeConfig: {
-            isProduction: NODE_ENV === 'production',
-            messengerAppId: MESSENGER_APP_ID,
-            lineProviderId: LINE_PROVIDER_ID,
-            lineBotChannelId: LINE_CHANNEL_ID,
-            lineLiffId: LINE_LIFF_ID,
-          },
-        },
+        conf: nextConfigs,
       },
     }),
   ],
 
   services: [
     LineAssetsManager,
-    { provide: Webview.AuthorizerList, withProvider: LineAuthorizer },
+    { provide: Webview.AuthenticatorList, withProvider: LineAuthenticator },
 
     MessengerAssetsManager,
     {
-      provide: Webview.AuthorizerList,
-      withProvider: MessengerAuthorizer,
+      provide: Webview.AuthenticatorList,
+      withProvider: MessengerAuthenticator,
     },
 
     TelegramAssetsManager,
-    { provide: Webview.AuthorizerList, withProvider: TelegramAuthorizer },
+    { provide: Webview.AuthenticatorList, withProvider: TelegramAuthenticator },
 
     { provide: EntryUrl, withValue: `https://${DOMAIN}` },
     { provide: FbPageName, withValue: MESSENGER_PAGE_ID },

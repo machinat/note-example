@@ -2,12 +2,13 @@ import React from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
 import WebviewClient from '@machinat/webview/client';
-import { MessengerClientAuthorizer } from '@machinat/messenger/webview';
-import { TelegramClientAuthorizer } from '@machinat/telegram/webview';
-import { LineClientAuthorizer } from '@machinat/line/webview';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
+import { MessengerClientAuthenticator } from '@machinat/messenger/webview';
+import { TelegramClientAuthenticator } from '@machinat/telegram/webview';
+import { LineClientAuthenticator } from '@machinat/line/webview';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { amber } from '@mui/material/colors';
 import { ContentState, convertToRaw } from 'draft-js';
 import NavBar from '../components/NavBar';
 import NoteEditor from '../components/NoteEditor';
@@ -16,49 +17,32 @@ import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
 import { WebAppClient } from '../types';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100vw',
-    height: '100vh',
-    maxWidth: '100%',
-    display: 'flex',
-    backgroundColor: `${theme.palette.background.default}`,
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#ffffff',
+    },
+    secondary: amber,
   },
-  frame: {
-    width: '100%',
-    padding: theme.spacing(10, 2, 2, 2),
-  },
-  progressRoot: {
-    height: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: theme.spacing(-10),
-  },
-}));
+});
 
 const { publicRuntimeConfig } = getConfig();
 
-const client: WebAppClient = new WebviewClient(
-  typeof window === 'undefined'
-    ? { mockupMode: true, authorizers: [] }
-    : {
-        authorizers: [
-          new MessengerClientAuthorizer({
-            appId: publicRuntimeConfig.messengerAppId,
-          }),
-          new TelegramClientAuthorizer(),
-          new LineClientAuthorizer({
-            liffId: publicRuntimeConfig.lineLiffId,
-          }),
-        ],
-      }
-);
+const client: WebAppClient = new WebviewClient({
+  mockupMode: typeof window === 'undefined',
+  authenticators: [
+    new MessengerClientAuthenticator({
+      appId: publicRuntimeConfig.messengerAppId,
+    }),
+    new TelegramClientAuthenticator(),
+    new LineClientAuthenticator({
+      liffId: publicRuntimeConfig.lineLiffId,
+    }),
+  ],
+});
 
 const NoteHome = () => {
-  const classes = useStyles();
   const appData = useAppData(client);
-
   const [editingNote, setEditingNote] = React.useState<null | { content: any }>(
     null
   );
@@ -108,37 +92,69 @@ const NoteHome = () => {
     <>
       <Head>
         <title>Machinat Note Example</title>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+        />
+        <style global jsx>{`
+          body {
+            margin: 0;
+          }
+        `}</style>
       </Head>
 
-      <div className={classes.root}>
-        <Box className={classes.frame}>
-          <NavBar
-            appData={appData}
-            handleAddNote={handleAddNote}
-            searchText={searchText}
-            handleSearchChange={setSearchText}
-          />
-
-          {appData ? (
-            <NotesArea
-              isEmpty={appData.notes.length === 0}
-              notes={notesToShow}
-              editNote={editNote}
-              deleteNote={deleteNote}
+      <ThemeProvider theme={theme}>
+        <Box
+          sx={{
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100%',
+            display: 'flex',
+            backgroundColor: `${theme.palette.background.default}`,
+          }}
+        >
+          <Box
+            sx={{
+              width: '100%',
+              padding: theme.spacing(10, 2, 2, 2),
+            }}
+          >
+            <NavBar
+              appData={appData}
+              handleAddNote={handleAddNote}
+              searchText={searchText}
+              handleSearchChange={setSearchText}
             />
-          ) : (
-            <div className={classes.progressRoot}>
-              <CircularProgress color="secondary" size="4em" />
-            </div>
-          )}
-        </Box>
 
-        <NoteEditor
-          note={editingNote}
-          handleFinish={handleEditorFinish}
-          platform={client?.authContext?.platform}
-        />
-      </div>
+            {appData ? (
+              <NotesArea
+                isEmpty={appData.notes.length === 0}
+                notes={notesToShow}
+                editNote={editNote}
+                deleteNote={deleteNote}
+              />
+            ) : (
+              <Box
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: theme.spacing(-10),
+                }}
+              >
+                <CircularProgress color="secondary" size="4em" />
+              </Box>
+            )}
+          </Box>
+
+          <NoteEditor
+            note={editingNote}
+            handleFinish={handleEditorFinish}
+            platform={client?.authContext?.platform}
+          />
+        </Box>
+      </ThemeProvider>
     </>
   );
 };
