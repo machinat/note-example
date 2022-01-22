@@ -41,7 +41,7 @@ const main = (events$: Stream<AppEventContext>): void => {
   ).pipe(
     filter(
       makeContainer({
-        deps: [Machinat.Bot, Script.Processor] as const,
+        deps: [Machinat.Bot, Script.Processor],
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
         const chatChannel =
           context.platform === 'webview'
@@ -76,7 +76,7 @@ const main = (events$: Stream<AppEventContext>): void => {
       isPostbackEvent,
       ({ event }) => isGroupChat(event.channel),
       (ctx) => ctx.event.category === 'message',
-    ] as const
+    ]
   );
 
   starting$.pipe(tap(handleStarting)).catch(console.error);

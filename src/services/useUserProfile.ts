@@ -13,12 +13,7 @@ type UserInfo = {
 
 const useUserProfile = makeFactoryProvider({
   lifetime: 'singleton',
-  deps: [
-    StateController,
-    BaseProfiler,
-    Telegram.Profiler,
-    Line.Profiler,
-  ] as const,
+  deps: [StateController, BaseProfiler, Telegram.Profiler, Line.Profiler],
 })(
   (stateController, baseProfiler, telegramProfiler, lineProfiler) =>
     async (

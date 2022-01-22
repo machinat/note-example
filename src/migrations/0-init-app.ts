@@ -22,7 +22,7 @@ const {
 const ENTRY_URL = `https://${DOMAIN}`;
 
 export const up = makeContainer({
-  deps: [Messenger.Bot, Telegram.Bot, Line.Bot, LineAssetsManager] as const,
+  deps: [Messenger.Bot, Telegram.Bot, Line.Bot, LineAssetsManager],
 })(async (messengerBot, telegramBot, lineBot, lineAssetManager) => {
   // setup page profile in Messenger
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
@@ -138,7 +138,7 @@ export const up = makeContainer({
 });
 
 export const down = makeContainer({
-  deps: [Messenger.Bot, Telegram.Bot, LineAssetsManager] as const,
+  deps: [Messenger.Bot, Telegram.Bot, LineAssetsManager],
 })(async (messengerBot, telegramBot, lineAssetManager) => {
   // clear page profile in Messenger
   await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {

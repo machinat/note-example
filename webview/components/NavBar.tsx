@@ -23,8 +23,6 @@ const PlaceHolderPerson = styled(PersonIcon)(({ theme }) => ({
   marginBottom: theme.spacing(-1),
 }));
 
-
-
 const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
   const theme = useTheme();
   const profile = appData?.profile;
@@ -119,7 +117,7 @@ const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
             onChange={(e) => handleSearchChange(e.target.value)}
             inputProps={{ 'aria-label': 'search' }}
             sx={{
-              color: 'inherit' ,
+              color: 'inherit',
               '& .MuiInputBase-input': {
                 padding: theme.spacing(1, 1, 1, 0),
                 // vertical padding + font size from searchIcon
@@ -132,7 +130,7 @@ const NavBar = ({ appData, handleAddNote, searchText, handleSearchChange }) => {
                     width: '20ch',
                   },
                 },
-              }
+              },
             }}
           />
         </Box>

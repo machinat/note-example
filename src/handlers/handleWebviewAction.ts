@@ -11,7 +11,7 @@ import type {
 } from '../types';
 
 const handleWebviewAction = makeContainer({
-  deps: [NoteController, useUserProfile] as const,
+  deps: [NoteController, useUserProfile],
 })(
   (noteController, getUserProfile) =>
     async ({

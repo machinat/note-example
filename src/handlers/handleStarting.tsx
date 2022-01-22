@@ -6,7 +6,7 @@ import useUserProfile from '../services/useUserProfile';
 import Introduction from '../scenes/Introduction';
 
 const handleIntroduction = makeContainer({
-  deps: [Script.Processor, useUserProfile] as const,
+  deps: [Script.Processor, useUserProfile],
 })(
   (processor, getUserProfile) =>
     async ({ reply, event: { user, channel } }) => {

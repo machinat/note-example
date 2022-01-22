@@ -19,7 +19,7 @@ import { ChatEventContext } from '../types';
 const random = (arr) => arr[Math.floor(arr.length * Math.random())];
 
 const handleMessage = makeContainer({
-  deps: [Script.Processor, useIntent] as const,
+  deps: [Script.Processor, useIntent],
 })(
   (processor, getIntent) =>
     async ({

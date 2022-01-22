@@ -92,7 +92,7 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
   // polish ios soft keyboard experience
   const [isIosKeyBoardOpened, setIosKeyBoardOpened] = React.useState(false);
   const [focusCount, setFocusCount] = React.useState(0);
-  const isInputFocus = focusCount> 0
+  const isInputFocus = focusCount > 0;
 
   const incrementFocus = () => {
     setFocusCount((c) => c + 1);
@@ -103,7 +103,6 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
       setFocusCount((c) => c - 1);
     }, 30);
   };
-
 
   React.useEffect(() => {
     if (!IS_ON_IOS_SAFARI) {
@@ -188,7 +187,7 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
       </Box>
 
       <DialogContent
-      onClick={focusEditor}
+        onClick={focusEditor}
         sx={{
           minHeight: '5em',
           fontSize: 'larger',
@@ -210,7 +209,7 @@ const NoteEditor = ({ note, handleFinish, platform }) => {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          position: "sticky"
+          position: 'sticky',
         }}
         onClick={focusEditor}
       >
