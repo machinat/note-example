@@ -1,15 +1,11 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
 import Messenger from '@machinat/messenger';
-import MessengerAuthenticator from '@machinat/messenger/webview';
-import MessengerAssetsManager, {
-  saveReusableAttachments,
-} from '@machinat/messenger/asset';
+import MessengWebviewAuth from '@machinat/messenger/webview';
 import Line from '@machinat/line';
 import LineAuthenticator from '@machinat/line/webview';
 import LineAssetsManager from '@machinat/line/asset';
 import Telegram from '@machinat/telegram';
-import TelegramAssetsManager from '@machinat/telegram/asset';
 import TelegramAuthenticator from '@machinat/telegram/webview';
 import Webview from '@machinat/webview';
 import { FileState } from '@machinat/dev-tools';
@@ -111,7 +107,6 @@ const app = Machinat.createApp({
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
-      dispatchMiddlewares: [saveReusableAttachments],
     }),
 
     Telegram.initModule({
@@ -130,13 +125,20 @@ const app = Machinat.createApp({
     }),
 
     Webview.initModule<
-      MessengerAuthenticator | LineAuthenticator | TelegramAuthenticator,
+      MessengWebviewAuth | LineAuthenticator | TelegramAuthenticator,
       WebviewAction
     >({
       webviewHost: DOMAIN,
       webviewPath: '/webview',
+
       authSecret: WEBVIEW_AUTH_SECRET,
+      authPlatforms: [
+        MessengWebviewAuth,
+        LineAuthenticator,
+        TelegramAuthenticator,
+      ],
       sameSite: 'none',
+
       nextServerOptions: {
         dev: DEV,
         dir: './webview',
@@ -147,16 +149,6 @@ const app = Machinat.createApp({
 
   services: [
     LineAssetsManager,
-    { provide: Webview.AuthenticatorList, withProvider: LineAuthenticator },
-
-    MessengerAssetsManager,
-    {
-      provide: Webview.AuthenticatorList,
-      withProvider: MessengerAuthenticator,
-    },
-
-    TelegramAssetsManager,
-    { provide: Webview.AuthenticatorList, withProvider: TelegramAuthenticator },
 
     { provide: EntryUrl, withValue: `https://${DOMAIN}` },
     { provide: FbPageName, withValue: MESSENGER_PAGE_ID },

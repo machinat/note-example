@@ -1,20 +1,20 @@
 import { ConnectEventValue, DisconnectEventValue } from '@machinat/webview';
 import WebviewClient, { ClientEventContext } from '@machinat/webview/client';
-import { MessengerClientAuthenticator } from '@machinat/messenger/webview';
-import { LineClientAuthenticator } from '@machinat/line/webview';
-import { TelegramClientAuthenticator } from '@machinat/telegram/webview';
+import MessengerWebviewAuth from '@machinat/messenger/webview/client';
+import LineWebviewAuth from '@machinat/line/webview/client';
+import TelegramWebviewAuth from '@machinat/telegram/webview/client';
 import { WebviewPush } from '../src/types';
 
 export type { AppData, NoteData } from '../src/types';
 
-export type ClientAuthenticator =
-  | MessengerClientAuthenticator
-  | TelegramClientAuthenticator
-  | LineClientAuthenticator;
+export type WebviewAuth =
+  | MessengerWebviewAuth
+  | TelegramWebviewAuth
+  | LineWebviewAuth;
 
-export type WebAppClient = WebviewClient<ClientAuthenticator, WebviewPush>;
+export type WebAppClient = WebviewClient<WebviewAuth, WebviewPush>;
 
 export type WebAppEventContext = ClientEventContext<
-  ClientAuthenticator,
+  WebviewAuth,
   ConnectEventValue | DisconnectEventValue | WebviewPush
 >;
