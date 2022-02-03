@@ -1,4 +1,4 @@
-import { makeInterface } from '@machinat/core/service';
+import { makeInterface } from '@machinat/core';
 
 export const EntryUrl = makeInterface<string>({ name: 'EntryURL' });
 

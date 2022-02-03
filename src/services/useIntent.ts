@@ -1,4 +1,4 @@
-import { makeFactoryProvider } from '@machinat/core/service';
+import { makeFactoryProvider } from '@machinat/core';
 import DialogFlow from '@machinat/dialogflow';
 import { INTENT_OK, INTENT_UNKNOWN } from '../constant';
 import type { ChatEventContext, AppIntentType } from '../types';

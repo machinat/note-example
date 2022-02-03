@@ -1,6 +1,4 @@
-import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
-import Script from '@machinat/script';
+import Machinat, { makeContainer } from '@machinat/core';
 import SharePanel from '../components/SharePanel';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import WithActions from '../components/WithActions';
@@ -19,9 +17,9 @@ import { ChatEventContext } from '../types';
 const random = (arr) => arr[Math.floor(arr.length * Math.random())];
 
 const handleMessage = makeContainer({
-  deps: [Script.Processor, useIntent],
+  deps: [useIntent],
 })(
-  (processor, getIntent) =>
+  (getIntent) =>
     async ({
       reply,
       event,
@@ -29,8 +27,7 @@ const handleMessage = makeContainer({
       const intent = await getIntent(event);
 
       if (intent.type === INTENT_INTRODUCE) {
-        const runtime = await processor.start(event.channel!, Introduce);
-        return reply(runtime.output());
+        return reply(<Introduce.Start channel={event.channel} />);
       }
 
       if (intent.type === INTENT_SHARE) {

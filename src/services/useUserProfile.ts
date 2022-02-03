@@ -1,6 +1,9 @@
-import { makeFactoryProvider } from '@machinat/core/service';
-import BaseProfiler, { MachinatProfile } from '@machinat/core/base/Profiler';
-import StateController from '@machinat/core/base/StateController';
+import {
+  makeFactoryProvider,
+  BasicProfiler,
+  StateController,
+  MachinatProfile,
+} from '@machinat/core';
 import { MessengerUser, MessengerChat } from '@machinat/messenger';
 import Telegram, { TelegramUser, TelegramChat } from '@machinat/telegram';
 import Line, { LineUser, LineChat } from '@machinat/line';
@@ -13,7 +16,7 @@ type UserInfo = {
 
 const useUserProfile = makeFactoryProvider({
   lifetime: 'singleton',
-  deps: [StateController, BaseProfiler, Telegram.Profiler, Line.Profiler],
+  deps: [StateController, BasicProfiler, Telegram.Profiler, Line.Profiler],
 })(
   (stateController, baseProfiler, telegramProfiler, lineProfiler) =>
     async (

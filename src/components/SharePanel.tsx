@@ -1,5 +1,4 @@
-import Machinat, { MachinatNode } from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
+import Machinat, { MachinatNode, makeContainer } from '@machinat/core';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 import {

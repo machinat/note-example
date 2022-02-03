@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
+import Machinat, { BasicBot, makeContainer } from '@machinat/core';
 import { MarkSeen } from '@machinat/messenger/components';
 import { AnswerCallbackQuery } from '@machinat/telegram/components';
 import Script from '@machinat/script';
@@ -41,7 +40,7 @@ const main = (events$: Stream<AppEventContext>): void => {
   ).pipe(
     filter(
       makeContainer({
-        deps: [Machinat.Bot, Script.Processor],
+        deps: [BasicBot, Script.Processor],
       })((bot, scriptProcessor) => async (context: AppEventContext) => {
         const chatChannel =
           context.platform === 'webview'

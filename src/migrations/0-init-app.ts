@@ -1,6 +1,6 @@
 import fs from 'fs';
 import axios from 'axios';
-import { makeContainer } from '@machinat/core/service';
+import { makeContainer } from '@machinat/core';
 import Messenger from '@machinat/messenger';
 import Telegram from '@machinat/telegram';
 import Line from '@machinat/line';

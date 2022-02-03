@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
+import Machinat, { makeContainer } from '@machinat/core';
 import { build } from '@machinat/script';
 import * as $ from '@machinat/script/keywords';
 import useIntent from '../services/useIntent';
