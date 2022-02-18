@@ -9,7 +9,7 @@ Try the bot on these chat platforms:
 
 - [Messenger](https://www.messenger.com/t/109776814755256)
 - [Telegram](https://t.me/MachinatNoteBot)
-- [LINE](https://line.me/ti/p/309qnwde)
+- [LINE](https://line.me/ti/p/@309qnwde)
 
 ## Getting Started
 
