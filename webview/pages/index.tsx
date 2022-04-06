@@ -2,9 +2,9 @@ import React from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
 import WebviewClient from '@machinat/webview/client';
-import MessengerWebviewAuth from '@machinat/messenger/webview/client';
-import TelegramWebviewAuth from '@machinat/telegram/webview/client';
-import LineWebviewAuth from '@machinat/line/webview/client';
+import MessengerAuth from '@machinat/messenger/webview/client';
+import TelegramAuth from '@machinat/telegram/webview/client';
+import LineAuth from '@machinat/line/webview/client';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -31,11 +31,13 @@ const { publicRuntimeConfig } = getConfig();
 const client: WebAppClient = new WebviewClient({
   mockupMode: typeof window === 'undefined',
   authPlatforms: [
-    new MessengerWebviewAuth({
-      appId: publicRuntimeConfig.messengerAppId,
+    new MessengerAuth({
+      pageId: publicRuntimeConfig.messengerPageId,
     }),
-    new TelegramWebviewAuth(),
-    new LineWebviewAuth({
+    new TelegramAuth({
+      botName: publicRuntimeConfig.telegramBotName,
+    }),
+    new LineAuth({
       liffId: publicRuntimeConfig.lineLiffId,
     }),
   ],

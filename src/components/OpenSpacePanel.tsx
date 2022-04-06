@@ -1,85 +1,69 @@
-import Machinat, { MachinatNode, makeContainer } from '@machinat/core';
+import Machinat, { MachinatNode } from '@machinat/core';
 import * as Messenger from '@machinat/messenger/components';
+import { WebviewButton as MessengerWebviewButton } from '@machinat/messenger/webview';
 import * as Telegram from '@machinat/telegram/components';
+import { WebviewButton as TelegramWebviewButton } from '@machinat/telegram/webview';
 import * as Line from '@machinat/line/components';
-import { EntryUrl, LineLiffId } from '../interface';
+import { WebviewAction as LineWebviewAction } from '@machinat/line/webview';
 
 type OpenSpacePanelProps = {
   children: MachinatNode;
   additionalButton?: MachinatNode;
 };
 
-const OpenSpacePanel =
-  (entry: string, lineLiffId: string) =>
-  ({ children, additionalButton }: OpenSpacePanelProps, { platform }) => {
-    const webviewUrl = new URL(`/webview?platform=${platform}`, entry);
-
-    if (platform === 'messenger') {
-      return (
-        <Messenger.ButtonTemplate
-          buttons={
-            <>
-              <Messenger.UrlButton
-                title="Open 📝"
-                url={webviewUrl.href}
-                messengerExtensions
-              />
-              {additionalButton}
-            </>
-          }
-          sharable={false}
-        >
-          {children}
-        </Messenger.ButtonTemplate>
-      );
-    }
-
-    if (platform === 'telegram') {
-      return (
-        <Telegram.Text
-          replyMarkup={
-            <Telegram.InlineKeyboard>
-              <Telegram.UrlButton
-                login
-                text="Open 📝"
-                url={`${entry}/auth/telegram`}
-              />
-              {additionalButton}
-            </Telegram.InlineKeyboard>
-          }
-        >
-          {children}
-        </Telegram.Text>
-      );
-    }
-
-    if (platform === 'line') {
-      const liffUrl = `https://liff.line.me/${lineLiffId}`;
-      return (
-        <Line.ButtonTemplate
-          defaultAction={<Line.UriAction uri={liffUrl} />}
-          altText={liffUrl}
-          actions={
-            <>
-              <Line.UriAction label="Open 📝" uri={liffUrl} />
-              {additionalButton}
-            </>
-          }
-        >
-          {children}
-        </Line.ButtonTemplate>
-      );
-    }
-
+const OpenSpacePanel = (
+  { children, additionalButton }: OpenSpacePanelProps,
+  { platform }
+) => {
+  if (platform === 'messenger') {
     return (
-      <p>
+      <Messenger.ButtonTemplate
+        buttons={
+          <>
+            <MessengerWebviewButton title="Open 📝" />
+            {additionalButton}
+          </>
+        }
+        sharable={false}
+      >
         {children}
-        {'\n\n'}
-        {webviewUrl.href}
-      </p>
+      </Messenger.ButtonTemplate>
     );
-  };
+  }
 
-export default makeContainer({
-  deps: [EntryUrl, LineLiffId],
-})(OpenSpacePanel);
+  if (platform === 'telegram') {
+    return (
+      <Telegram.Text
+        replyMarkup={
+          <Telegram.InlineKeyboard>
+            <TelegramWebviewButton text="Open 📝" />
+            {additionalButton}
+          </Telegram.InlineKeyboard>
+        }
+      >
+        {children}
+      </Telegram.Text>
+    );
+  }
+
+  if (platform === 'line') {
+    return (
+      <Line.ButtonTemplate
+        defaultAction={<LineWebviewAction />}
+        altText={(template) => template.text}
+        actions={
+          <>
+            <LineWebviewAction label="Open 📝" />
+            {additionalButton}
+          </>
+        }
+      >
+        {children}
+      </Line.ButtonTemplate>
+    );
+  }
+
+  return <p>{children} </p>;
+};
+
+export default OpenSpacePanel;

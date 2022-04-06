@@ -27,7 +27,7 @@ const handleMessage = makeContainer({
       const intent = await getIntent(event);
 
       if (intent.type === INTENT_INTRODUCE) {
-        return reply(<Introduce.Start channel={event.channel} />);
+        return reply(<Introduce.Start />);
       }
 
       if (intent.type === INTENT_SHARE) {

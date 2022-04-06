@@ -6,7 +6,6 @@ import Introduction from '../scenes/Introduction';
 import type { AppEventContext } from '../types';
 
 const handlePostback = async ({
-  platform,
   reply,
   event,
 }: AppEventContext & {
@@ -22,7 +21,7 @@ const handlePostback = async ({
     (event.platform === 'telegram' && event.channel.type !== 'private');
 
   if (action === 'introduce') {
-    return reply(<Introduction.Start channel={event.channel} />);
+    return reply(<Introduction.Start />);
   }
 
   await reply(

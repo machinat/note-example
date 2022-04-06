@@ -12,7 +12,7 @@ const handleIntroduction = makeContainer({
     await reply(
       <>
         <p>Hi{profile ? `, ${profile.name}` : ''}! Nice to meet you!</p>
-        <Introduction.Start channel={channel} />
+        <Introduction.Start />
       </>
     );
   } else {
