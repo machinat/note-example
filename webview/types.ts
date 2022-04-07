@@ -5,7 +5,7 @@ import LineWebviewAuth from '@machinat/line/webview/client';
 import TelegramWebviewAuth from '@machinat/telegram/webview/client';
 import { WebviewPush } from '../src/types';
 
-export type { AppData, NoteData } from '../src/types';
+export type { WebviewPush, AppData, NoteData } from '../src/types';
 
 export type WebviewAuth =
   | MessengerWebviewAuth

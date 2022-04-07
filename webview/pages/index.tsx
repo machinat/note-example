@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
-import WebviewClient from '@machinat/webview/client';
+import { useClient } from '@machinat/webview/client';
 import MessengerAuth from '@machinat/messenger/webview/client';
 import TelegramAuth from '@machinat/telegram/webview/client';
 import LineAuth from '@machinat/line/webview/client';
@@ -15,7 +15,7 @@ import NoteEditor from '../components/NoteEditor';
 import NotesArea from '../components/NotesArea';
 import useAppData from '../hooks/useAppData';
 import useSearchFilter from '../hooks/useSearchFilter';
-import { WebAppClient } from '../types';
+import { WebviewPush, NoteData } from '../types';
 
 const theme = createTheme({
   palette: {
@@ -26,26 +26,25 @@ const theme = createTheme({
   },
 });
 
-const { publicRuntimeConfig } = getConfig();
+const {
+  publicRuntimeConfig: { messengerPageId, telegramBotName, lineLiffId },
+} = getConfig();
 
-const client: WebAppClient = new WebviewClient({
-  mockupMode: typeof window === 'undefined',
-  authPlatforms: [
-    new MessengerAuth({
-      pageId: publicRuntimeConfig.messengerPageId,
-    }),
-    new TelegramAuth({
-      botName: publicRuntimeConfig.telegramBotName,
-    }),
-    new LineAuth({
-      liffId: publicRuntimeConfig.lineLiffId,
-    }),
-  ],
-});
+const NoteApp = () => {
+  const client = useClient<
+    MessengerAuth | TelegramAuth | LineAuth,
+    WebviewPush
+  >({
+    mockupMode: typeof window === 'undefined',
+    authPlatforms: [
+      new MessengerAuth({ pageId: messengerPageId }),
+      new TelegramAuth({ botName: telegramBotName }),
+      new LineAuth({ liffId: lineLiffId }),
+    ],
+  });
 
-const NoteHome = () => {
   const appData = useAppData(client);
-  const [editingNote, setEditingNote] = React.useState<null | { content: any }>(
+  const [editingNote, setEditingNote] = useState<{ content: string } | null>(
     null
   );
   const handleAddNote = () => {
@@ -74,7 +73,7 @@ const NoteHome = () => {
   };
 
   // note operations
-  const deleteNote = (note) => {
+  const deleteNote = (note: NoteData) => {
     client.send({
       category: 'webview_action',
       type: 'delete_note',
@@ -82,7 +81,7 @@ const NoteHome = () => {
     });
   };
 
-  const editNote = (note) => {
+  const editNote = (note: NoteData) => {
     setEditingNote(note);
   };
 
@@ -161,4 +160,4 @@ const NoteHome = () => {
   );
 };
 
-export default NoteHome;
+export default NoteApp;
