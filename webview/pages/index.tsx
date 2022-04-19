@@ -27,7 +27,7 @@ const theme = createTheme({
 });
 
 const {
-  publicRuntimeConfig: { messengerPageId, telegramBotName, lineLiffId },
+  publicRuntimeConfig: { MESSENGER_PAGE_ID, TELEGRAM_BOT_NAME, LINE_LIFF_ID },
 } = getConfig();
 
 const NoteApp = () => {
@@ -37,9 +37,9 @@ const NoteApp = () => {
   >({
     mockupMode: typeof window === 'undefined',
     authPlatforms: [
-      new MessengerAuth({ pageId: messengerPageId }),
-      new TelegramAuth({ botName: telegramBotName }),
-      new LineAuth({ liffId: lineLiffId }),
+      new MessengerAuth({ pageId: MESSENGER_PAGE_ID }),
+      new TelegramAuth({ botName: TELEGRAM_BOT_NAME }),
+      new LineAuth({ liffId: LINE_LIFF_ID }),
     ],
   });
 
@@ -161,3 +161,8 @@ const NoteApp = () => {
 };
 
 export default NoteApp;
+
+// to activate publicRuntimeConfig
+export async function getServerSideProps(context) {
+  return { props: {} };
+}
