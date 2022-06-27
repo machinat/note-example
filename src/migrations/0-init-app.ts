@@ -1,10 +1,10 @@
 import fs from 'fs';
 import axios from 'axios';
-import { makeContainer } from '@machinat/core';
-import Messenger from '@machinat/messenger';
-import Telegram from '@machinat/telegram';
-import Line from '@machinat/line';
-import LineAssetsManager from '@machinat/line/asset';
+import { makeContainer } from '@sociably/core';
+import Messenger from '@sociably/messenger';
+import Telegram from '@sociably/telegram';
+import Line from '@sociably/line';
+import LineAssetsManager from '@sociably/line/asset';
 import encodePostbackData from '../utils/encodePostbackData';
 import { MESSENGER_START_ACTION } from '../constant';
 

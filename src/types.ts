@@ -1,15 +1,15 @@
-import type { MachinatProfile } from '@machinat/core';
-import type { MessengerEventContext } from '@machinat/messenger';
-import type MessengerAuth from '@machinat/messenger/webview';
-import type { TelegramEventContext } from '@machinat/telegram';
-import type TelegramAuth from '@machinat/telegram/webview';
-import type { LineEventContext } from '@machinat/line';
-import type LineAuth from '@machinat/line/webview';
+import type { SociablyProfile } from '@sociably/core';
+import type { MessengerEventContext } from '@sociably/messenger';
+import type MessengerAuth from '@sociably/messenger/webview';
+import type { TelegramEventContext } from '@sociably/telegram';
+import type TelegramAuth from '@sociably/telegram/webview';
+import type { LineEventContext } from '@sociably/line';
+import type LineAuth from '@sociably/line/webview';
 import type {
   WebviewEventContext,
   ConnectEventValue,
   DisconnectEventValue,
-} from '@machinat/webview';
+} from '@sociably/webview';
 import type {
   INTENT_OK,
   INTENT_NO,
@@ -106,7 +106,7 @@ export type NoteDeletedPush = {
 
 export type AppData = {
   platform: 'line' | 'messenger' | 'telegram';
-  profile: null | MachinatProfile;
+  profile: null | SociablyProfile;
   isGroupChat: boolean;
   notes: NoteData[];
 };

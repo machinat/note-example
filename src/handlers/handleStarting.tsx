@@ -1,4 +1,4 @@
-import Machinat, { makeContainer } from '@machinat/core';
+import Sociably, { makeContainer } from '@sociably/core';
 import WithActions from '../components/WithActions';
 import useUserProfile from '../services/useUserProfile';
 import Introduction from '../scenes/Introduction';

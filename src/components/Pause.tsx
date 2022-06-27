@@ -1,10 +1,10 @@
-import Machinat from '@machinat/core';
-import { TypingOn } from '@machinat/messenger/components';
+import Sociably from '@sociably/core';
+import { TypingOn } from '@sociably/messenger/components';
 
 const Pause = ({ time = 2000 }, { platform }) => (
   <>
     {platform === 'messenger' ? <TypingOn /> : null}
-    <Machinat.Pause time={time} />
+    <Sociably.Pause time={time} />
   </>
 );
 

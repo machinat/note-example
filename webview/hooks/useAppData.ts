@@ -1,4 +1,4 @@
-import { useEventReducer } from '@machinat/webview/client';
+import { useEventReducer } from '@sociably/webview/client';
 import { convertFromRaw } from 'draft-js';
 import { AppData, NoteData, WebAppClient, WebAppEventContext } from '../types';
 

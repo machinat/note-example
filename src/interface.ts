@@ -1,4 +1,4 @@
-import { makeInterface } from '@machinat/core';
+import { makeInterface } from '@sociably/core';
 
 export const FbPageName = makeInterface<string>({ name: 'FbPageName' });
 

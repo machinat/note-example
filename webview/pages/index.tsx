@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
-import { useClient } from '@machinat/webview/client';
-import MessengerAuth from '@machinat/messenger/webview/client';
-import TelegramAuth from '@machinat/telegram/webview/client';
-import LineAuth from '@machinat/line/webview/client';
+import { useClient } from '@sociably/webview/client';
+import MessengerAuth from '@sociably/messenger/webview/client';
+import TelegramAuth from '@sociably/telegram/webview/client';
+import LineAuth from '@sociably/line/webview/client';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -92,7 +92,7 @@ const NoteApp = () => {
   return (
     <>
       <Head>
-        <title>Machinat Note Example</title>
+        <title>Sociably Note</title>
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"

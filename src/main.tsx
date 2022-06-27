@@ -1,9 +1,9 @@
-import Machinat, { BasicBot, makeContainer } from '@machinat/core';
-import { MarkSeen } from '@machinat/messenger/components';
-import { AnswerCallbackQuery } from '@machinat/telegram/components';
-import Script from '@machinat/script';
-import { Stream, merge, conditions, StreamingFrame } from '@machinat/stream';
-import { filter, mapMetadata, tap } from '@machinat/stream/operators';
+import Sociably, { BasicBot, makeContainer } from '@sociably/core';
+import { MarkSeen } from '@sociably/messenger/components';
+import { AnswerCallbackQuery } from '@sociably/telegram/components';
+import Script from '@sociably/script';
+import { Stream, merge, conditions, StreamingFrame } from '@sociably/stream';
+import { filter, mapMetadata, tap } from '@sociably/stream/operators';
 
 import handleStarting from './handlers/handleStarting';
 import handleWebviewAction from './handlers/handleWebviewAction';

@@ -1,8 +1,8 @@
-import { ConnectEventValue, DisconnectEventValue } from '@machinat/webview';
-import WebviewClient, { ClientEventContext } from '@machinat/webview/client';
-import MessengerWebviewAuth from '@machinat/messenger/webview/client';
-import LineWebviewAuth from '@machinat/line/webview/client';
-import TelegramWebviewAuth from '@machinat/telegram/webview/client';
+import { ConnectEventValue, DisconnectEventValue } from '@sociably/webview';
+import WebviewClient, { ClientEventContext } from '@sociably/webview/client';
+import MessengerWebviewAuth from '@sociably/messenger/webview/client';
+import LineWebviewAuth from '@sociably/line/webview/client';
+import TelegramWebviewAuth from '@sociably/telegram/webview/client';
 import { WebviewPush } from '../src/types';
 
 export type { WebviewPush, AppData, NoteData } from '../src/types';

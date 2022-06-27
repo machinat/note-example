@@ -1,4 +1,4 @@
-import { RecognitionData } from '@machinat/core/base/IntentRecognizer';
+import { RecognitionData } from '@sociably/core/base/IntentRecognizer';
 
 const recognitionData: RecognitionData<'en'> = {
   defaultLanguage: 'en',

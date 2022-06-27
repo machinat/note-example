@@ -1,4 +1,4 @@
-import Machinat from '@machinat/core';
+import Sociably from '@sociably/core';
 import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';
 import { INTENT_INTRODUCE, INTENT_OPEN, INTENT_SHARE } from '../constant';

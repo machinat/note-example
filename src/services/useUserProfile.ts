@@ -2,16 +2,16 @@ import {
   makeFactoryProvider,
   BasicProfiler,
   StateController,
-  MachinatProfile,
-} from '@machinat/core';
-import { MessengerUser, MessengerChat } from '@machinat/messenger';
-import Telegram, { TelegramUser, TelegramChat } from '@machinat/telegram';
-import Line, { LineUser, LineChat } from '@machinat/line';
+  SociablyProfile,
+} from '@sociably/core';
+import { MessengerUser, MessengerChat } from '@sociably/messenger';
+import Telegram, { TelegramUser, TelegramChat } from '@sociably/telegram';
+import Line, { LineUser, LineChat } from '@sociably/line';
 import getStream from 'get-stream';
 import { PROFILE_CACHE_KEY } from '../constant';
 
 type UserInfo = {
-  profile: null | MachinatProfile;
+  profile: null | SociablyProfile;
 };
 
 const useUserProfile = makeFactoryProvider({
@@ -22,7 +22,7 @@ const useUserProfile = makeFactoryProvider({
     async (
       user: MessengerUser | TelegramUser | LineUser,
       chat: MessengerChat | TelegramChat | LineChat
-    ): Promise<{ isNewUser: boolean; profile: null | MachinatProfile }> => {
+    ): Promise<{ isNewUser: boolean; profile: null | SociablyProfile }> => {
       const userInfo = await stateController
         .userState(user)
         .get<UserInfo>(PROFILE_CACHE_KEY);

@@ -1,7 +1,7 @@
-import Machinat from '@machinat/core';
-import { PostbackButton as MessengerPostbackButton } from '@machinat/messenger/components';
-import { CallbackButton as TelegramCallbackButton } from '@machinat/telegram/components';
-import { PostbackAction as LinePostbackAction } from '@machinat/line/components';
+import Sociably from '@sociably/core';
+import { PostbackButton as MessengerPostbackButton } from '@sociably/messenger/components';
+import { CallbackButton as TelegramCallbackButton } from '@sociably/telegram/components';
+import { PostbackAction as LinePostbackAction } from '@sociably/line/components';
 import encodePostbackData from '../utils/encodePostbackData';
 import { AppIntentType } from '../types';
 

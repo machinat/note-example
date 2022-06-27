@@ -1,6 +1,6 @@
-import Machinat, { makeContainer } from '@machinat/core';
-import * as Telegram from '@machinat/telegram/components';
-import * as Line from '@machinat/line/components';
+import Sociably, { makeContainer } from '@sociably/core';
+import * as Telegram from '@sociably/telegram/components';
+import * as Line from '@sociably/line/components';
 import isJoiningGroupEvent from '../utils/isJoiningGroupEvent';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import { TelegramBotName, LineOfficialAccountId } from '../interface';

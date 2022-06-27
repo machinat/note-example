@@ -1,9 +1,9 @@
 import {
   makeClassProvider,
   StateController,
-  MachinatChannel,
-  MachinatUser,
-} from '@machinat/core';
+  SociablyChannel,
+  SociablyUser,
+} from '@sociably/core';
 import { NOTE_DATA_KEY } from '../constant';
 import type { NoteData, NoteDataState } from '../types';
 
@@ -14,7 +14,7 @@ export class NoteController {
     this.stateController = stateController;
   }
 
-  async getNoteData(chat: MachinatChannel): Promise<NoteDataState> {
+  async getNoteData(chat: SociablyChannel): Promise<NoteDataState> {
     const data = await this.stateController
       .channelState(chat)
       .get<NoteDataState>(NOTE_DATA_KEY);
@@ -22,8 +22,8 @@ export class NoteController {
   }
 
   async addNote(
-    chat: MachinatChannel,
-    author: MachinatUser,
+    chat: SociablyChannel,
+    author: SociablyUser,
     title: string,
     content: string
   ): Promise<{ note: NoteData; data: NoteDataState }> {
@@ -47,7 +47,7 @@ export class NoteController {
   }
 
   async updateNote(
-    chat: MachinatChannel,
+    chat: SociablyChannel,
     id: number,
     title: string,
     content: string
@@ -84,7 +84,7 @@ export class NoteController {
   }
 
   async deleteNote(
-    chat: MachinatChannel,
+    chat: SociablyChannel,
     id: number
   ): Promise<{ note: null | NoteData; data: NoteDataState }> {
     let deletedNote: undefined | NoteData;

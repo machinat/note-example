@@ -1,10 +1,10 @@
-import Machinat from '@machinat/core';
-import { TextReply as MessengerTextReply } from '@machinat/messenger/components';
+import Sociably from '@sociably/core';
+import { TextReply as MessengerTextReply } from '@sociably/messenger/components';
 import {
   QuickReply as LineQuickReply,
   PostbackAction as LinePostbackAction,
-} from '@machinat/line/components';
-import { TextReply } from '@machinat/telegram/components';
+} from '@sociably/line/components';
+import { TextReply } from '@sociably/telegram/components';
 import encodePostbackData from '../utils/encodePostbackData';
 import type { AppIntentType } from '../types';
 

@@ -1,6 +1,6 @@
-import Machinat, { MachinatNode, makeContainer } from '@machinat/core';
-import * as Telegram from '@machinat/telegram/components';
-import * as Line from '@machinat/line/components';
+import Sociably, { SociablyNode, makeContainer } from '@sociably/core';
+import * as Telegram from '@sociably/telegram/components';
+import * as Line from '@sociably/line/components';
 import {
   TelegramBotName,
   LineOfficialAccountId,
@@ -8,8 +8,8 @@ import {
 } from '../interface';
 
 type SharePanelProps = {
-  children?: MachinatNode;
-  additionalButton?: MachinatNode;
+  children?: SociablyNode;
+  additionalButton?: SociablyNode;
 };
 
 const defaultWords = (
@@ -38,7 +38,7 @@ const SharePanel =
                 text="Share me 🤖"
                 url={`https://t.me/share/url?url=${encodeURIComponent(
                   `https://t.me/${tgBotName}`
-                )}&text=${encodeURIComponent('Machinat Note Example')}`}
+                )}&text=${encodeURIComponent('Sociably Note')}`}
               />
               {additionalButton}
             </Telegram.InlineKeyboard>

@@ -1,6 +1,6 @@
-import Machinat, { makeContainer } from '@machinat/core';
-import { build } from '@machinat/script';
-import * as $ from '@machinat/script/keywords';
+import Sociably, { makeContainer } from '@sociably/core';
+import { build } from '@sociably/script';
+import * as $ from '@sociably/script/keywords';
 import useIntent from '../services/useIntent';
 import Expression from '../components/Expression';
 import QuickReply from '../components/QuickReply';

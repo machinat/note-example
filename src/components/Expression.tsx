@@ -1,19 +1,19 @@
-import Machinat, { MachinatNode } from '@machinat/core';
+import Sociably, { SociablyNode } from '@sociably/core';
 
-import { Expression as MessengerExpression } from '@machinat/messenger/components';
+import { Expression as MessengerExpression } from '@sociably/messenger/components';
 import {
   Expression as TelegramExpression,
   ReplyKeyboard,
-} from '@machinat/telegram/components';
-import { Expression as LineExpression } from '@machinat/line/components';
+} from '@sociably/telegram/components';
+import { Expression as LineExpression } from '@sociably/line/components';
 
 const Expression = (
   {
     children,
     quickReplies,
   }: {
-    children?: MachinatNode;
-    quickReplies?: MachinatNode;
+    children?: SociablyNode;
+    quickReplies?: SociablyNode;
   },
   { platform }
 ) => {

@@ -1,4 +1,4 @@
-import { makeContainer } from '@machinat/core';
+import { makeContainer } from '@sociably/core';
 import NoteController from '../services/NoteController';
 import useUserProfile from '../services/useUserProfile';
 import isGroupChat from '../utils/isGroupChat';

@@ -1,5 +1,5 @@
-import { makeFactoryProvider } from '@machinat/core';
-import DialogFlow from '@machinat/dialogflow';
+import { makeFactoryProvider } from '@sociably/core';
+import DialogFlow from '@sociably/dialogflow';
 import { INTENT_OK, INTENT_UNKNOWN } from '../constant';
 import type { ChatEventContext, AppIntentType } from '../types';
 import decodePostbackData from '../utils/decodePostbackData';

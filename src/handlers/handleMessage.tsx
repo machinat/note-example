@@ -1,4 +1,4 @@
-import Machinat, { makeContainer } from '@machinat/core';
+import Sociably, { makeContainer } from '@sociably/core';
 import SharePanel from '../components/SharePanel';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import WithActions from '../components/WithActions';

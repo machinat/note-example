@@ -1,19 +1,15 @@
-# Machinat Note Example
+# Sociably Note
 
 Taking notes in chatting.
-> This is an example app built with [Machinat](https://machinat.com) framework.
+> This is an example app built with [Sociably](https://sociably.js.org) framework.
 
 ## Demo
 
 Try the bot on these chat platforms:
 
-- [Telegram](https://t.me/MachinatNoteBot)
+- [Messenger](https://www.messenger.com/t/SociablyNote)
+- [Telegram](https://t.me/SociablyNoteBot)
 - [LINE](https://line.me/ti/p/@309qnwde)
-- [Messenger](https://www.messenger.com/t/109776814755256)
-
-> ⚠ There is [a Facebook bug](https://developers.facebook.com/support/bugs/294949372549147)
-> that breaks webviews on the **Messenger website** client.
-> Please use the **Messenger mobile app** intead.
 
 ## Getting Started
 
@@ -64,8 +60,8 @@ The changes in codes will immediately reflect on the bot.
 
 ## Learn More
 
-Here are some resources to learn Machinat framework:
+Here are some resources to learn Sociably framework:
 
-- [Documents](https://machinat.com/doc) - complete guides by topics
-- [Tutorial](https://machinat.com/docs/learn) - a step-by-step tutorial to make an app
-- [API references](https://machinat.com/api) - detailed framework API
+- [Documents](https://sociably.js.org/doc) - complete guides by topics
+- [Tutorial](https://sociably.js.org/docs/learn) - a step-by-step tutorial to make an app
+- [API references](https://sociably.js.org/api) - detailed framework API

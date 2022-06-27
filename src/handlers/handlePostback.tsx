@@ -1,4 +1,4 @@
-import Machinat from '@machinat/core';
+import Sociably from '@sociably/core';
 import decodePostbackData from '../utils/decodePostbackData';
 import OpenSpacePanel from '../components/OpenSpacePanel';
 import SharePanel from '../components/SharePanel';
